@@ -13,12 +13,12 @@ const injectAviso = function (
   let hasFoundClient = false;
   const wrongNumbersInputArray = [];
   const validNumberIndexArray = [];
-
+  console.log(avisoTextColorValue);
   let clientNumberArray;
   let clientNumberValue = clientNumberInput.value.trim();
-  const dataObjectLength = dataObject.numeroCliente.length;
-  const firstNumeroCliente = Number(dataObject.numeroCliente[0]);
-  const lastNumeroCliente = Number(dataObject.numeroCliente[dataObjectLength - 1]);
+  const dataObjectLength = dataObject.CdgIntRecep.length;
+  const firstNumeroCliente = Number(dataObject.CdgIntRecep[0]);
+  const lastNumeroCliente = Number(dataObject.CdgIntRecep[dataObjectLength - 1]);
 
   //110070,110020,121400
   //110056,110320,110424
@@ -40,15 +40,15 @@ const injectAviso = function (
     }
     if (isValidEntry) {
       for (let i = 0; i < dataObjectLength; i++) {
-        if (clientNumberArray[0] === dataObject.numeroCliente[i]) {
+        if (clientNumberArray[0] === dataObject.CdgIntRecep[i]) {
           hasFoundClient = true;
         }
         if (hasFoundClient) {
-          validNumbersInputArray.push(dataObject.numeroCliente[i]);
-          dataObject.aviso[i] = avisoInputText.value;
-          dataObject.color[i] = avisoTextColorValue;
+          validNumbersInputArray.push(dataObject.CdgIntRecep[i]);
+          dataObject.Aviso[i] = avisoInputText.value;
+          dataObject.Color[i] = avisoTextColorValue;
         }
-        if (clientNumberArray[1] === dataObject.numeroCliente[i]) break;
+        if (clientNumberArray[1] === dataObject.CdgIntRecep[i]) break;
       }
     }
   } else if (clientNumberValue.includes(',')) {
@@ -57,9 +57,9 @@ const injectAviso = function (
       .map(num => Number(num.trim()))
       .sort((a, b) => a - b);
     if (
-      clientNumberArray[0] < dataObject.numeroCliente[0] ||
+      clientNumberArray[0] < dataObject.CdgIntRecep[0] ||
       clientNumberArray[clientNumberArray.length - 1] >
-        dataObject.numeroCliente[dataObjectLength - 1]
+        dataObject.CdgIntRecep[dataObjectLength - 1]
     ) {
       console.error('COMMA ENTRY');
       isValidEntry = false;
@@ -73,10 +73,10 @@ const injectAviso = function (
     if (isValidEntry) {
       console.log(`Valid input for clients ${clientNumberArray} `);
       for (let i = 0; i < dataObjectLength; i++) {
-        if (dataObject.numeroCliente[i] > clientNumberArray[0]) {
+        if (dataObject.CdgIntRecep[i] > clientNumberArray[0]) {
           wrongNumbersInputArray.push(clientNumberArray.shift());
         }
-        if (clientNumberArray[0] === dataObject.numeroCliente[i]) {
+        if (clientNumberArray[0] === dataObject.CdgIntRecep[i]) {
           hasFoundClient = true;
           validNumbersInputArray.push(clientNumberArray.shift());
           validNumberIndexArray.push(i);
@@ -87,8 +87,8 @@ const injectAviso = function (
         hasFoundClient = false;
       } else {
         validNumberIndexArray.forEach(num => {
-          dataObject.color[num] = avisoTextColorValue;
-          dataObject.aviso[num] = avisoInputText.value;
+          dataObject.Color[num] = avisoTextColorValue;
+          dataObject.Aviso[num] = avisoInputText.value;
         });
       }
     }
@@ -96,8 +96,8 @@ const injectAviso = function (
     clientNumberValue = Number(clientNumberValue);
     if (
       !isFinite(clientNumberValue) ||
-      clientNumberValue < dataObject.numeroCliente[0] ||
-      clientNumberValue > dataObject.numeroCliente[dataObjectLength - 1]
+      clientNumberValue < dataObject.CdgIntRecep[0] ||
+      clientNumberValue > dataObject.CdgIntRecep[dataObjectLength - 1]
     ) {
       console.error('SINGLE ENTRY', typeof clientNumberValue);
       isValidEntry = false;
@@ -105,11 +105,11 @@ const injectAviso = function (
     if (isValidEntry) {
       console.log(`Valid input for client ${clientNumberValue} `);
       for (let i = 0; i < dataObjectLength; i++) {
-        if (clientNumberValue === dataObject.numeroCliente[i]) {
+        if (clientNumberValue === dataObject.CdgIntRecep[i]) {
           hasFoundClient = true;
           validNumbersInputArray.push(clientNumberValue);
-          dataObject.aviso[i] = avisoInputText.value;
-          dataObject.color[i] = avisoTextColorValue;
+          dataObject.Aviso[i] = avisoInputText.value;
+          dataObject.Color[i] = avisoTextColorValue;
           break;
         }
       }

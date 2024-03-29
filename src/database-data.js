@@ -15,13 +15,13 @@ const compileData = function (excelData) {
       console.log('deleting');
     }
   }
-
+  console.log('in compileData function');
   mainDataObject = {
     Folio: [],
     RUTEmisor: [],
     TipoBoleta: [],
     FchVenc: [],
-    fechaEmision: [],
+    FchEmis: [],
     CostoM3Agua: [],
     CostoM3Alcantarillado: [],
     CostoM3Tratamiento: [],
@@ -38,7 +38,7 @@ const compileData = function (excelData) {
     CostoTotalTratamiento: [],
     Repactacion: [],
     Multas: [],
-    OtrosCargos: [],
+    Otros: [],
     MntTotal: [],
     LecturaAnterior: [],
     LecturaActual: [],
@@ -62,13 +62,13 @@ const compileData = function (excelData) {
     mainDataObject.Folio.push(primerFolio++);
     mainDataObject.TipoBoleta.push(`BOLETA ELECTRONICA`);
     mainDataObject.FchVenc.push(formatUtil.getShortExpiryDate());
-    mainDataObject.fechaEmision.push(formatUtil.getIssueDate());
+    mainDataObject.FchEmis.push(formatUtil.getIssueDate());
     mainDataObject.CostoM3Agua.push(String(data.CostoM3Agua));
     mainDataObject.CostoM3Alcantarillado.push(String(data.CostoM3Alcantarillado));
     mainDataObject.CostoM3Tratamiento.push(String(data.CostoM3Tratamiento));
     mainDataObject.RUTRecep.push(formatUtil.getFormattedRut(data.RUTRecep));
     mainDataObject.Numero.push(data.Numero);
-    mainDataObject.CdgIntRecep.push(data.codigo);
+    mainDataObject.CdgIntRecep.push(data.CdgIntRecep);
     mainDataObject.RznSocRecep.push(String(data.RznSocRecep));
     mainDataObject.DirRecep.push(String(data.DirRecep));
     mainDataObject.CiudadRecep.push(String(data.CiudadRecep));
@@ -85,7 +85,7 @@ const compileData = function (excelData) {
     );
     mainDataObject.Repactacion.push(formatUtil.getFormattedAsCurrecy(data.Repactacion));
     mainDataObject.Multas.push(formatUtil.getFormattedAsCurrecy(data.Multas));
-    mainDataObject.OtrosCargos.push(formatUtil.getFormattedAsCurrecy(data.OtrosCargos));
+    mainDataObject.Otros.push(formatUtil.getFormattedAsCurrecy(data.Otros));
     mainDataObject.MntTotal.push(formatUtil.getFormattedAsCurrecy(data.MntTotal));
     mainDataObject.LecturaAnterior.push(String(data.LecturaAnterior));
     mainDataObject.LecturaActual.push(String(data.LecturaActual));
