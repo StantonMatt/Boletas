@@ -18,9 +18,10 @@ const getShortExpiryDate = function () {
 
 const getIssueDate = function () {
   const issueDate = new Date();
-  const date = issueDate.getDate();
-  const month = issueDate.toLocaleString('es-CL', { month: 'long' });
-  const year = issueDate.getFullYear();
+  if (issueDate.getDate() > 20) issueDate.setMonth(issueDate.getMonth() + 1);
+  issueDate.setDate(0);
+
+  return new Intl.DateTimeFormat('es-CL', { dateStyle: 'short' }).format(issueDate);
   return `${date}-${month}-${year}`;
 };
 
@@ -42,25 +43,13 @@ const getMonthNames = function (boletaMonth) {
 
 const getFormattedAsCurrecy = function (value) {
   if (!isFinite(value)) value = 0;
-  return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(
-    value
-  );
+  return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(value);
 };
 
 const getFormattedRut = function (rut) {
   const rutSinVerificador = rut.slice(0, rut.indexOf('-'));
   const verificadorDelRut = rut.slice(rut.indexOf('-' + 1));
-  return `${new Intl.NumberFormat('es-CL').format(
-    rutSinVerificador
-  )}-${verificadorDelRut}`;
+  return `${new Intl.NumberFormat('es-CL').format(rutSinVerificador)}-${verificadorDelRut}`;
 };
 
-export {
-  getExpiryDate,
-  getShortExpiryDate,
-  getShortIssueDate,
-  getIssueDate,
-  getMonthNames,
-  getFormattedAsCurrecy,
-  getFormattedRut,
-};
+export { getExpiryDate, getShortExpiryDate, getShortIssueDate, getIssueDate, getMonthNames, getFormattedAsCurrecy, getFormattedRut };

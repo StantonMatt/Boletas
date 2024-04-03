@@ -14,11 +14,9 @@ async function fetchImage(TimbreData) {
     if (response.ok) {
       return await response.arrayBuffer();
     } else if (response.status === 404) {
-      console.error(
-        `Client ${TimbreData.Numero} S.I.I Timbre image not found. ${TimbreData.RznSocRecep} - ${TimbreData.Timbre}`
-      );
+      console.error(`Client ${TimbreData.CdgIntRecep} S.I.I Timbre image not found. ${TimbreData.RznSocRecep} - ${TimbreData.Timbre}`);
       console.error(`Returning default placeholder Timbre /Timbre.png`);
-      return await fetch(`/Timbre.png`).then(res => res.arrayBuffer());
+      return await fetch(`/15246448-7.png`).then(res => res.arrayBuffer());
     }
   } catch (error) {
     console.error(`There was a problem fetching the image ${error.message}`);
@@ -48,14 +46,11 @@ async function printTextToPdf(inputData) {
   try {
     // Use a standard font
     let linePadding;
-    const font = await inputData.pdfDoc.embedFont(
-      PDFLIB.StandardFonts[inputData.fontFamily]
-    );
+    const font = await inputData.pdfDoc.embedFont(PDFLIB.StandardFonts[inputData.fontFamily]);
 
     if (inputData.linePadding !== undefined) {
       linePadding = inputData.linePadding;
-    } else
-      linePadding = inputData.maxHeight / inputData.lines.length - inputData.fontSize;
+    } else linePadding = inputData.maxHeight / inputData.lines.length - inputData.fontSize;
     const textColor = PDFLIB.rgb(...inputData.textColor.map(val => val / 255));
     const lineHeight = inputData.fontSize + linePadding;
     inputData.y += lineHeight * ((inputData.lines.length - 1) / 2);
@@ -106,13 +101,7 @@ async function printTextToPdf(inputData) {
   }
 }
 
-async function getFormattedData(
-  inputStringArray,
-  pdfDoc,
-  fontSize,
-  fontFamily,
-  maxWidth
-) {
+async function getFormattedData(inputStringArray, pdfDoc, fontSize, fontFamily, maxWidth) {
   try {
     const font = await pdfDoc.embedFont(PDFLIB.StandardFonts[fontFamily]);
     const formattedStringArray = [];
@@ -154,7 +143,8 @@ export async function assemblePDF(template) {
     ////////////////////////////////////////////////
     ////////////GET STATIC EXCEL VALUES////////////
     //////////////////////////////////////////////
-    const RUTEmisor = mainDataObject.RUTEmisor[0];
+    const RUTEmisor = '76607412-K';
+    let Folio = 13316;
     const CostoM3Agua = mainDataObject.CostoM3Agua[0];
     const CostoM3Alcantarillado = mainDataObject.CostoM3Alcantarillado[0];
     const CostoM3Tratamiento = mainDataObject.CostoM3Tratamiento[0];
@@ -164,8 +154,8 @@ export async function assemblePDF(template) {
     const FchEmis = formatUtil.getIssueDate();
 
     // Loop through all rows in excel sheet
-    // for (let i = 0; i < mainDataObject.Numero.length; i++) {
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < mainDataObject.Numero.length; i++) {
+      // for (let i = 0; i < 80; i++) {
       // Check data on 'Numero' column and see if is a number
       //skip current iteration of loop if not a number
 
@@ -185,7 +175,6 @@ export async function assemblePDF(template) {
       ////////////GET EXCEL COLUMN VALUES////////////
       //////////////////////////////////////////////
 
-      const Folio = mainDataObject.Folio[i];
       const Numero = mainDataObject.Numero[i];
       const CdgIntRecep = mainDataObject.CdgIntRecep[i];
       const RznSocRecep = mainDataObject.RznSocRecep[i];
@@ -256,8 +245,9 @@ export async function assemblePDF(template) {
       const TimbrePos = { x: 60, y: 210 };
       const TimbreTextoPos = { x: 155, y: 195, al: 'center' };
       const DesglosePos = { x: 320, y: 260, al: 'left' };
-      const DesgloseValoresPos = { x: rightSideOfPage - 32, y: 260, al: 'right' };
-      const VlrPagar2Pos = { x: 320, y: 200, al: 'left' };
+      const DesgloseValoresPos = { x: rightSideOfPage - 26, y: 260, al: 'right' };
+      const VlrPagarTitulo2Pos = { x: 320, y: 200, al: 'left' };
+      const VlrPagar2Pos = { x: rightSideOfPage - 24, y: 200, al: 'right' };
       const AvisoPos = { x: leftSideOfPage, y: 125, al: 'left' };
 
       const textArrays = {
@@ -268,44 +258,46 @@ export async function assemblePDF(template) {
         VlrPagar: [`TOTAL A PAGAR: ${VlrPagar}`],
         DetalleConsumoTitulo: [`DETALLE DE CONSUMO:`],
         Consumo1: [`Cargo Fijo:`, `Agua:`, `Alcantarillado:`, `Tratamiento:`],
-        ConsumoValores1: [
-          `${CargoFijo}`,
-          `${CostoTotalAgua}`,
-          `${CostoTotalAlcantarillado}`,
-          `${CostoTotalTratamiento}`,
-        ],
+        ConsumoValores1: [`${CargoFijo}`, `${CostoTotalAgua}`, `${CostoTotalAlcantarillado}`, `${CostoTotalTratamiento}`],
         Consumo2: [
-          `Repactacion:`,
-          `Multas:`,
-          `Otros Cargos:`,
+          ``, // Placeholder String
+          ``, // Placeholder String
+          ``, // Placeholder String
           ``, // Placeholder String
         ],
-        ConsumoValores2: [`${Repactacion}`, `${Multas}`, `${Otros}`, ``],
+        ConsumoValores2: [``, ``, ``, ``],
         MntTotal: [`TOTAL DEL MES: ${MntTotal}`],
         FchEmis: [`FECHA DE EMISION: ${FchEmis}`],
         LecturaAnterior: [`LEC.ANTERIOR:${LecturaAnterior}`],
         LecturaActual: [`LEC.ACTUAL:${LecturaActual}`],
         ConsumoM3: [`CONSUMO M3:${ConsumoM3}`],
         TimbreTexto: [TimbreTexto],
-        Desglose: [
-          `Numero Cliente:`,
-          `Vencimiento:`,
-          `Total del Mes:`,
-          `Saldo Anterior:`,
-          `Descuento:`,
-          `Subsidio:`,
-        ],
-        DesgloseValores: [
-          `${CdgIntRecep}`,
-          `${FchVenc}`,
-          `${MntTotal}`,
-          `${SaldoAnterior}`,
-          `${Descuento}`,
-          `${Subsidio}`,
-        ],
+        Desglose: [`Numero Cliente:`, `Vencimiento:`, `Total del Mes:`, `Saldo Anterior:`],
+        DesgloseValores: [`${CdgIntRecep}`, `${FchVenc}`, `${MntTotal}`, `${SaldoAnterior}`],
+        VlrPagarTitulo2: [`TOTAL A PAGAR:`],
+        VlrPagar2: [` ${VlrPagar}`],
         Aviso: [`${Aviso}`],
       };
-
+      if (Repactacion !== '$0') {
+        textArrays.Desglose.push(`Repactacion`);
+        textArrays.DesgloseValores.push(`${Repactacion}`);
+      }
+      if (Subsidio !== '$0') {
+        textArrays.Desglose.push(`Subsidio`);
+        textArrays.DesgloseValores.push(`${Subsidio}`);
+      }
+      if (Multas !== '$0') {
+        textArrays.Consumo2.pop();
+        textArrays.ConsumoValores2.pop();
+        textArrays.Consumo2.unshift(`Multa`);
+        textArrays.ConsumoValores2.unshift(`${Multas}`);
+      }
+      if (Descuento !== '$0') {
+        textArrays.Consumo2.pop();
+        textArrays.ConsumoValores2.pop();
+        textArrays.Consumo2.unshift(`Descuento`);
+        textArrays.ConsumoValores2.unshift(`${Descuento}`);
+      }
       // Create base config for Data Objects
       const baseConfig = {
         textColor: mainColor,
@@ -316,13 +308,7 @@ export async function assemblePDF(template) {
         RznSocRecep,
         CdgIntRecep,
         async formatData() {
-          this.formattedData = await getFormattedData(
-            this.data,
-            this.pdfDoc,
-            this.fontSize,
-            this.fontFamily,
-            this.maxWidth
-          );
+          this.formattedData = await getFormattedData(this.data, this.pdfDoc, this.fontSize, this.fontFamily, this.maxWidth);
         },
       };
 
@@ -527,8 +513,19 @@ export async function assemblePDF(template) {
         alignment: DesgloseValoresPos.al,
       });
 
+      const VlrPagarTituloData2 = createDataObject(baseConfig, {
+        data: textArrays.VlrPagarTitulo2,
+        x: VlrPagarTitulo2Pos.x,
+        y: VlrPagarTitulo2Pos.y,
+        maxWidth: 152,
+        maxHeight: 22,
+        fontSize: fontSize.large,
+        fontFamily: mainFontBold,
+        alignment: VlrPagarTitulo2Pos.al,
+      });
+
       const VlrPagarData2 = createDataObject(baseConfig, {
-        data: textArrays.VlrPagar,
+        data: textArrays.VlrPagar2,
         x: VlrPagar2Pos.x,
         y: VlrPagar2Pos.y,
         maxWidth: 252,
@@ -571,9 +568,10 @@ export async function assemblePDF(template) {
         DesgloseData,
         DesgloseValoresData,
         VlrPagarData2,
+        VlrPagarTituloData2,
         AvisoData,
       ];
-
+      console.log(TimbreData);
       // Initilize key:values for formatted text in Objects (lines)
       for (const dataObject of dataObjects) {
         // Initialize formattedData
@@ -582,6 +580,7 @@ export async function assemblePDF(template) {
         await printTextToPdf(dataObject);
       }
       await drawImageToPdf(TimbreData);
+      Folio++;
     }
 
     // Save PDF Doc in bytes

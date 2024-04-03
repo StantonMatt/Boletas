@@ -18,7 +18,7 @@ const compileData = function (excelData) {
   console.log('in compileData function');
   mainDataObject = {
     Folio: [],
-    RUTEmisor: [],
+    // RUTEmisor: [],
     TipoBoleta: [],
     FchVenc: [],
     FchEmis: [],
@@ -52,12 +52,13 @@ const compileData = function (excelData) {
   };
 
   for (const data of excelData) {
+    if (String(data.Factura) == 'SI') continue;
     if (!isFinite(data.Numero)) continue;
     if (isFinite(data.Folio)) primerFolio = data.Folio;
 
-    if (data.RUTEmisor) {
-      mainDataObject.RUTEmisor.push(formatUtil.getFormattedRut(data.RUTEmisor));
-    }
+    // if (data.RUTEmisor) {
+    //   mainDataObject.RUTEmisor.push(formatUtil.getFormattedRut(data.RUTEmisor));
+    // }
     mainDataObject.Timbre.push(`/${data.RUTRecep}.png`);
     mainDataObject.Folio.push(primerFolio++);
     mainDataObject.TipoBoleta.push(`BOLETA ELECTRONICA`);
@@ -74,15 +75,9 @@ const compileData = function (excelData) {
     mainDataObject.CiudadRecep.push(String(data.CiudadRecep));
     mainDataObject.VlrPagar.push(formatUtil.getFormattedAsCurrecy(data.VlrPagar));
     mainDataObject.CargoFijo.push(formatUtil.getFormattedAsCurrecy(data.CargoFijo));
-    mainDataObject.CostoTotalAgua.push(
-      formatUtil.getFormattedAsCurrecy(data.CostoTotalAgua)
-    );
-    mainDataObject.CostoTotalAlcantarillado.push(
-      formatUtil.getFormattedAsCurrecy(data.CostoTotalAlcantarillado)
-    );
-    mainDataObject.CostoTotalTratamiento.push(
-      formatUtil.getFormattedAsCurrecy(data.CostoTotalTratamiento)
-    );
+    mainDataObject.CostoTotalAgua.push(formatUtil.getFormattedAsCurrecy(data.CostoTotalAgua));
+    mainDataObject.CostoTotalAlcantarillado.push(formatUtil.getFormattedAsCurrecy(data.CostoTotalAlcantarillado));
+    mainDataObject.CostoTotalTratamiento.push(formatUtil.getFormattedAsCurrecy(data.CostoTotalTratamiento));
     mainDataObject.Repactacion.push(formatUtil.getFormattedAsCurrecy(data.Repactacion));
     mainDataObject.Multas.push(formatUtil.getFormattedAsCurrecy(data.Multas));
     mainDataObject.Otros.push(formatUtil.getFormattedAsCurrecy(data.Otros));
@@ -90,9 +85,7 @@ const compileData = function (excelData) {
     mainDataObject.LecturaAnterior.push(String(data.LecturaAnterior));
     mainDataObject.LecturaActual.push(String(data.LecturaActual));
     mainDataObject.ConsumoM3.push(String(data.ConsumoM3));
-    mainDataObject.SaldoAnterior.push(
-      formatUtil.getFormattedAsCurrecy(data.SaldoAnterior)
-    );
+    mainDataObject.SaldoAnterior.push(formatUtil.getFormattedAsCurrecy(data.SaldoAnterior));
     mainDataObject.Descuento.push(formatUtil.getFormattedAsCurrecy(data.Descuento));
     mainDataObject.Subsidio.push(formatUtil.getFormattedAsCurrecy(data.Subsidio));
     mainDataObject.Aviso.push(String(data.Aviso));
