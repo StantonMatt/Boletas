@@ -52,7 +52,7 @@ const compileData = function (excelData) {
   };
 
   for (const data of excelData) {
-    if (String(data.Factura) == 'SI') continue;
+    if (Number(data.Factura) == 1) continue;
     if (!isFinite(data.Numero)) continue;
     if (isFinite(data.Folio)) primerFolio = data.Folio;
 

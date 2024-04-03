@@ -41,21 +41,29 @@ async function drawImageToPdf(TimbreData) {
     console.log(`Error in drawImageToPdf function: ${error}`);
   }
 }
+let isSaldoAnterior = false;
 
-async function printTextToPdf(inputData) {
+async function printTextToPdf(inputData, SaldoAnterior) {
   try {
     // Use a standard font
     let linePadding;
     const font = await inputData.pdfDoc.embedFont(PDFLIB.StandardFonts[inputData.fontFamily]);
-
+    console.log(SaldoAnterior);
     if (inputData.linePadding !== undefined) {
       linePadding = inputData.linePadding;
     } else linePadding = inputData.maxHeight / inputData.lines.length - inputData.fontSize;
-    const textColor = PDFLIB.rgb(...inputData.textColor.map(val => val / 255));
+    let textColor = PDFLIB.rgb(...inputData.textColor.map(val => val / 255));
     const lineHeight = inputData.fontSize + linePadding;
     inputData.y += lineHeight * ((inputData.lines.length - 1) / 2);
     if (inputData.alignment === 'left') {
       inputData.lines.forEach(line => {
+        if (line.includes('$-')) {
+          textColor = PDFLIB.rgb(0, 0, 1);
+        } else {
+          textColor = PDFLIB.rgb(...inputData.textColor.map(val => val / 255));
+        }
+
+        console.log(line);
         inputData.page.drawText(line, {
           x: inputData.x,
           y: inputData.y,
@@ -70,7 +78,11 @@ async function printTextToPdf(inputData) {
     if (inputData.alignment === 'center') {
       inputData.lines.forEach(line => {
         const lineWidth = font.widthOfTextAtSize(line, inputData.fontSize);
-
+        if (line === 'Subsidio' || line.includes('$-')) {
+          textColor = PDFLIB.rgb(0, 0, 1);
+        } else {
+          textColor = PDFLIB.rgb(...inputData.textColor.map(val => val / 255));
+        }
         inputData.page.drawText(line, {
           x: inputData.x - lineWidth / 2,
           y: inputData.y,
@@ -83,9 +95,13 @@ async function printTextToPdf(inputData) {
     }
 
     if (inputData.alignment === 'right') {
-      inputData.lines.forEach(line => {
+      inputData.lines.forEach((line, index) => {
         const lineWidth = font.widthOfTextAtSize(line, inputData.fontSize);
-
+        if (line === 'Subsidio' || line.includes('$-')) {
+          textColor = PDFLIB.rgb(0, 0, 1);
+        } else {
+          textColor = PDFLIB.rgb(...inputData.textColor.map(val => val / 255));
+        }
         inputData.page.drawText(line, {
           x: inputData.x - lineWidth,
           y: inputData.y,
@@ -93,6 +109,7 @@ async function printTextToPdf(inputData) {
           font: font,
           color: textColor,
         });
+
         inputData.y -= lineHeight; // Adjust Y position for next line
       });
     }
@@ -155,7 +172,7 @@ export async function assemblePDF(template) {
 
     // Loop through all rows in excel sheet
     for (let i = 0; i < mainDataObject.Numero.length; i++) {
-      // for (let i = 0; i < 80; i++) {
+      // for (let i = 0; i < 50; i++) {
       // Check data on 'Numero' column and see if is a number
       //skip current iteration of loop if not a number
 
@@ -232,13 +249,15 @@ export async function assemblePDF(template) {
       };
       const FchVencPos = { x: leftSideOfPage, y: 545, al: 'left' };
       const VlrPagarPos = { x: rightSideOfPage, y: 545, al: 'right' };
-      const DetalleConsumoTituloPos = { x: leftSideOfPage, y: 492, al: 'left' };
-      const Consumo1Pos = { x: leftSideOfPage, y: 435, al: 'left' };
-      const ConsumoValores1Pos = { x: 200, y: 435, al: 'right' };
-      const Consumo2Pos = { x: 215, y: 435, al: 'left' };
-      const ConsumoValores2Pos = { x: 370, y: 435, al: 'right' };
-      const MntTotalPos = { x: 370, y: 381, al: 'right' };
-      const FchEmisPos = { x: 370, y: 367, al: 'right' };
+      const DetalleConsumoTituloPos = { x: leftSideOfPage + 7, y: 492, al: 'left' };
+      const Consumo1Pos = { x: leftSideOfPage + 10, y: 435, al: 'left' };
+      const ConsumoValores1Pos = { x: 265, y: 435, al: 'right' };
+      // const Consumo2Pos = { x: 215, y: 435, al: 'left' };
+      // const ConsumoValores2Pos = { x: 370, y: 435, al: 'right' };
+      const MntTotalTituloPos = { x: leftSideOfPage + 10, y: 381, al: 'left' };
+      const FchEmisTituloPos = { x: leftSideOfPage + 10, y: 367, al: 'left' };
+      const MntTotalPos = { x: 265, y: 381, al: 'right' };
+      const FchEmisPos = { x: 265, y: 367, al: 'right' };
       const LecturaAnteriorPos = { x: leftSideOfPage, y: 330, al: 'left' };
       const LecturaActualPos = { x: middleOfPageX, y: 330, al: 'center' };
       const ConsumoM3Pos = { x: rightSideOfPage, y: 330, al: 'right' };
@@ -259,18 +278,20 @@ export async function assemblePDF(template) {
         DetalleConsumoTitulo: [`DETALLE DE CONSUMO:`],
         Consumo1: [`Cargo Fijo:`, `Agua:`, `Alcantarillado:`, `Tratamiento:`],
         ConsumoValores1: [`${CargoFijo}`, `${CostoTotalAgua}`, `${CostoTotalAlcantarillado}`, `${CostoTotalTratamiento}`],
-        Consumo2: [
-          ``, // Placeholder String
-          ``, // Placeholder String
-          ``, // Placeholder String
-          ``, // Placeholder String
-        ],
-        ConsumoValores2: [``, ``, ``, ``],
-        MntTotal: [`TOTAL DEL MES: ${MntTotal}`],
-        FchEmis: [`FECHA DE EMISION: ${FchEmis}`],
-        LecturaAnterior: [`LEC.ANTERIOR:${LecturaAnterior}`],
-        LecturaActual: [`LEC.ACTUAL:${LecturaActual}`],
-        ConsumoM3: [`CONSUMO M3:${ConsumoM3}`],
+        // Consumo2: [
+        //   ``, // Placeholder String
+        //   ``, // Placeholder String
+        //   ``, // Placeholder String
+        //   ``, // Placeholder String
+        // ],
+        // ConsumoValores2: [``, ``, ``, ``],
+        MntTotalTitulo: [`TOTAL MES:`],
+        FchEmisTitulo: [`FECHA EMISION:`],
+        MntTotal: [`${MntTotal}`],
+        FchEmis: [`${FchEmis}`],
+        LecturaAnterior: [`LEC ANTERIOR: ${LecturaAnterior}`],
+        LecturaActual: [`LEC ACTUAL: ${LecturaActual}`],
+        ConsumoM3: [`CONSUMO: ${ConsumoM3}`],
         TimbreTexto: [TimbreTexto],
         Desglose: [`Numero Cliente:`, `Vencimiento:`, `Total del Mes:`, `Saldo Anterior:`],
         DesgloseValores: [`${CdgIntRecep}`, `${FchVenc}`, `${MntTotal}`, `${SaldoAnterior}`],
@@ -286,18 +307,18 @@ export async function assemblePDF(template) {
         textArrays.Desglose.push(`Subsidio`);
         textArrays.DesgloseValores.push(`${Subsidio}`);
       }
-      if (Multas !== '$0') {
-        textArrays.Consumo2.pop();
-        textArrays.ConsumoValores2.pop();
-        textArrays.Consumo2.unshift(`Multa`);
-        textArrays.ConsumoValores2.unshift(`${Multas}`);
-      }
-      if (Descuento !== '$0') {
-        textArrays.Consumo2.pop();
-        textArrays.ConsumoValores2.pop();
-        textArrays.Consumo2.unshift(`Descuento`);
-        textArrays.ConsumoValores2.unshift(`${Descuento}`);
-      }
+      // if (Multas !== '$0') {
+      //   textArrays.Consumo2.pop();
+      //   textArrays.ConsumoValores2.pop();
+      //   textArrays.Consumo2.unshift(`Multa`);
+      //   textArrays.ConsumoValores2.unshift(`${Multas}`);
+      // }
+      // if (Descuento !== '$0') {
+      //   textArrays.Consumo2.pop();
+      //   textArrays.ConsumoValores2.pop();
+      //   textArrays.Consumo2.unshift(`Descuento`);
+      //   textArrays.ConsumoValores2.unshift(`${Descuento}`);
+      // }
       // Create base config for Data Objects
       const baseConfig = {
         textColor: mainColor,
@@ -400,27 +421,48 @@ export async function assemblePDF(template) {
         alignment: ConsumoValores1Pos.al,
       });
 
-      const consumoData2 = createDataObject(baseConfig, {
-        data: textArrays.Consumo2,
-        x: Consumo2Pos.x,
-        y: Consumo2Pos.y,
+      // const consumoData2 = createDataObject(baseConfig, {
+      //   data: textArrays.Consumo2,
+      //   x: Consumo2Pos.x,
+      //   y: Consumo2Pos.y,
+      //   maxWidth: 250,
+      //   maxHeight: 70,
+      //   fontSize: fontSize.small,
+      //   alignment: Consumo2Pos.al,
+      // });
+
+      // const consumoValoresData2 = createDataObject(baseConfig, {
+      //   data: textArrays.ConsumoValores2,
+      //   x: ConsumoValores2Pos.x,
+      //   y: ConsumoValores2Pos.y,
+      //   maxWidth: 250,
+      //   maxHeight: 70,
+      //   fontSize: fontSize.small,
+      //   fontFamily: mainFontBold,
+      //   alignment: ConsumoValores2Pos.al,
+      // });
+
+      const MntTotalTituloData = createDataObject(baseConfig, {
+        data: textArrays.MntTotalTitulo,
+        x: MntTotalTituloPos.x,
+        y: MntTotalTituloPos.y,
         maxWidth: 250,
         maxHeight: 70,
-        fontSize: fontSize.small,
-        alignment: Consumo2Pos.al,
+        fontSize: fontSize.medium,
+        fontFamily: mainFontBold,
+        alignment: MntTotalTituloPos.al,
       });
 
-      const consumoValoresData2 = createDataObject(baseConfig, {
-        data: textArrays.ConsumoValores2,
-        x: ConsumoValores2Pos.x,
-        y: ConsumoValores2Pos.y,
+      const FchEmisTituloData = createDataObject(baseConfig, {
+        data: textArrays.FchEmisTitulo,
+        x: FchEmisTituloPos.x,
+        y: FchEmisTituloPos.y,
         maxWidth: 250,
         maxHeight: 70,
         fontSize: fontSize.small,
         fontFamily: mainFontBold,
-        alignment: ConsumoValores2Pos.al,
+        alignment: FchEmisTituloPos.al,
       });
-
       const MntTotalData = createDataObject(baseConfig, {
         data: textArrays.MntTotal,
         x: MntTotalPos.x,
@@ -557,8 +599,10 @@ export async function assemblePDF(template) {
         DetalleConsumoTituloData,
         consumoData1,
         consumoValoresData1,
-        consumoData2,
-        consumoValoresData2,
+        // consumoData2,
+        // consumoValoresData2,
+        MntTotalTituloData,
+        FchEmisTituloData,
         MntTotalData,
         FchEmisData,
         LecturaAnteriorData,
@@ -577,7 +621,7 @@ export async function assemblePDF(template) {
         // Initialize formattedData
         await dataObject.formatData();
         dataObject.lines = [...dataObject.formattedData];
-        await printTextToPdf(dataObject);
+        await printTextToPdf(dataObject, SaldoAnterior);
       }
       await drawImageToPdf(TimbreData);
       Folio++;
