@@ -1,6 +1,6 @@
 'use strict';
 import * as formatUtil from './format-strings.js';
-require.context('./assets/Timbres', true, /\.png$/);
+require.context('./assets/timbres', true, /\.png$/);
 
 let mainDataObject = {};
 
