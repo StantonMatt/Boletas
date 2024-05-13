@@ -1,9 +1,11 @@
 {
   "name": "generarboletas",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Generar Boletas",
+  "main": "src/index.js",
+  "bin": "src/index.js",
   "scripts": {
+    "start": "webpack serve",
     "build": "webpack",
     "dev": "webpack serve"
   },
@@ -20,7 +22,6 @@
     "sass-loader": "^14.1.1",
     "style-loader": "^3.3.4",
     "webpack": "^5.90.3",
-    "webpack-bundle-analyzer": "^4.10.1",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.0.3"
   },

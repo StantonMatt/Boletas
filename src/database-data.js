@@ -52,45 +52,48 @@ const compileData = function (excelData) {
   };
 
   for (const data of excelData) {
-    if (Number(data.Factura) == 1) continue;
-    if (!isFinite(data.Numero)) continue;
-    if (isFinite(data.Folio)) primerFolio = data.Folio;
+    if (isFinite(data['Folio'])) primerFolio = data['Folio'];
+    if (Number(data[`Recibe Factura`]) == 1) continue;
+    if (!isFinite(data['N#'])) continue;
+    console.log(data);
 
     // if (data.RUTEmisor) {
     //   mainDataObject.RUTEmisor.push(formatUtil.getFormattedRut(data.RUTEmisor));
     // }
-    mainDataObject.Timbre.push(`/${data.RUTRecep}.png`);
+    mainDataObject.Timbre.push(`/${data['RUT']}.png`);
+    console.log(data['RUT']);
     mainDataObject.Folio.push(primerFolio++);
     mainDataObject.TipoBoleta.push(`BOLETA ELECTRONICA`);
     mainDataObject.FchVenc.push(formatUtil.getShortExpiryDate());
     mainDataObject.FchEmis.push(formatUtil.getIssueDate());
-    mainDataObject.CostoM3Agua.push(String(data.CostoM3Agua));
-    mainDataObject.CostoM3Alcantarillado.push(String(data.CostoM3Alcantarillado));
-    mainDataObject.CostoM3Tratamiento.push(String(data.CostoM3Tratamiento));
-    mainDataObject.RUTRecep.push(formatUtil.getFormattedRut(data.RUTRecep));
-    mainDataObject.Numero.push(data.Numero);
-    mainDataObject.CdgIntRecep.push(data.CdgIntRecep);
-    mainDataObject.RznSocRecep.push(String(data.RznSocRecep));
-    mainDataObject.DirRecep.push(String(data.DirRecep));
-    mainDataObject.CiudadRecep.push(String(data.CiudadRecep));
-    mainDataObject.VlrPagar.push(formatUtil.getFormattedAsCurrecy(data.VlrPagar));
-    mainDataObject.CargoFijo.push(formatUtil.getFormattedAsCurrecy(data.CargoFijo));
-    mainDataObject.CostoTotalAgua.push(formatUtil.getFormattedAsCurrecy(data.CostoTotalAgua));
-    mainDataObject.CostoTotalAlcantarillado.push(formatUtil.getFormattedAsCurrecy(data.CostoTotalAlcantarillado));
-    mainDataObject.CostoTotalTratamiento.push(formatUtil.getFormattedAsCurrecy(data.CostoTotalTratamiento));
-    mainDataObject.Repactacion.push(formatUtil.getFormattedAsCurrecy(data.Repactacion));
-    mainDataObject.Multas.push(formatUtil.getFormattedAsCurrecy(data.Multas));
-    mainDataObject.Otros.push(formatUtil.getFormattedAsCurrecy(data.Otros));
-    mainDataObject.MntTotal.push(formatUtil.getFormattedAsCurrecy(data.MntTotal));
-    mainDataObject.LecturaAnterior.push(String(data.LecturaAnterior));
-    mainDataObject.LecturaActual.push(String(data.LecturaActual));
-    mainDataObject.ConsumoM3.push(String(data.ConsumoM3));
-    mainDataObject.SaldoAnterior.push(formatUtil.getFormattedAsCurrecy(data.SaldoAnterior));
-    mainDataObject.Descuento.push(formatUtil.getFormattedAsCurrecy(data.Descuento));
-    mainDataObject.Subsidio.push(formatUtil.getFormattedAsCurrecy(data.Subsidio));
-    mainDataObject.Aviso.push(String(data.Aviso));
+    mainDataObject.CostoM3Agua.push(String(data['Costo M3 Agua']));
+    mainDataObject.CostoM3Alcantarillado.push(String(data['Costo M3 Alcantarillado']));
+    mainDataObject.CostoM3Tratamiento.push(String(data['Costo M3 Tratamiento']));
+    mainDataObject.RUTRecep.push(formatUtil.getFormattedRut(data['RUT']));
+    mainDataObject.Numero.push(data['N#']);
+    mainDataObject.CdgIntRecep.push(data['Numero Cliente']);
+    mainDataObject.RznSocRecep.push(String(data['Nombre']));
+    mainDataObject.DirRecep.push(String(data['Direccion']));
+    mainDataObject.CiudadRecep.push(String(data['Ciudad']));
+    mainDataObject.VlrPagar.push(formatUtil.getFormattedAsCurrecy(data['Total Pagar']));
+    mainDataObject.CargoFijo.push(formatUtil.getFormattedAsCurrecy(data['Cargo Fijo']));
+    mainDataObject.CostoTotalAgua.push(formatUtil.getFormattedAsCurrecy(data['Costo Total Agua']));
+    mainDataObject.CostoTotalAlcantarillado.push(formatUtil.getFormattedAsCurrecy(data['Costo Total Alcantarillado']));
+    mainDataObject.CostoTotalTratamiento.push(formatUtil.getFormattedAsCurrecy(data['Costo Total Tratamiento']));
+    mainDataObject.Repactacion.push(formatUtil.getFormattedAsCurrecy(data['Repactacion']));
+    mainDataObject.Multas.push(formatUtil.getFormattedAsCurrecy(data['Multa']));
+    mainDataObject.Otros.push(formatUtil.getFormattedAsCurrecy(data['Otros']));
+    mainDataObject.MntTotal.push(formatUtil.getFormattedAsCurrecy(data['Total Mes']));
+    mainDataObject.LecturaAnterior.push(String(data['Lectura Anterior']));
+    mainDataObject.LecturaActual.push(String(data['Lectura Actual']));
+    mainDataObject.ConsumoM3.push(String(data['Consumo M3']));
+    mainDataObject.SaldoAnterior.push(formatUtil.getFormattedAsCurrecy(data['Saldo Anterior']));
+    mainDataObject.Descuento.push(formatUtil.getFormattedAsCurrecy(data['Descuento']));
+    mainDataObject.Subsidio.push(formatUtil.getFormattedAsCurrecy(data['Subsidio']));
+    mainDataObject.Aviso.push(String(data['Aviso']));
     mainDataObject.Color.push(
-      data.Color.trim()
+      data['Color']
+        .trim()
         .split(',')
         .map(num => Number(num.trim()))
     );

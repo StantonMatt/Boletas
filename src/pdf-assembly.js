@@ -161,7 +161,6 @@ export async function assemblePDF(template) {
     ////////////GET STATIC EXCEL VALUES////////////
     //////////////////////////////////////////////
     const RUTEmisor = '76607412-K';
-    let Folio = 13316;
     const CostoM3Agua = mainDataObject.CostoM3Agua[0];
     const CostoM3Alcantarillado = mainDataObject.CostoM3Alcantarillado[0];
     const CostoM3Tratamiento = mainDataObject.CostoM3Tratamiento[0];
@@ -192,6 +191,7 @@ export async function assemblePDF(template) {
       ////////////GET EXCEL COLUMN VALUES////////////
       //////////////////////////////////////////////
 
+      const Folio = mainDataObject.Folio[i];
       const Numero = mainDataObject.Numero[i];
       const CdgIntRecep = mainDataObject.CdgIntRecep[i];
       const RznSocRecep = mainDataObject.RznSocRecep[i];
@@ -624,7 +624,6 @@ export async function assemblePDF(template) {
         await printTextToPdf(dataObject, SaldoAnterior);
       }
       await drawImageToPdf(TimbreData);
-      Folio++;
     }
 
     // Save PDF Doc in bytes
