@@ -1,0 +1,145 @@
+/*!********************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./src/main.scss ***!
+  \********************************************************************************************************/
+@import url(https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap);
+/*!************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./src/main.scss (1) ***!
+  \************************************************************************************************************/
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #273136;
+  font-family: "Roboto", sans-serif;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  height: 100%;
+}
+
+.main-container {
+  margin: 2vh;
+  background-color: #495264;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 10px;
+  text-align: left;
+  display: flex; /* Enable flexbox */
+  flex-direction: column; /* Stack children vertically */
+  align-items: flex-start; /* Align items to the start of the flex container (left) */
+}
+
+.options-container {
+  margin-top: 2vh;
+  flex-direction: column; /* Stack children vertically */
+  display: flex;
+}
+
+.add-aviso-container {
+  background-color: #495264;
+  padding: 10px;
+  border-radius: 10px;
+  flex-direction: column; /* Stack children vertically */
+  align-items: flex-start; /* Align items to the start of the flex container (left) */
+  display: flex;
+  text-align: center;
+}
+
+.aviso-header-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.client-input-container {
+  display: flex;
+  flex-direction: column;
+  margin-left: 20px;
+}
+
+.client-input-label,
+.color-input-label {
+  color: #ffffff;
+}
+
+.client-input-field {
+  height: 25px;
+  width: 250px;
+}
+
+.color-input-container {
+  display: flex;
+  flex-direction: column;
+  margin-left: 20px;
+}
+
+.color-input-field {
+  height: 25px;
+  width: 85px;
+}
+
+.text-input {
+  text-align: left;
+  resize: none;
+  width: 500px;
+  height: 200px;
+  border-radius: 5px;
+}
+
+.aviso {
+  padding: 10px;
+  background-color: #495264;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  margin-top: 2vh;
+  max-width: 90vw;
+  max-height: 88vh;
+}
+
+.btn {
+  background-color: #273136;
+  color: #ffffff;
+  font-weight: bolder;
+  border: 0;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
+  padding: 12px 12px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.btn:active {
+  transform: scale(0.98);
+  box-shadow: 3px 3px 3px rgba(0, 0, 0, 0);
+}
+.btn:focus {
+  outline: 0;
+}
+.btn:hover {
+  background-color: #375c4d;
+}
+
+#pdfIframe {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);
+  display: block;
+  background: #000;
+  border: 0;
+  height: 1200px;
+  max-height: 88vh;
+  width: 1600px;
+  max-width: 90vw;
+}
+
+#generateBoletasButton,
+#fetchDataButton,
+#fileInput,
+#sheetList,
+#addAvisoButton {
+  display: none;
+}
+
+#addAvisoButton {
+  margin: 0;
+}
+
+/*# sourceMappingURL=bundle.css.map*/
