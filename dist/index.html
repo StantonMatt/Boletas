@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>COAB</title>
+  <script defer src="bundlea03943253109867c5b23.js"></script><link href="bundle.css" rel="stylesheet"></head>
+  <body>
+    <div class="options-container">
+      <div class="add-aviso-container">
+        <div>
+          <button class="btn" id="addAvisoButton">Add Aviso</button>
+        </div>
+      </div>
+      <div id="avisoInputContainer">
+      </div>
+    </div>
+    <div class="main-container">
+      <div>
+        <input id="fileInput" type="file" accept=".xlsx, .xls"></input>
+        <button id="fileInputButton" class="btn">Select Excel File</button>
+        <select id="sheetList" class="btn"></select>
+        <button id="fetchDataButton" class="btn">Read Sheet</button>
+        <button id="generateBoletasButton" class="btn">Generate Boletas</button>
+      </div> 
+        <div>
+          <iframe id="pdfIframe"></iframe>
+        </div>
+    </div>
+
+
+  </body>
+</html>
