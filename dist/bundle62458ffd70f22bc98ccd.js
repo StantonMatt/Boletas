@@ -1684,39 +1684,40 @@ function _fetchImage() {
         case 3:
           response = _context.sent;
           if (!response.ok) {
-            _context.next = 10;
+            _context.next = 11;
             break;
           }
-          _context.next = 7;
+          console.log(response.arrayBuffer());
+          _context.next = 8;
           return response.arrayBuffer();
-        case 7:
+        case 8:
           return _context.abrupt("return", _context.sent);
-        case 10:
+        case 11:
           if (!(response.status === 404)) {
-            _context.next = 16;
+            _context.next = 17;
             break;
           }
           console.error("Client ".concat(TimbreData.CdgIntRecep, " S.I.I Timbre image not found. ").concat(TimbreData.RznSocRecep, " - ").concat(TimbreData.Timbre));
           console.error("Returning default placeholder Timbre /Timbre.png");
-          _context.next = 15;
+          _context.next = 16;
           return fetch("/15246448-7.png").then(function (res) {
             return res.arrayBuffer();
           });
-        case 15:
-          return _context.abrupt("return", _context.sent);
         case 16:
-          _context.next = 22;
+          return _context.abrupt("return", _context.sent);
+        case 17:
+          _context.next = 23;
           break;
-        case 18:
-          _context.prev = 18;
+        case 19:
+          _context.prev = 19;
           _context.t0 = _context["catch"](0);
           console.error("There was a problem fetching the image ".concat(_context.t0.message));
           return _context.abrupt("return", null);
-        case 22:
+        case 23:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[0, 18]]);
+    }, _callee, null, [[0, 19]]);
   }));
   return _fetchImage.apply(this, arguments);
 }
@@ -60944,4 +60945,4 @@ document.addEventListener('DOMContentLoaded', function () {
 
 /******/ })()
 ;
-//# sourceMappingURL=bundle756b56640b8307dd4b66.js.map
+//# sourceMappingURL=bundle62458ffd70f22bc98ccd.js.map

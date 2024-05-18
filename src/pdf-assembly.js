@@ -11,12 +11,13 @@ function createDataObject(baseConfig, overrides) {
 async function fetchImage(TimbreData) {
   try {
     const response = await fetch(TimbreData.Timbre);
+    console.log(response);
     if (response.ok) {
       return await response.arrayBuffer();
     } else if (response.status === 404) {
       console.error(`Client ${TimbreData.CdgIntRecep} S.I.I Timbre image not found. ${TimbreData.RznSocRecep} - ${TimbreData.Timbre}`);
       console.error(`Returning default placeholder Timbre /Timbre.png`);
-      return await fetch(`Boletas/15246448-7.png`).then(res => res.arrayBuffer());
+      return await fetch(`/15246448-7.png`).then(res => res.arrayBuffer());
     }
   } catch (error) {
     console.error(`There was a problem fetching the image ${error.message}`);
