@@ -1699,7 +1699,7 @@ function _fetchImage() {
           console.error("Client ".concat(TimbreData.CdgIntRecep, " S.I.I Timbre image not found. ").concat(TimbreData.RznSocRecep, " - ").concat(TimbreData.Timbre));
           console.error("Returning default placeholder Timbre /Timbre.png");
           _context.next = 15;
-          return fetch("/15246448-7.png").then(function (res) {
+          return fetch("Boletas/15246448-7.png").then(function (res) {
             return res.arrayBuffer();
           });
         case 15:
@@ -60770,7 +60770,25 @@ module.exports = "eJztWsuy48iN/Ret74KZfHtX47meqfGjPHaXx4/wgpJ4JbooUU1JVXXb0f9u4J
 /******/ 	
 /******/ 	/* webpack/runtime/publicPath */
 /******/ 	(() => {
-/******/ 		__webpack_require__.p = "/Boletas/";
+/******/ 		var scriptUrl;
+/******/ 		if (__webpack_require__.g.importScripts) scriptUrl = __webpack_require__.g.location + "";
+/******/ 		var document = __webpack_require__.g.document;
+/******/ 		if (!scriptUrl && document) {
+/******/ 			if (document.currentScript)
+/******/ 				scriptUrl = document.currentScript.src;
+/******/ 			if (!scriptUrl) {
+/******/ 				var scripts = document.getElementsByTagName("script");
+/******/ 				if(scripts.length) {
+/******/ 					var i = scripts.length - 1;
+/******/ 					while (i > -1 && (!scriptUrl || !/^http(s?):/.test(scriptUrl))) scriptUrl = scripts[i--].src;
+/******/ 				}
+/******/ 			}
+/******/ 		}
+/******/ 		// When supporting browsers where an automatic publicPath is not supported you must specify an output.publicPath manually via configuration
+/******/ 		// or pass an empty string ("") and set the __webpack_public_path__ variable from your code to use your own logic.
+/******/ 		if (!scriptUrl) throw new Error("Automatic publicPath is not supported in this browser");
+/******/ 		scriptUrl = scriptUrl.replace(/#.*$/, "").replace(/\?.*$/, "").replace(/\/[^\/]+$/, "/");
+/******/ 		__webpack_require__.p = scriptUrl;
 /******/ 	})();
 /******/ 	
 /************************************************************************/
@@ -60926,4 +60944,4 @@ document.addEventListener('DOMContentLoaded', function () {
 
 /******/ })()
 ;
-//# sourceMappingURL=bundledff068abe2651b68a001.js.map
+//# sourceMappingURL=bundle3d31bbab6adf0d9ed794.js.map
