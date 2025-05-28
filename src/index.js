@@ -9,6 +9,7 @@ import boletaTemplate from "./assets/boletaTemplate.pdf";
 import { assemblePDF, fillPdfForm } from "./pdf-assembly.js";
 import * as excelData from "./database-data.js";
 import * as XLSX from "xlsx";
+import progressManager from "./progress-manager.js";
 
 // EventListener for DOMContentLoaded to make sure the DOM is loaded
 document.addEventListener("DOMContentLoaded", function () {
@@ -95,14 +96,35 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("test");
   });
 
-  // Generate Boletas from sheet data (DataBase)
-  generateBoletasButton.addEventListener("click", function () {
-    // Assigning the selected sheet as an object to a variable
-    // const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetList.value]);
+  // Generate Boletas from sheet data (DataBase) with progress tracking
+  generateBoletasButton.addEventListener("click", async function () {
     const disableAviso = global.disableAvisoCheckbox.checked;
-    assemblePDF(boletaTemplate, disableAviso).catch((err) =>
-      console.error(err)
-    );
+
+    try {
+      // Get total number of pages to generate
+      const totalPages = dataObject?.Numero?.length || 0;
+
+      if (totalPages === 0) {
+        alert(
+          "No data found. Please make sure you have loaded an Excel file with data."
+        );
+        return;
+      }
+
+      // Show progress bar
+      progressManager.show(totalPages);
+
+      // Start PDF generation with progress tracking
+      await assemblePDF(boletaTemplate, disableAviso, progressManager);
+
+      // Hide progress bar on completion
+      progressManager.hide();
+    } catch (error) {
+      console.error("PDF Generation Error:", error);
+      progressManager.error(
+        error.message || "An error occurred during PDF generation"
+      );
+    }
   });
 
   let avisoCount = 0;

@@ -96,6 +96,103 @@ body {
   max-height: 88vh;
 }
 
+.loading-container {
+  display: none;
+  background-color: #273136;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+  color: #ffffff;
+}
+
+.loading-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+.loading-header h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+}
+.loading-header #loadingPercentage {
+  font-size: 16px;
+  font-weight: 700;
+  color: #4caf50;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 12px;
+  background-color: #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 15px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #4caf50, #6ec071);
+  border-radius: 6px;
+  transition: width 0.3s ease;
+  position: relative;
+}
+.progress-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+.loading-details {
+  font-size: 14px;
+}
+.loading-details #loadingStatus {
+  margin-bottom: 8px;
+  color: #cccccc;
+  font-weight: 500;
+}
+.loading-details #loadingStats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #aaaaaa;
+}
+.loading-details #loadingStats span {
+  display: flex;
+  gap: 4px;
+}
+
+.checkbox-container {
+  margin-bottom: 10px;
+}
+.checkbox-container label {
+  color: #ffffff;
+  margin-left: 8px;
+}
+.checkbox-container input[type=checkbox] {
+  margin-right: 5px;
+}
+
 .btn {
   background-color: #273136;
   color: #ffffff;
@@ -118,6 +215,14 @@ body {
 .btn:hover {
   background-color: #375c4d;
 }
+.btn:disabled {
+  background-color: #666666;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.btn:disabled:hover {
+  background-color: #666666;
+}
 
 #pdfIframe {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);
@@ -134,7 +239,8 @@ body {
 #fetchDataButton,
 #fileInput,
 #sheetList,
-#addAvisoButton {
+#addAvisoButton,
+#loadingContainer {
   display: none;
 }
 

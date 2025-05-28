@@ -26,6 +26,26 @@
           <label for="disableAvisoCheckbox">Disable Avisos</label>
         </div>
         <button id="generateBoletasButton" class="btn">Generate Boletas</button>
+        
+        <!-- Loading Bar Container -->
+        <div id="loadingContainer" class="loading-container">
+          <div class="loading-header">
+            <h3 id="loadingTitle">Generating Boletas...</h3>
+            <span id="loadingPercentage">0%</span>
+          </div>
+          <div class="progress-bar-container">
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+          <div class="loading-details">
+            <div id="loadingStatus">Initializing...</div>
+            <div id="loadingStats">
+              <span>Processed: <span id="processedCount">0</span></span>
+              <span>Total: <span id="totalCount">0</span></span>
+              <span>ETA: <span id="estimatedTime">--:--</span></span>
+            </div>
+          </div>
+        </div>
+        
       </div> 
         <div>
           <iframe id="pdfIframe"></iframe>

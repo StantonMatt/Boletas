@@ -1,10 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
 
 $primary-color: #273136;
 $secondary-color: #495264;
 $thirdary-color: #375c4d;
 $selected-file-button-color: #246b4f;
 $box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);
+$progress-color: #4caf50;
+$progress-bg: #e0e0e0;
 
 * {
   box-sizing: border-box;
@@ -12,7 +14,7 @@ $box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);
 
 body {
   background-color: $primary-color;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   display: flex;
   justify-content: center;
   overflow: hidden;
@@ -97,6 +99,122 @@ body {
   max-height: 88vh;
 }
 
+// Loading Bar Styles
+.loading-container {
+  display: none;
+  background-color: $primary-color;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 15px;
+  box-shadow: $box-shadow;
+  width: 100%;
+  max-width: 500px;
+  color: #ffffff;
+}
+
+.loading-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+
+  h3 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  #loadingPercentage {
+    font-size: 16px;
+    font-weight: 700;
+    color: $progress-color;
+  }
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 12px;
+  background-color: $progress-bg;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 15px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(
+    90deg,
+    $progress-color,
+    lighten($progress-color, 10%)
+  );
+  border-radius: 6px;
+  transition: width 0.3s ease;
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+    animation: shimmer 2s infinite;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.loading-details {
+  font-size: 14px;
+
+  #loadingStatus {
+    margin-bottom: 8px;
+    color: #cccccc;
+    font-weight: 500;
+  }
+
+  #loadingStats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #aaaaaa;
+
+    span {
+      display: flex;
+      gap: 4px;
+    }
+  }
+}
+
+.checkbox-container {
+  margin-bottom: 10px;
+
+  label {
+    color: #ffffff;
+    margin-left: 8px;
+  }
+
+  input[type="checkbox"] {
+    margin-right: 5px;
+  }
+}
+
 .btn {
   background-color: $primary-color;
   color: #ffffff;
@@ -121,6 +239,16 @@ body {
   &:hover {
     background-color: $thirdary-color;
   }
+
+  &:disabled {
+    background-color: #666666;
+    cursor: not-allowed;
+    opacity: 0.6;
+
+    &:hover {
+      background-color: #666666;
+    }
+  }
 }
 
 #pdfIframe {
@@ -138,7 +266,8 @@ body {
 #fetchDataButton,
 #fileInput,
 #sheetList,
-#addAvisoButton {
+#addAvisoButton,
+#loadingContainer {
   display: none;
 }
 
