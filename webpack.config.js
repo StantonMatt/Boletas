@@ -18,7 +18,7 @@ module.exports = (env, argv) => {
       clean: true,
       assetModuleFilename: "[name][ext]",
     },
-    devtool: isProduction ? "none" : "source-map",
+    devtool: isProduction ? false : "source-map",
     devServer: isProduction
       ? undefined
       : {
