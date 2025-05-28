@@ -1,8 +1,8 @@
-'use strict';
+"use strict";
 
-import * as PDFLIB from 'pdf-lib';
-import * as formatUtil from './format-strings.js';
-import * as excelData from './database-data.js';
+import * as PDFLIB from "pdf-lib";
+import * as formatUtil from "./format-strings.js";
+import * as excelData from "./database-data.js";
 
 function createDataObject(baseConfig, overrides) {
   return { ...baseConfig, ...overrides };
@@ -15,9 +15,11 @@ async function fetchImage(TimbreData) {
     if (response.ok) {
       return await response.arrayBuffer();
     } else if (response.status === 404) {
-      console.error(`Client ${TimbreData.CdgIntRecep} S.I.I Timbre image not found. ${TimbreData.RznSocRecep} - ${TimbreData.Timbre}`);
+      console.error(
+        `Client ${TimbreData.CdgIntRecep} S.I.I Timbre image not found. ${TimbreData.RznSocRecep} - ${TimbreData.Timbre}`
+      );
       console.error(`Returning default placeholder Timbre /Timbre.png`);
-      return await fetch(`/15246448-7.png`).then(res => res.arrayBuffer());
+      return await fetch(`/15246448-7.png`).then((res) => res.arrayBuffer());
     }
   } catch (error) {
     console.error(`There was a problem fetching the image ${error.message}`);
@@ -48,20 +50,26 @@ async function printTextToPdf(inputData, SaldoAnterior) {
   try {
     // Use a standard font
     let linePadding;
-    const font = await inputData.pdfDoc.embedFont(PDFLIB.StandardFonts[inputData.fontFamily]);
+    const font = await inputData.pdfDoc.embedFont(
+      PDFLIB.StandardFonts[inputData.fontFamily]
+    );
     console.log(SaldoAnterior);
     if (inputData.linePadding !== undefined) {
       linePadding = inputData.linePadding;
-    } else linePadding = inputData.maxHeight / inputData.lines.length - inputData.fontSize;
-    let textColor = PDFLIB.rgb(...inputData.textColor.map(val => val / 255));
+    } else
+      linePadding =
+        inputData.maxHeight / inputData.lines.length - inputData.fontSize;
+    let textColor = PDFLIB.rgb(...inputData.textColor.map((val) => val / 255));
     const lineHeight = inputData.fontSize + linePadding;
     inputData.y += lineHeight * ((inputData.lines.length - 1) / 2);
-    if (inputData.alignment === 'left') {
-      inputData.lines.forEach(line => {
-        if (line.includes('$-')) {
+    if (inputData.alignment === "left") {
+      inputData.lines.forEach((line) => {
+        if (line.includes("$-")) {
           textColor = PDFLIB.rgb(0, 0, 1);
         } else {
-          textColor = PDFLIB.rgb(...inputData.textColor.map(val => val / 255));
+          textColor = PDFLIB.rgb(
+            ...inputData.textColor.map((val) => val / 255)
+          );
         }
 
         console.log(line);
@@ -76,13 +84,15 @@ async function printTextToPdf(inputData, SaldoAnterior) {
       });
     }
 
-    if (inputData.alignment === 'center') {
-      inputData.lines.forEach(line => {
+    if (inputData.alignment === "center") {
+      inputData.lines.forEach((line) => {
         const lineWidth = font.widthOfTextAtSize(line, inputData.fontSize);
-        if (line === 'Subsidio' || line.includes('$-')) {
+        if (line === "Subsidio" || line.includes("$-")) {
           textColor = PDFLIB.rgb(0, 0, 1);
         } else {
-          textColor = PDFLIB.rgb(...inputData.textColor.map(val => val / 255));
+          textColor = PDFLIB.rgb(
+            ...inputData.textColor.map((val) => val / 255)
+          );
         }
         inputData.page.drawText(line, {
           x: inputData.x - lineWidth / 2,
@@ -95,13 +105,15 @@ async function printTextToPdf(inputData, SaldoAnterior) {
       });
     }
 
-    if (inputData.alignment === 'right') {
+    if (inputData.alignment === "right") {
       inputData.lines.forEach((line, index) => {
         const lineWidth = font.widthOfTextAtSize(line, inputData.fontSize);
-        if (line === 'Subsidio' || line.includes('$-')) {
+        if (line === "Subsidio" || line.includes("$-")) {
           textColor = PDFLIB.rgb(0, 0, 1);
         } else {
-          textColor = PDFLIB.rgb(...inputData.textColor.map(val => val / 255));
+          textColor = PDFLIB.rgb(
+            ...inputData.textColor.map((val) => val / 255)
+          );
         }
         inputData.page.drawText(line, {
           x: inputData.x - lineWidth,
@@ -119,24 +131,30 @@ async function printTextToPdf(inputData, SaldoAnterior) {
   }
 }
 
-async function getFormattedData(inputStringArray, pdfDoc, fontSize, fontFamily, maxWidth) {
+async function getFormattedData(
+  inputStringArray,
+  pdfDoc,
+  fontSize,
+  fontFamily,
+  maxWidth
+) {
   try {
     const font = await pdfDoc.embedFont(PDFLIB.StandardFonts[fontFamily]);
     const formattedStringArray = [];
 
-    inputStringArray.forEach(line => {
+    inputStringArray.forEach((line) => {
       const text = line.trim().split(/\s+/);
 
-      let lineString = '';
+      let lineString = "";
       text.reduce((sumOfWidth, cur) => {
-        const curWidth = font.widthOfTextAtSize(cur + ' ', fontSize);
+        const curWidth = font.widthOfTextAtSize(cur + " ", fontSize);
 
         if (sumOfWidth + curWidth > maxWidth) {
           formattedStringArray.push(lineString.trim());
-          lineString = '';
+          lineString = "";
           sumOfWidth = 0;
         }
-        lineString += cur + ' ';
+        lineString += cur + " ";
         return sumOfWidth + curWidth;
       }, 0);
       formattedStringArray.push(lineString.trim());
@@ -147,12 +165,14 @@ async function getFormattedData(inputStringArray, pdfDoc, fontSize, fontFamily, 
   }
 }
 
-export async function assemblePDF(template) {
+export async function assemblePDF(template, disableAviso) {
   try {
     const mainDataObject = excelData.fetchData();
     console.log(mainDataObject);
     // fetch template and convert it to raw binary data buffer
-    const existingPdfBytes = await fetch(template).then(res => res.arrayBuffer());
+    const existingPdfBytes = await fetch(template).then((res) =>
+      res.arrayBuffer()
+    );
     // create template PDF from buffer
     const templatePdfDoc = await PDFLIB.PDFDocument.load(existingPdfBytes);
     // create empty PDF
@@ -161,7 +181,7 @@ export async function assemblePDF(template) {
     ////////////////////////////////////////////////
     ////////////GET STATIC EXCEL VALUES////////////
     //////////////////////////////////////////////
-    const RUTEmisor = '76607412-K';
+    const RUTEmisor = "76607412-K";
     const CostoM3Agua = mainDataObject.CostoM3Agua[0];
     const CostoM3Alcantarillado = mainDataObject.CostoM3Alcantarillado[0];
     const CostoM3Tratamiento = mainDataObject.CostoM3Tratamiento[0];
@@ -201,7 +221,8 @@ export async function assemblePDF(template) {
       const VlrPagar = mainDataObject.VlrPagar[i];
       const CargoFijo = mainDataObject.CargoFijo[i];
       const CostoTotalAgua = mainDataObject.CostoTotalAgua[i];
-      const CostoTotalAlcantarillado = mainDataObject.CostoTotalAlcantarillado[i];
+      const CostoTotalAlcantarillado =
+        mainDataObject.CostoTotalAlcantarillado[i];
       const CostoTotalTratamiento = mainDataObject.CostoTotalTratamiento[i];
       const Repactacion = mainDataObject.Repactacion[i];
       const Multas = mainDataObject.Multas[i];
@@ -226,8 +247,8 @@ export async function assemblePDF(template) {
         large: 16,
         larger: 18,
       };
-      const mainFont = 'Helvetica';
-      const mainFontBold = 'HelveticaBold';
+      const mainFont = "Helvetica";
+      const mainFontBold = "HelveticaBold";
       const mainColor = [0, 0, 0];
       const alertColor = [204, 0, 3];
       const titleColor = [32, 44, 100];
@@ -241,34 +262,46 @@ export async function assemblePDF(template) {
       const rightSideOfPageForCenterAligned = 451;
       //PDF DIMENTIONS: 612 792
       /////////////////////////////////////////////
-      const TipoBoletaPos = { x: rightSideOfPageForCenterAligned, y: 717, al: 'center' };
-      const DetalleClientePos = { x: leftSideOfPage, y: 620, al: 'left' };
+      const TipoBoletaPos = {
+        x: rightSideOfPageForCenterAligned,
+        y: 717,
+        al: "center",
+      };
+      const DetalleClientePos = { x: leftSideOfPage, y: 620, al: "left" };
       const NumeroClientePos = {
         x: rightSideOfPageForCenterAligned,
         y: 595,
-        al: 'center',
+        al: "center",
       };
-      const FchVencPos = { x: leftSideOfPage, y: 545, al: 'left' };
-      const VlrPagarPos = { x: rightSideOfPage, y: 545, al: 'right' };
-      const DetalleConsumoTituloPos = { x: leftSideOfPage + 7, y: 492, al: 'left' };
-      const Consumo1Pos = { x: leftSideOfPage + 10, y: 435, al: 'left' };
-      const ConsumoValores1Pos = { x: 265, y: 435, al: 'right' };
+      const FchVencPos = { x: leftSideOfPage, y: 545, al: "left" };
+      const VlrPagarPos = { x: rightSideOfPage, y: 545, al: "right" };
+      const DetalleConsumoTituloPos = {
+        x: leftSideOfPage + 7,
+        y: 492,
+        al: "left",
+      };
+      const Consumo1Pos = { x: leftSideOfPage + 10, y: 435, al: "left" };
+      const ConsumoValores1Pos = { x: 265, y: 435, al: "right" };
       // const Consumo2Pos = { x: 215, y: 435, al: 'left' };
       // const ConsumoValores2Pos = { x: 370, y: 435, al: 'right' };
-      const MntTotalTituloPos = { x: leftSideOfPage + 10, y: 381, al: 'left' };
-      const FchEmisTituloPos = { x: leftSideOfPage + 10, y: 367, al: 'left' };
-      const MntTotalPos = { x: 265, y: 381, al: 'right' };
-      const FchEmisPos = { x: 265, y: 367, al: 'right' };
-      const LecturaAnteriorPos = { x: leftSideOfPage, y: 330, al: 'left' };
-      const LecturaActualPos = { x: middleOfPageX, y: 330, al: 'center' };
-      const ConsumoM3Pos = { x: rightSideOfPage, y: 330, al: 'right' };
+      const MntTotalTituloPos = { x: leftSideOfPage + 10, y: 381, al: "left" };
+      const FchEmisTituloPos = { x: leftSideOfPage + 10, y: 367, al: "left" };
+      const MntTotalPos = { x: 265, y: 381, al: "right" };
+      const FchEmisPos = { x: 265, y: 367, al: "right" };
+      const LecturaAnteriorPos = { x: leftSideOfPage, y: 330, al: "left" };
+      const LecturaActualPos = { x: middleOfPageX, y: 330, al: "center" };
+      const ConsumoM3Pos = { x: rightSideOfPage, y: 330, al: "right" };
       const TimbrePos = { x: 60, y: 210 };
-      const TimbreTextoPos = { x: 155, y: 195, al: 'center' };
-      const DesglosePos = { x: 320, y: 260, al: 'left' };
-      const DesgloseValoresPos = { x: rightSideOfPage - 26, y: 260, al: 'right' };
-      const VlrPagarTitulo2Pos = { x: 320, y: 200, al: 'left' };
-      const VlrPagar2Pos = { x: rightSideOfPage - 24, y: 200, al: 'right' };
-      const AvisoPos = { x: leftSideOfPage, y: 125, al: 'left' };
+      const TimbreTextoPos = { x: 155, y: 195, al: "center" };
+      const DesglosePos = { x: 320, y: 260, al: "left" };
+      const DesgloseValoresPos = {
+        x: rightSideOfPage - 26,
+        y: 260,
+        al: "right",
+      };
+      const VlrPagarTitulo2Pos = { x: 320, y: 200, al: "left" };
+      const VlrPagar2Pos = { x: rightSideOfPage - 24, y: 200, al: "right" };
+      const AvisoPos = { x: leftSideOfPage, y: 125, al: "left" };
 
       const textArrays = {
         TipoBoleta: [`RUT: ${RUTEmisor}`, `${TipoBoleta}`, `N° ${Folio}`],
@@ -278,7 +311,12 @@ export async function assemblePDF(template) {
         VlrPagar: [`TOTAL A PAGAR: ${VlrPagar}`],
         DetalleConsumoTitulo: [`DETALLE DE CONSUMO:`],
         Consumo1: [`Cargo Fijo:`, `Agua:`, `Alcantarillado:`, `Tratamiento:`],
-        ConsumoValores1: [`${CargoFijo}`, `${CostoTotalAgua}`, `${CostoTotalAlcantarillado}`, `${CostoTotalTratamiento}`],
+        ConsumoValores1: [
+          `${CargoFijo}`,
+          `${CostoTotalAgua}`,
+          `${CostoTotalAlcantarillado}`,
+          `${CostoTotalTratamiento}`,
+        ],
         // Consumo2: [
         //   ``, // Placeholder String
         //   ``, // Placeholder String
@@ -294,17 +332,27 @@ export async function assemblePDF(template) {
         LecturaActual: [`LEC ACTUAL: ${LecturaActual}`],
         ConsumoM3: [`CONSUMO: ${ConsumoM3}`],
         TimbreTexto: [TimbreTexto],
-        Desglose: [`Numero Cliente:`, `Vencimiento:`, `Total del Mes:`, `Saldo Anterior:`],
-        DesgloseValores: [`${CdgIntRecep}`, `${FchVenc}`, `${MntTotal}`, `${SaldoAnterior}`],
+        Desglose: [
+          `Numero Cliente:`,
+          `Vencimiento:`,
+          `Total del Mes:`,
+          `Saldo Anterior:`,
+        ],
+        DesgloseValores: [
+          `${CdgIntRecep}`,
+          `${FchVenc}`,
+          `${MntTotal}`,
+          `${SaldoAnterior}`,
+        ],
         VlrPagarTitulo2: [`TOTAL A PAGAR:`],
         VlrPagar2: [` ${VlrPagar}`],
         Aviso: [`${Aviso}`],
       };
-      if (Repactacion !== '$0') {
+      if (Repactacion !== "$0") {
         textArrays.Desglose.push(`Repactacion`);
         textArrays.DesgloseValores.push(`${Repactacion}`);
       }
-      if (Subsidio !== '$0') {
+      if (Subsidio !== "$0") {
         textArrays.Desglose.push(`Subsidio`);
         textArrays.DesgloseValores.push(`${Subsidio}`);
       }
@@ -330,7 +378,13 @@ export async function assemblePDF(template) {
         RznSocRecep,
         CdgIntRecep,
         async formatData() {
-          this.formattedData = await getFormattedData(this.data, this.pdfDoc, this.fontSize, this.fontFamily, this.maxWidth);
+          this.formattedData = await getFormattedData(
+            this.data,
+            this.pdfDoc,
+            this.fontSize,
+            this.fontFamily,
+            this.maxWidth
+          );
         },
       };
 
@@ -614,7 +668,7 @@ export async function assemblePDF(template) {
         DesgloseValoresData,
         VlrPagarData2,
         VlrPagarTituloData2,
-        AvisoData,
+        // AvisoData, // AvisoData will be handled conditionally
       ];
       console.log(TimbreData);
       // Initilize key:values for formatted text in Objects (lines)
@@ -624,17 +678,29 @@ export async function assemblePDF(template) {
         dataObject.lines = [...dataObject.formattedData];
         await printTextToPdf(dataObject, SaldoAnterior);
       }
+
+      // Conditionally process and print AvisoData
+      if (
+        !disableAviso &&
+        mainDataObject.Aviso[i] &&
+        String(mainDataObject.Aviso[i]).trim() !== ""
+      ) {
+        await AvisoData.formatData();
+        AvisoData.lines = [...AvisoData.formattedData];
+        await printTextToPdf(AvisoData, SaldoAnterior);
+      }
+
       await drawImageToPdf(TimbreData);
     }
 
     // Save PDF Doc in bytes
     const pdfBytes = await pdfDoc.save();
     // Create a blob with the bytes as type PDF
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
     // Create URL from blob
     const pdfUrl = URL.createObjectURL(blob);
     // Assign URL to src of iFrame
-    document.getElementById('pdfIframe').src = pdfUrl;
+    document.getElementById("pdfIframe").src = pdfUrl;
   } catch (error) {
     console.log(`Error in PDF Assembly Function: ${error}`);
   }

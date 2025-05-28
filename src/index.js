@@ -1,17 +1,17 @@
-'use strict';
+"use strict";
 
-import './main.scss';
-import * as dateUtil from './format-strings.js';
-import * as userInput from './user-input.js';
-import * as buttonUtil from './button-style.js';
-import createDomVariables from './global-variables.js';
-import boletaTemplate from './assets/boletaTemplate.pdf';
-import { assemblePDF, fillPdfForm } from './pdf-assembly.js';
-import * as excelData from './database-data.js';
-import * as XLSX from 'xlsx';
+import "./main.scss";
+import * as dateUtil from "./format-strings.js";
+import * as userInput from "./user-input.js";
+import * as buttonUtil from "./button-style.js";
+import createDomVariables from "./global-variables.js";
+import boletaTemplate from "./assets/boletaTemplate.pdf";
+import { assemblePDF, fillPdfForm } from "./pdf-assembly.js";
+import * as excelData from "./database-data.js";
+import * as XLSX from "xlsx";
 
 // EventListener for DOMContentLoaded to make sure the DOM is loaded
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener("DOMContentLoaded", function () {
   let dataObject = {};
   // Create variable names for DOM elements
   createDomVariables();
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const data = new Uint8Array(e.target.result);
 
       // Assign the Uint8Array data as type 'array' to workbook variable
-      workbook = XLSX.read(data, { type: 'array' });
+      workbook = XLSX.read(data, { type: "array" });
 
       // Delete all sheets from sheetList before populating again
       while (sheetList.firstChild) {
@@ -50,8 +50,8 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       // Loop through all sheets in workbook and push them into sheetList
-      workbook.SheetNames.forEach(sheet => {
-        const option = document.createElement('option');
+      workbook.SheetNames.forEach((sheet) => {
+        const option = document.createElement("option");
         option.text = sheet;
         sheetList.add(option);
       });
@@ -64,22 +64,22 @@ document.addEventListener('DOMContentLoaded', function () {
     fetchDataButton.disabled = false;
   };
 
-  sheetList.addEventListener('change', function () {
+  sheetList.addEventListener("change", function () {
     fetchDataButton.disabled = false;
     buttonUtil.revealButton(fetchDataButton);
   });
 
   // Click hidden fileInput when fileInputButton is clicked by user (because fileInput is ugly)
-  fileInputButton.addEventListener('click', function () {
+  fileInputButton.addEventListener("click", function () {
     fileInput.click();
   });
 
   // Event Listener for wehn a file is selected by the User
-  fileInput.addEventListener('change', readExcel);
-  fileInput.addEventListener('cancel', readExcel);
+  fileInput.addEventListener("change", readExcel);
+  fileInput.addEventListener("cancel", readExcel);
 
   // Generate Boletas from sheet data (DataBase)
-  fetchDataButton.addEventListener('click', function () {
+  fetchDataButton.addEventListener("click", function () {
     // Get Data from selected sheet as json
     dataObject = {
       ...excelData.compileData(
@@ -89,27 +89,30 @@ document.addEventListener('DOMContentLoaded', function () {
     buttonUtil.setButtonClicked(sheetList);
     buttonUtil.setButtonClicked(fetchDataButton);
     buttonUtil.revealButton(generateBoletasButton);
-    optionsContainer.style.display = 'inline';
+    optionsContainer.style.display = "inline";
     buttonUtil.revealButton(addAvisoButton);
     fetchDataButton.disabled = true;
-    console.log('test');
+    console.log("test");
   });
 
   // Generate Boletas from sheet data (DataBase)
-  generateBoletasButton.addEventListener('click', function () {
+  generateBoletasButton.addEventListener("click", function () {
     // Assigning the selected sheet as an object to a variable
     // const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetList.value]);
-    assemblePDF(boletaTemplate).catch(err => console.error(err));
+    const disableAviso = global.disableAvisoCheckbox.checked;
+    assemblePDF(boletaTemplate, disableAviso).catch((err) =>
+      console.error(err)
+    );
   });
 
   let avisoCount = 0;
-  addAvisoButton.addEventListener('click', function () {
+  addAvisoButton.addEventListener("click", function () {
     const avisoInjectButtonId = `avisoInjectButton${avisoCount}`;
     const avisoTextInputId = `avisoTextInput${avisoCount}`;
     const clientNumberInputId = `clientNumberInput${avisoCount}`;
     const avisoTextColorId = `avisoTextColor${avisoCount}`;
     avisoInputContainer.insertAdjacentHTML(
-      'afterbegin',
+      "afterbegin",
       `
     <div class="aviso">
           <div class="aviso-header-container">
@@ -134,17 +137,21 @@ document.addEventListener('DOMContentLoaded', function () {
     const clientNumberInput = document.getElementById(clientNumberInputId);
     const avisoTextColor = document.getElementById(avisoTextColorId);
 
-    avisoInjectButton.addEventListener('click', function () {
+    avisoInjectButton.addEventListener("click", function () {
       const hex = avisoTextColor.value;
       const r = parseInt(hex.substr(1, 2), 16); // Extracts and converts the RR part of #RRGGBB to decimal
       const g = parseInt(hex.substr(3, 2), 16); // Extracts and converts the GG part
       const b = parseInt(hex.substr(5, 2), 16); // Extracts and converts the BB part
 
-      userInput.injectAviso(dataObject, avisoTextInput, clientNumberInput, [r, g, b]);
+      userInput.injectAviso(dataObject, avisoTextInput, clientNumberInput, [
+        r,
+        g,
+        b,
+      ]);
       buttonUtil.setButtonClicked(avisoInjectButton);
     });
 
-    avisoTextInput.addEventListener('input', function () {
+    avisoTextInput.addEventListener("input", function () {
       buttonUtil.revealButton(avisoInjectButton);
     });
 
