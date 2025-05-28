@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>COAB</title>
-  <script defer src="bundle8b98c43afde13e6e21c1.js"></script><link href="bundle.css" rel="stylesheet"></head>
+  <script defer src="bundleb48381604d1ef438f2b4.js"></script><link href="bundle.css" rel="stylesheet"></head>
   <body>
     <div class="options-container">
       <div class="add-aviso-container">
@@ -26,6 +26,26 @@
           <label for="disableAvisoCheckbox">Disable Avisos</label>
         </div>
         <button id="generateBoletasButton" class="btn">Generate Boletas</button>
+        
+        <!-- Loading Bar Container -->
+        <div id="loadingContainer" class="loading-container">
+          <div class="loading-header">
+            <h3 id="loadingTitle">Generating Boletas...</h3>
+            <span id="loadingPercentage">0%</span>
+          </div>
+          <div class="progress-bar-container">
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+          <div class="loading-details">
+            <div id="loadingStatus">Initializing...</div>
+            <div id="loadingStats">
+              <span>Processed: <span id="processedCount">0</span></span>
+              <span>Total: <span id="totalCount">0</span></span>
+              <span>ETA: <span id="estimatedTime">--:--</span></span>
+            </div>
+          </div>
+        </div>
+        
       </div> 
         <div>
           <iframe id="pdfIframe"></iframe>

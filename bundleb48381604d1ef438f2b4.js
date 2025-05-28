@@ -1422,10 +1422,10 @@ var compileData = function compileData(excelData) {
         key = _Object$entries$_i[0],
         value = _Object$entries$_i[1];
       delete mainDataObject[key];
-      console.log('deleting');
+      console.log("deleting");
     }
   }
-  console.log('in compileData function');
+  console.log("in compileData function");
   mainDataObject = {
     Folio: [],
     // RUTEmisor: [],
@@ -1433,8 +1433,7 @@ var compileData = function compileData(excelData) {
     FchVenc: [],
     FchEmis: [],
     CostoM3Agua: [],
-    CostoM3Alcantarillado: [],
-    CostoM3Tratamiento: [],
+    CostoM3AlcantarilladoTratamiento: [],
     RUTRecep: [],
     Numero: [],
     CdgIntRecep: [],
@@ -1444,8 +1443,7 @@ var compileData = function compileData(excelData) {
     VlrPagar: [],
     CargoFijo: [],
     CostoTotalAgua: [],
-    CostoTotalAlcantarillado: [],
-    CostoTotalTratamiento: [],
+    CostoTotalAlcantarilladoTratamiento: [],
     Repactacion: [],
     Multas: [],
     Otros: [],
@@ -1465,46 +1463,44 @@ var compileData = function compileData(excelData) {
   try {
     for (_iterator.s(); !(_step = _iterator.n()).done;) {
       var data = _step.value;
-      if (isFinite(data['Folio'])) primerFolio = data['Folio'];
+      if (isFinite(data["Folio"])) primerFolio = data["Folio"];
       if (Number(data["Recibe Factura"]) == 1) continue;
-      if (!isFinite(data['N#'])) continue;
+      if (!isFinite(data["N#"])) continue;
       console.log(data);
 
       // if (data.RUTEmisor) {
       //   mainDataObject.RUTEmisor.push(formatUtil.getFormattedRut(data.RUTEmisor));
       // }
-      mainDataObject.Timbre.push("/".concat(data['RUT'], ".png"));
-      console.log(data['RUT']);
+      mainDataObject.Timbre.push("/".concat(data["RUT"], ".png"));
+      console.log(data["RUT"]);
       mainDataObject.Folio.push(primerFolio++);
       mainDataObject.TipoBoleta.push("BOLETA ELECTRONICA");
       mainDataObject.FchVenc.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getShortExpiryDate());
       mainDataObject.FchEmis.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getIssueDate());
-      mainDataObject.CostoM3Agua.push(String(data['Costo M3 Agua']));
-      mainDataObject.CostoM3Alcantarillado.push(String(data['Costo M3 Alcantarillado']));
-      mainDataObject.CostoM3Tratamiento.push(String(data['Costo M3 Tratamiento']));
-      mainDataObject.RUTRecep.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedRut(data['RUT']));
-      mainDataObject.Numero.push(data['N#']);
-      mainDataObject.CdgIntRecep.push(data['Numero Cliente']);
-      mainDataObject.RznSocRecep.push(String(data['Nombre']));
-      mainDataObject.DirRecep.push(String(data['Direccion']));
-      mainDataObject.CiudadRecep.push(String(data['Ciudad']));
-      mainDataObject.VlrPagar.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data['Total Pagar']));
-      mainDataObject.CargoFijo.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data['Cargo Fijo']));
-      mainDataObject.CostoTotalAgua.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data['Costo Total Agua']));
-      mainDataObject.CostoTotalAlcantarillado.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data['Costo Total Alcantarillado']));
-      mainDataObject.CostoTotalTratamiento.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data['Costo Total Tratamiento']));
-      mainDataObject.Repactacion.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data['Repactacion']));
-      mainDataObject.Multas.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data['Multa']));
-      mainDataObject.Otros.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data['Otros']));
-      mainDataObject.MntTotal.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data['Total Mes']));
-      mainDataObject.LecturaAnterior.push(String(data['Lectura Anterior']));
-      mainDataObject.LecturaActual.push(String(data['Lectura Actual']));
-      mainDataObject.ConsumoM3.push(String(data['Consumo M3']));
-      mainDataObject.SaldoAnterior.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data['Saldo Anterior']));
-      mainDataObject.Descuento.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data['Descuento']));
-      mainDataObject.Subsidio.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data['Subsidio']));
-      mainDataObject.Aviso.push(String(data['Aviso']));
-      mainDataObject.Color.push(data['Color'].trim().split(',').map(function (num) {
+      mainDataObject.CostoM3Agua.push(String(data["Costo M3 Agua"]));
+      mainDataObject.CostoM3AlcantarilladoTratamiento.push(String(data["Costo M3 Alcantarillado Tratamiento"]));
+      mainDataObject.RUTRecep.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedRut(data["RUT"]));
+      mainDataObject.Numero.push(data["N#"]);
+      mainDataObject.CdgIntRecep.push(data["Numero Cliente"]);
+      mainDataObject.RznSocRecep.push(String(data["Nombre"]));
+      mainDataObject.DirRecep.push(String(data["Direccion"]));
+      mainDataObject.CiudadRecep.push(String(data["Ciudad"]));
+      mainDataObject.VlrPagar.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Total Pagar"]));
+      mainDataObject.CargoFijo.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Cargo Fijo"]));
+      mainDataObject.CostoTotalAgua.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Costo Total Agua"]));
+      mainDataObject.CostoTotalAlcantarilladoTratamiento.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Costo Total Alcantarillado Tratamiento"]));
+      mainDataObject.Repactacion.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Repactacion"]));
+      mainDataObject.Multas.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Multa"]));
+      mainDataObject.Otros.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Otros"]));
+      mainDataObject.MntTotal.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Total Mes"]));
+      mainDataObject.LecturaAnterior.push(String(data["Lectura Anterior"]));
+      mainDataObject.LecturaActual.push(String(data["Lectura Actual"]));
+      mainDataObject.ConsumoM3.push(String(data["Consumo M3"]));
+      mainDataObject.SaldoAnterior.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Saldo Anterior"]));
+      mainDataObject.Descuento.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Descuento"]));
+      mainDataObject.Subsidio.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Subsidio"]));
+      mainDataObject.Aviso.push(String(data["Aviso"]));
+      mainDataObject.Color.push(data["Color"].trim().split(",").map(function (num) {
         return Number(num.trim());
       }));
     }
@@ -1649,6 +1645,7 @@ function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArra
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
@@ -1670,118 +1667,259 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
 function createDataObject(baseConfig, overrides) {
   return _objectSpread(_objectSpread({}, baseConfig), overrides);
 }
-function fetchImage(_x) {
-  return _fetchImage.apply(this, arguments);
+
+// Add image compression function with better error handling
+function compressImage(_x) {
+  return _compressImage.apply(this, arguments);
 }
-function _fetchImage() {
-  _fetchImage = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(TimbreData) {
-    var response;
+function _compressImage() {
+  _compressImage = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(imageBytes) {
+    var quality,
+      canvas,
+      ctx,
+      blob,
+      img,
+      imageUrl,
+      reductionFactor,
+      compressedBlob,
+      compressedBytes,
+      _args = arguments;
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
-          _context.prev = 0;
-          _context.next = 3;
-          return fetch(TimbreData.Timbre);
-        case 3:
-          response = _context.sent;
-          console.log(response);
-          if (!response.ok) {
-            _context.next = 11;
-            break;
-          }
-          _context.next = 8;
-          return response.arrayBuffer();
-        case 8:
-          return _context.abrupt("return", _context.sent);
-        case 11:
-          if (!(response.status === 404)) {
-            _context.next = 17;
-            break;
-          }
-          console.error("Client ".concat(TimbreData.CdgIntRecep, " S.I.I Timbre image not found. ").concat(TimbreData.RznSocRecep, " - ").concat(TimbreData.Timbre));
-          console.error("Returning default placeholder Timbre /Timbre.png");
-          _context.next = 16;
-          return fetch("/15246448-7.png").then(function (res) {
-            return res.arrayBuffer();
+          quality = _args.length > 1 && _args[1] !== undefined ? _args[1] : 0.7;
+          _context.prev = 1;
+          // Create canvas for image compression
+          canvas = document.createElement("canvas");
+          ctx = canvas.getContext("2d"); // Create image from bytes
+          blob = new Blob([imageBytes], {
+            type: "image/png"
           });
-        case 16:
-          return _context.abrupt("return", _context.sent);
+          img = new Image();
+          imageUrl = URL.createObjectURL(blob);
+          _context.next = 9;
+          return new Promise(function (resolve, reject) {
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = imageUrl;
+          });
+        case 9:
+          // Only reduce size if the image is large enough to benefit
+          reductionFactor = img.width > 200 ? 0.75 : 1.0; // Only compress larger images
+          canvas.width = Math.floor(img.width * reductionFactor);
+          canvas.height = Math.floor(img.height * reductionFactor);
+
+          // Draw and compress
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "medium";
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          // Convert back to bytes with compression
+          _context.next = 17;
+          return new Promise(function (resolve) {
+            canvas.toBlob(resolve, "image/jpeg", quality); // Use JPEG for better compression
+          });
         case 17:
-          _context.next = 23;
+          compressedBlob = _context.sent;
+          URL.revokeObjectURL(imageUrl);
+          _context.next = 21;
+          return compressedBlob.arrayBuffer();
+        case 21:
+          compressedBytes = _context.sent;
+          if (!(compressedBytes.byteLength < imageBytes.byteLength)) {
+            _context.next = 27;
+            break;
+          }
+          console.log("Image compressed: ".concat(imageBytes.byteLength, " -> ").concat(compressedBytes.byteLength, " bytes"));
+          return _context.abrupt("return", compressedBytes);
+        case 27:
+          console.log("Compression not beneficial, using original");
+          return _context.abrupt("return", imageBytes);
+        case 29:
+          _context.next = 35;
           break;
-        case 19:
-          _context.prev = 19;
-          _context.t0 = _context["catch"](0);
-          console.error("There was a problem fetching the image ".concat(_context.t0.message));
-          return _context.abrupt("return", null);
-        case 23:
+        case 31:
+          _context.prev = 31;
+          _context.t0 = _context["catch"](1);
+          console.log("Image compression failed, using original:", _context.t0.message);
+          return _context.abrupt("return", imageBytes);
+        case 35:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[0, 19]]);
+    }, _callee, null, [[1, 31]]);
   }));
+  return _compressImage.apply(this, arguments);
+}
+function fetchImage(_x2, _x3, _x4) {
   return _fetchImage.apply(this, arguments);
 }
-function drawImageToPdf(_x2) {
-  return _drawImageToPdf.apply(this, arguments);
-}
-function _drawImageToPdf() {
-  _drawImageToPdf = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(TimbreData) {
-    var pngImageBytes, pngImage, pngDims;
+function _fetchImage() {
+  _fetchImage = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(TimbreData, imageCache, defaultImageBytes) {
+    var cachedBytes, defaultBytes, response, originalBytes, compressedBytes;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
           _context2.prev = 0;
-          _context2.next = 3;
-          return fetchImage(TimbreData);
-        case 3:
-          pngImageBytes = _context2.sent;
-          if (pngImageBytes) {
-            _context2.next = 6;
+          // Check if we have pre-cached compressed bytes for this image
+          cachedBytes = imageCache.get(TimbreData.Timbre + "_compressed");
+          if (!cachedBytes) {
+            _context2.next = 4;
             break;
           }
-          return _context2.abrupt("return");
-        case 6:
-          _context2.next = 8;
-          return TimbreData.pdfDoc.embedPng(pngImageBytes);
+          return _context2.abrupt("return", cachedBytes);
+        case 4:
+          // Check if we have default image bytes
+          defaultBytes = imageCache.get("_default_compressed");
+          if (!defaultBytes) {
+            _context2.next = 8;
+            break;
+          }
+          console.error("Using default image for ".concat(TimbreData.CdgIntRecep));
+          return _context2.abrupt("return", defaultBytes);
         case 8:
-          pngImage = _context2.sent;
-          pngDims = pngImage.scale(0.62);
-          TimbreData.page.drawImage(pngImage, {
+          _context2.next = 10;
+          return fetch(TimbreData.Timbre);
+        case 10:
+          response = _context2.sent;
+          if (!response.ok) {
+            _context2.next = 22;
+            break;
+          }
+          _context2.next = 14;
+          return response.arrayBuffer();
+        case 14:
+          originalBytes = _context2.sent;
+          _context2.next = 17;
+          return compressImage(originalBytes, 0.7);
+        case 17:
+          compressedBytes = _context2.sent;
+          imageCache.set(TimbreData.Timbre + "_compressed", compressedBytes);
+          return _context2.abrupt("return", compressedBytes);
+        case 22:
+          console.error("Failed to fetch image: ".concat(TimbreData.Timbre));
+          return _context2.abrupt("return", null);
+        case 24:
+          _context2.next = 30;
+          break;
+        case 26:
+          _context2.prev = 26;
+          _context2.t0 = _context2["catch"](0);
+          console.error("Error fetching image: ".concat(_context2.t0.message));
+          return _context2.abrupt("return", null);
+        case 30:
+        case "end":
+          return _context2.stop();
+      }
+    }, _callee2, null, [[0, 26]]);
+  }));
+  return _fetchImage.apply(this, arguments);
+}
+function drawImageToPdf(_x5, _x6, _x7) {
+  return _drawImageToPdf.apply(this, arguments);
+}
+function _drawImageToPdf() {
+  _drawImageToPdf = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(TimbreData, imageCache, defaultImageBytes) {
+    var cachedImage, pngDims, imageBytes, embeddedImage, imageDims;
+    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+      while (1) switch (_context3.prev = _context3.next) {
+        case 0:
+          _context3.prev = 0;
+          if (!imageCache.has(TimbreData.Timbre + "_embedded")) {
+            _context3.next = 6;
+            break;
+          }
+          cachedImage = imageCache.get(TimbreData.Timbre + "_embedded");
+          pngDims = cachedImage.scale(0.62);
+          TimbreData.page.drawImage(cachedImage, {
             x: TimbreData.TimbreX,
             y: TimbreData.TimbreY,
             width: pngDims.width,
             height: pngDims.height
           });
-          _context2.next = 16;
+          return _context3.abrupt("return");
+        case 6:
+          _context3.next = 8;
+          return fetchImage(TimbreData, imageCache, defaultImageBytes);
+        case 8:
+          imageBytes = _context3.sent;
+          if (imageBytes) {
+            _context3.next = 11;
+            break;
+          }
+          return _context3.abrupt("return");
+        case 11:
+          _context3.prev = 11;
+          _context3.next = 14;
+          return TimbreData.pdfDoc.embedJpg(imageBytes);
+        case 14:
+          embeddedImage = _context3.sent;
+          _context3.next = 29;
           break;
-        case 13:
-          _context2.prev = 13;
-          _context2.t0 = _context2["catch"](0);
-          console.log("Error in drawImageToPdf function: ".concat(_context2.t0));
-        case 16:
+        case 17:
+          _context3.prev = 17;
+          _context3.t0 = _context3["catch"](11);
+          _context3.prev = 19;
+          _context3.next = 22;
+          return TimbreData.pdfDoc.embedPng(imageBytes);
+        case 22:
+          embeddedImage = _context3.sent;
+          _context3.next = 29;
+          break;
+        case 25:
+          _context3.prev = 25;
+          _context3.t1 = _context3["catch"](19);
+          console.error("Failed to embed image:", _context3.t1.message);
+          return _context3.abrupt("return");
+        case 29:
+          // Cache the embedded image for reuse
+          imageCache.set(TimbreData.Timbre + "_embedded", embeddedImage);
+          imageDims = embeddedImage.scale(0.62);
+          TimbreData.page.drawImage(embeddedImage, {
+            x: TimbreData.TimbreX,
+            y: TimbreData.TimbreY,
+            width: imageDims.width,
+            height: imageDims.height
+          });
+          _context3.next = 37;
+          break;
+        case 34:
+          _context3.prev = 34;
+          _context3.t2 = _context3["catch"](0);
+          console.log("Error in drawImageToPdf function: ".concat(_context3.t2));
+        case 37:
         case "end":
-          return _context2.stop();
+          return _context3.stop();
       }
-    }, _callee2, null, [[0, 13]]);
+    }, _callee3, null, [[0, 34], [11, 17], [19, 25]]);
   }));
   return _drawImageToPdf.apply(this, arguments);
 }
 var isSaldoAnterior = false;
-function printTextToPdf(_x3, _x4) {
+function printTextToPdf(_x8, _x9, _x10) {
   return _printTextToPdf.apply(this, arguments);
 }
 function _printTextToPdf() {
-  _printTextToPdf = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(inputData, SaldoAnterior) {
+  _printTextToPdf = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(inputData, SaldoAnterior, fontCache) {
     var linePadding, font, textColor, lineHeight;
-    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-      while (1) switch (_context3.prev = _context3.next) {
+    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+      while (1) switch (_context4.prev = _context4.next) {
         case 0:
-          _context3.prev = 0;
-          _context3.next = 3;
+          _context4.prev = 0;
+          if (!fontCache.has(inputData.fontFamily)) {
+            _context4.next = 5;
+            break;
+          }
+          font = fontCache.get(inputData.fontFamily);
+          _context4.next = 9;
+          break;
+        case 5:
+          _context4.next = 7;
           return inputData.pdfDoc.embedFont(pdf_lib__WEBPACK_IMPORTED_MODULE_0__.StandardFonts[inputData.fontFamily]);
-        case 3:
-          font = _context3.sent;
+        case 7:
+          font = _context4.sent;
+          fontCache.set(inputData.fontFamily, font);
+        case 9:
           console.log(SaldoAnterior);
           if (inputData.linePadding !== undefined) {
             linePadding = inputData.linePadding;
@@ -1851,34 +1989,44 @@ function _printTextToPdf() {
               inputData.y -= lineHeight; // Adjust Y position for next line
             });
           }
-          _context3.next = 17;
+          _context4.next = 22;
           break;
-        case 14:
-          _context3.prev = 14;
-          _context3.t0 = _context3["catch"](0);
-          console.log("Error in printTextToPdf function: ".concat(_context3.t0));
-        case 17:
+        case 19:
+          _context4.prev = 19;
+          _context4.t0 = _context4["catch"](0);
+          console.log("Error in printTextToPdf function: ".concat(_context4.t0));
+        case 22:
         case "end":
-          return _context3.stop();
+          return _context4.stop();
       }
-    }, _callee3, null, [[0, 14]]);
+    }, _callee4, null, [[0, 19]]);
   }));
   return _printTextToPdf.apply(this, arguments);
 }
-function getFormattedData(_x5, _x6, _x7, _x8, _x9) {
+function getFormattedData(_x11, _x12, _x13, _x14, _x15, _x16) {
   return _getFormattedData.apply(this, arguments);
 }
 function _getFormattedData() {
-  _getFormattedData = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(inputStringArray, pdfDoc, fontSize, fontFamily, maxWidth) {
+  _getFormattedData = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(inputStringArray, pdfDoc, fontSize, fontFamily, maxWidth, fontCache) {
     var font, formattedStringArray;
-    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
-      while (1) switch (_context4.prev = _context4.next) {
+    return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+      while (1) switch (_context5.prev = _context5.next) {
         case 0:
-          _context4.prev = 0;
-          _context4.next = 3;
+          _context5.prev = 0;
+          if (!fontCache.has(fontFamily)) {
+            _context5.next = 5;
+            break;
+          }
+          font = fontCache.get(fontFamily);
+          _context5.next = 9;
+          break;
+        case 5:
+          _context5.next = 7;
           return pdfDoc.embedFont(pdf_lib__WEBPACK_IMPORTED_MODULE_0__.StandardFonts[fontFamily]);
-        case 3:
-          font = _context4.sent;
+        case 7:
+          font = _context5.sent;
+          fontCache.set(fontFamily, font);
+        case 9:
           formattedStringArray = [];
           inputStringArray.forEach(function (line) {
             var text = line.trim().split(/\s+/);
@@ -1895,102 +2043,356 @@ function _getFormattedData() {
             }, 0);
             formattedStringArray.push(lineString.trim());
           });
-          return _context4.abrupt("return", formattedStringArray);
-        case 9:
-          _context4.prev = 9;
-          _context4.t0 = _context4["catch"](0);
-          console.log("Error in getFormattedData function: ".concat(_context4.t0));
-        case 12:
+          return _context5.abrupt("return", formattedStringArray);
+        case 14:
+          _context5.prev = 14;
+          _context5.t0 = _context5["catch"](0);
+          console.log("Error in getFormattedData function: ".concat(_context5.t0));
+        case 17:
         case "end":
-          return _context4.stop();
+          return _context5.stop();
       }
-    }, _callee4, null, [[0, 9]]);
+    }, _callee5, null, [[0, 14]]);
   }));
   return _getFormattedData.apply(this, arguments);
 }
-function assemblePDF(_x10, _x11) {
+function assemblePDF(_x17, _x18) {
   return _assemblePDF.apply(this, arguments);
 }
 function _assemblePDF() {
-  _assemblePDF = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(template, disableAviso) {
-    var mainDataObject, existingPdfBytes, templatePdfDoc, pdfDoc, RUTEmisor, CostoM3Agua, CostoM3Alcantarillado, CostoM3Tratamiento, TipoBoleta, TimbreTexto, FchVenc, FchEmis, i, _yield$pdfDoc$copyPag, _yield$pdfDoc$copyPag2, templatePage, currentPdfPage, page, Folio, Numero, CdgIntRecep, RznSocRecep, DirRecep, CiudadRecep, VlrPagar, CargoFijo, CostoTotalAgua, CostoTotalAlcantarillado, CostoTotalTratamiento, Repactacion, Multas, Otros, MntTotal, LecturaAnterior, LecturaActual, ConsumoM3, SaldoAnterior, Descuento, Subsidio, Aviso, Timbre, Color, fontSize, mainFont, mainFontBold, mainColor, alertColor, titleColor, leftSideOfPage, rightSideOfPage, middleOfPageX, rightSideOfPageForCenterAligned, TipoBoletaPos, DetalleClientePos, NumeroClientePos, FchVencPos, VlrPagarPos, DetalleConsumoTituloPos, Consumo1Pos, ConsumoValores1Pos, MntTotalTituloPos, FchEmisTituloPos, MntTotalPos, FchEmisPos, LecturaAnteriorPos, LecturaActualPos, ConsumoM3Pos, TimbrePos, TimbreTextoPos, DesglosePos, DesgloseValoresPos, VlrPagarTitulo2Pos, VlrPagar2Pos, AvisoPos, textArrays, baseConfig, TipoBoletaData, DetalleClienteData, NumeroClienteData, VencimientoData, VlrPagarData, DetalleConsumoTituloData, consumoData1, consumoValoresData1, MntTotalTituloData, FchEmisTituloData, MntTotalData, FchEmisData, LecturaAnteriorData, LecturaActualData, ConsumoM3Data, TimbreData, DesgloseData, DesgloseValoresData, VlrPagarTituloData2, VlrPagarData2, AvisoData, dataObjects, _i, _dataObjects, dataObject, pdfBytes, blob, pdfUrl;
-    return _regeneratorRuntime().wrap(function _callee6$(_context6) {
-      while (1) switch (_context6.prev = _context6.next) {
+  _assemblePDF = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7(template, disableAviso) {
+    var progressManager,
+      mainDataObject,
+      totalPages,
+      processedPages,
+      imageCache,
+      fontCache,
+      uniqueImages,
+      defaultImageBytes,
+      i,
+      imagePath,
+      response,
+      originalBytes,
+      compressedBytes,
+      fallbackResponse,
+      _originalBytes,
+      _compressedBytes,
+      existingPdfBytes,
+      templatePdfDoc,
+      pdfDoc,
+      helveticaFont,
+      helveticaBoldFont,
+      RUTEmisor,
+      CostoM3Agua,
+      CostoM3AlcantarilladoTratamiento,
+      TipoBoleta,
+      TimbreTexto,
+      FchVenc,
+      FchEmis,
+      batchSize,
+      batchStart,
+      batchEnd,
+      batchNumber,
+      totalBatches,
+      templatePages,
+      _i,
+      pageIndex,
+      templatePage,
+      page,
+      Folio,
+      Numero,
+      CdgIntRecep,
+      RznSocRecep,
+      DirRecep,
+      CiudadRecep,
+      VlrPagar,
+      CargoFijo,
+      CostoTotalAgua,
+      CostoTotalAlcantarilladoTratamiento,
+      Repactacion,
+      Multas,
+      Otros,
+      MntTotal,
+      LecturaAnterior,
+      LecturaActual,
+      ConsumoM3,
+      SaldoAnterior,
+      Descuento,
+      Subsidio,
+      Aviso,
+      Timbre,
+      Color,
+      fontSize,
+      mainFont,
+      mainFontBold,
+      mainColor,
+      alertColor,
+      titleColor,
+      leftSideOfPage,
+      rightSideOfPage,
+      middleOfPageX,
+      rightSideOfPageForCenterAligned,
+      TipoBoletaPos,
+      DetalleClientePos,
+      NumeroClientePos,
+      FchVencPos,
+      VlrPagarPos,
+      DetalleConsumoTituloPos,
+      Consumo1Pos,
+      ConsumoValores1Pos,
+      MntTotalTituloPos,
+      FchEmisTituloPos,
+      MntTotalPos,
+      FchEmisPos,
+      LecturaAnteriorPos,
+      LecturaActualPos,
+      ConsumoM3Pos,
+      TimbrePos,
+      TimbreTextoPos,
+      DesglosePos,
+      DesgloseValoresPos,
+      VlrPagarTitulo2Pos,
+      VlrPagar2Pos,
+      AvisoPos,
+      textArrays,
+      baseConfig,
+      TipoBoletaData,
+      DetalleClienteData,
+      NumeroClienteData,
+      VencimientoData,
+      VlrPagarData,
+      DetalleConsumoTituloData,
+      consumoData1,
+      consumoValoresData1,
+      MntTotalTituloData,
+      FchEmisTituloData,
+      MntTotalData,
+      FchEmisData,
+      LecturaAnteriorData,
+      LecturaActualData,
+      ConsumoM3Data,
+      TimbreData,
+      DesgloseData,
+      DesgloseValoresData,
+      VlrPagarTituloData2,
+      VlrPagarData2,
+      AvisoData,
+      dataObjects,
+      _i2,
+      _dataObjects,
+      dataObject,
+      statusMessage,
+      _iterator,
+      _step,
+      _step$value,
+      key,
+      value,
+      pdfBytes,
+      blob,
+      pdfUrl,
+      fileSizeMB,
+      _args7 = arguments;
+    return _regeneratorRuntime().wrap(function _callee7$(_context7) {
+      while (1) switch (_context7.prev = _context7.next) {
         case 0:
-          _context6.prev = 0;
+          progressManager = _args7.length > 2 && _args7[2] !== undefined ? _args7[2] : null;
+          _context7.prev = 1;
           mainDataObject = _database_data_js__WEBPACK_IMPORTED_MODULE_2__.fetchData();
           console.log(mainDataObject);
+
+          // Initialize progress tracking
+          totalPages = mainDataObject.Numero.length;
+          processedPages = 0; // Create global caches for maximum reuse
+          imageCache = new Map();
+          fontCache = new Map(); // Update progress: Starting image pre-loading
+          if (progressManager) {
+            progressManager.updatePhase("Pre-loading images", "Processing ".concat(_toConsumableArray(new Set(mainDataObject.Timbre)).length, " unique images"));
+          }
+
+          // Pre-load and cache all unique images with compression
+          console.log("Pre-loading and compressing unique images...");
+          uniqueImages = _toConsumableArray(new Set(mainDataObject.Timbre));
+          defaultImageBytes = null;
+          i = 0;
+        case 13:
+          if (!(i < uniqueImages.length)) {
+            _context7.next = 37;
+            break;
+          }
+          imagePath = uniqueImages[i];
+          _context7.prev = 15;
+          _context7.next = 18;
+          return fetch(imagePath);
+        case 18:
+          response = _context7.sent;
+          if (!response.ok) {
+            _context7.next = 29;
+            break;
+          }
+          _context7.next = 22;
+          return response.arrayBuffer();
+        case 22:
+          originalBytes = _context7.sent;
+          _context7.next = 25;
+          return compressImage(originalBytes, 0.7);
+        case 25:
+          compressedBytes = _context7.sent;
+          imageCache.set(imagePath + "_compressed", compressedBytes);
+          console.log("Processed image: ".concat(imagePath));
+
+          // Update progress for image processing
+          if (progressManager) {
+            progressManager.updatePhase("Pre-loading images", "".concat(i + 1, "/").concat(uniqueImages.length, " images processed"));
+          }
+        case 29:
+          _context7.next = 34;
+          break;
+        case 31:
+          _context7.prev = 31;
+          _context7.t0 = _context7["catch"](15);
+          console.log("Failed to pre-load image ".concat(imagePath, ":"), _context7.t0.message);
+        case 34:
+          i++;
+          _context7.next = 13;
+          break;
+        case 37:
+          _context7.prev = 37;
+          _context7.next = 40;
+          return fetch("/15246448-7.png");
+        case 40:
+          fallbackResponse = _context7.sent;
+          if (!fallbackResponse.ok) {
+            _context7.next = 49;
+            break;
+          }
+          _context7.next = 44;
+          return fallbackResponse.arrayBuffer();
+        case 44:
+          _originalBytes = _context7.sent;
+          _context7.next = 47;
+          return compressImage(_originalBytes, 0.7);
+        case 47:
+          _compressedBytes = _context7.sent;
+          imageCache.set("_default_compressed", _compressedBytes);
+        case 49:
+          _context7.next = 54;
+          break;
+        case 51:
+          _context7.prev = 51;
+          _context7.t1 = _context7["catch"](37);
+          console.log("Failed to load default image:", _context7.t1.message);
+        case 54:
+          // Update progress: Loading template
+          if (progressManager) {
+            progressManager.updatePhase("Loading template", "Processing PDF template");
+          }
+
           // fetch template and convert it to raw binary data buffer
-          _context6.next = 5;
+          _context7.next = 57;
           return fetch(template).then(function (res) {
             return res.arrayBuffer();
           });
-        case 5:
-          existingPdfBytes = _context6.sent;
-          _context6.next = 8;
+        case 57:
+          existingPdfBytes = _context7.sent;
+          _context7.next = 60;
           return pdf_lib__WEBPACK_IMPORTED_MODULE_0__.PDFDocument.load(existingPdfBytes);
-        case 8:
-          templatePdfDoc = _context6.sent;
-          _context6.next = 11;
+        case 60:
+          templatePdfDoc = _context7.sent;
+          _context7.next = 63;
           return pdf_lib__WEBPACK_IMPORTED_MODULE_0__.PDFDocument.create();
-        case 11:
-          pdfDoc = _context6.sent;
+        case 63:
+          pdfDoc = _context7.sent;
+          // Update progress: Pre-embedding fonts
+          if (progressManager) {
+            progressManager.updatePhase("Initializing fonts", "Pre-embedding fonts for reuse");
+          }
+
+          // Pre-embed all fonts that will be reused
+          console.log("Pre-embedding fonts...");
+          _context7.next = 68;
+          return pdfDoc.embedFont(pdf_lib__WEBPACK_IMPORTED_MODULE_0__.StandardFonts.Helvetica);
+        case 68:
+          helveticaFont = _context7.sent;
+          _context7.next = 71;
+          return pdfDoc.embedFont(pdf_lib__WEBPACK_IMPORTED_MODULE_0__.StandardFonts.HelveticaBold);
+        case 71:
+          helveticaBoldFont = _context7.sent;
+          fontCache.set("Helvetica", helveticaFont);
+          fontCache.set("HelveticaBold", helveticaBoldFont);
+
           ////////////////////////////////////////////////
           ////////////GET STATIC EXCEL VALUES////////////
           //////////////////////////////////////////////
           RUTEmisor = "76607412-K";
           CostoM3Agua = mainDataObject.CostoM3Agua[0];
-          CostoM3Alcantarillado = mainDataObject.CostoM3Alcantarillado[0];
-          CostoM3Tratamiento = mainDataObject.CostoM3Tratamiento[0];
+          CostoM3AlcantarilladoTratamiento = mainDataObject.CostoM3AlcantarilladoTratamiento[0];
           TipoBoleta = "BOLETA ELECTRONICA";
           TimbreTexto = "Timbre electr\xF3nico S.I.I";
           FchVenc = _format_strings_js__WEBPACK_IMPORTED_MODULE_1__.getShortExpiryDate();
-          FchEmis = _format_strings_js__WEBPACK_IMPORTED_MODULE_1__.getIssueDate(); // Loop through all rows in excel sheet
-          i = 0;
-        case 21:
-          if (!(i < mainDataObject.Numero.length)) {
-            _context6.next = 135;
+          FchEmis = _format_strings_js__WEBPACK_IMPORTED_MODULE_1__.getIssueDate(); // Update progress: Starting page generation
+          if (progressManager) {
+            progressManager.updatePhase("Generating pages", "Processing ".concat(totalPages, " boletas"));
+          }
+
+          // Process pages in smaller batches for better compression
+          batchSize = 20; // Smaller batches
+          batchStart = 0;
+        case 84:
+          if (!(batchStart < totalPages)) {
+            _context7.next = 208;
             break;
           }
-          _context6.next = 24;
-          return pdfDoc.copyPages(templatePdfDoc, [0]);
-        case 24:
-          _yield$pdfDoc$copyPag = _context6.sent;
-          _yield$pdfDoc$copyPag2 = _slicedToArray(_yield$pdfDoc$copyPag, 1);
-          templatePage = _yield$pdfDoc$copyPag2[0];
-          // Add previously copied page to main PDF Doc
+          batchEnd = Math.min(batchStart + batchSize, totalPages); // Update progress for batch
+          if (progressManager) {
+            batchNumber = Math.floor(batchStart / batchSize) + 1;
+            totalBatches = Math.ceil(totalPages / batchSize);
+            progressManager.updatePhase("Processing batch", "Batch ".concat(batchNumber, "/").concat(totalBatches, " (pages ").concat(batchStart + 1, "-").concat(batchEnd, ")"));
+          }
+          console.log("Processing batch ".concat(Math.floor(batchStart / batchSize) + 1, "/").concat(Math.ceil(totalPages / batchSize), ": pages ").concat(batchStart + 1, "-").concat(batchEnd));
+
+          // Copy template pages for this batch
+          _context7.next = 90;
+          return pdfDoc.copyPages(templatePdfDoc, Array(batchEnd - batchStart).fill(0));
+        case 90:
+          templatePages = _context7.sent;
+          _i = batchStart;
+        case 92:
+          if (!(_i < batchEnd)) {
+            _context7.next = 203;
+            break;
+          }
+          pageIndex = _i - batchStart;
+          templatePage = templatePages[pageIndex]; // Add the template page to main PDF Doc
           pdfDoc.addPage(templatePage);
 
-          // Get current page index
-          currentPdfPage = pdfDoc.getPageCount() - 1; // Select current page
-          page = pdfDoc.getPages()[currentPdfPage]; ////////////////////////////////////////////////
+          // Get current page
+          page = pdfDoc.getPages()[pdfDoc.getPageCount() - 1]; ////////////////////////////////////////////////
           ////////////GET EXCEL COLUMN VALUES////////////
           //////////////////////////////////////////////
-          Folio = mainDataObject.Folio[i];
-          Numero = mainDataObject.Numero[i];
-          CdgIntRecep = mainDataObject.CdgIntRecep[i];
-          RznSocRecep = mainDataObject.RznSocRecep[i];
-          DirRecep = mainDataObject.DirRecep[i];
-          CiudadRecep = mainDataObject.CiudadRecep[i];
-          VlrPagar = mainDataObject.VlrPagar[i];
-          CargoFijo = mainDataObject.CargoFijo[i];
-          CostoTotalAgua = mainDataObject.CostoTotalAgua[i];
-          CostoTotalAlcantarillado = mainDataObject.CostoTotalAlcantarillado[i];
-          CostoTotalTratamiento = mainDataObject.CostoTotalTratamiento[i];
-          Repactacion = mainDataObject.Repactacion[i];
-          Multas = mainDataObject.Multas[i];
-          Otros = mainDataObject.Otros[i];
-          MntTotal = mainDataObject.MntTotal[i];
-          LecturaAnterior = mainDataObject.LecturaAnterior[i];
-          LecturaActual = mainDataObject.LecturaActual[i];
-          ConsumoM3 = mainDataObject.ConsumoM3[i];
-          SaldoAnterior = mainDataObject.SaldoAnterior[i];
-          Descuento = mainDataObject.Descuento[i];
-          Subsidio = mainDataObject.Subsidio[i];
-          Aviso = mainDataObject.Aviso[i];
-          Timbre = mainDataObject.Timbre[i];
-          Color = mainDataObject.Color[i]; ////////////////////////////////////////////////
-          //////////////DATA VALUES//////////////
+          Folio = mainDataObject.Folio[_i];
+          Numero = mainDataObject.Numero[_i];
+          CdgIntRecep = mainDataObject.CdgIntRecep[_i];
+          RznSocRecep = mainDataObject.RznSocRecep[_i];
+          DirRecep = mainDataObject.DirRecep[_i];
+          CiudadRecep = mainDataObject.CiudadRecep[_i];
+          VlrPagar = mainDataObject.VlrPagar[_i];
+          CargoFijo = mainDataObject.CargoFijo[_i];
+          CostoTotalAgua = mainDataObject.CostoTotalAgua[_i];
+          CostoTotalAlcantarilladoTratamiento = mainDataObject.CostoTotalAlcantarilladoTratamiento[_i];
+          Repactacion = mainDataObject.Repactacion[_i];
+          Multas = mainDataObject.Multas[_i];
+          Otros = mainDataObject.Otros[_i];
+          MntTotal = mainDataObject.MntTotal[_i];
+          LecturaAnterior = mainDataObject.LecturaAnterior[_i];
+          LecturaActual = mainDataObject.LecturaActual[_i];
+          ConsumoM3 = mainDataObject.ConsumoM3[_i];
+          SaldoAnterior = mainDataObject.SaldoAnterior[_i];
+          Descuento = mainDataObject.Descuento[_i];
+          Subsidio = mainDataObject.Subsidio[_i];
+          Aviso = mainDataObject.Aviso[_i];
+          Timbre = mainDataObject.Timbre[_i];
+          Color = mainDataObject.Color[_i]; ////////////////////////////////////////////////
+          //////////////////DATA VALUES//////////////////
           //////////////////////////////////////////////
           fontSize = {
             small: 12,
@@ -2127,8 +2529,8 @@ function _assemblePDF() {
             Vencimiento: ["VENCIMIENTO: ".concat(FchVenc)],
             VlrPagar: ["TOTAL A PAGAR: ".concat(VlrPagar)],
             DetalleConsumoTitulo: ["DETALLE DE CONSUMO:"],
-            Consumo1: ["Cargo Fijo:", "Agua:", "Alcantarillado:", "Tratamiento:"],
-            ConsumoValores1: ["".concat(CargoFijo), "".concat(CostoTotalAgua), "".concat(CostoTotalAlcantarillado), "".concat(CostoTotalTratamiento)],
+            Consumo1: ["Cargo Fijo:", "Agua:", "Alcantarillado y Tratamiento:"],
+            ConsumoValores1: ["".concat(CargoFijo), "".concat(CostoTotalAgua), "".concat(CostoTotalAlcantarilladoTratamiento)],
             // Consumo2: [
             //   ``, // Placeholder String
             //   ``, // Placeholder String
@@ -2181,19 +2583,19 @@ function _assemblePDF() {
             CdgIntRecep: CdgIntRecep,
             formatData: function formatData() {
               var _this = this;
-              return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
-                return _regeneratorRuntime().wrap(function _callee5$(_context5) {
-                  while (1) switch (_context5.prev = _context5.next) {
+              return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
+                return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+                  while (1) switch (_context6.prev = _context6.next) {
                     case 0:
-                      _context5.next = 2;
-                      return getFormattedData(_this.data, _this.pdfDoc, _this.fontSize, _this.fontFamily, _this.maxWidth);
+                      _context6.next = 2;
+                      return getFormattedData(_this.data, _this.pdfDoc, _this.fontSize, _this.fontFamily, _this.maxWidth, fontCache);
                     case 2:
-                      _this.formattedData = _context5.sent;
+                      _this.formattedData = _context6.sent;
                     case 3:
                     case "end":
-                      return _context5.stop();
+                      return _context6.stop();
                   }
-                }, _callee5);
+                }, _callee6);
               }))();
             }
           };
@@ -2438,66 +2840,334 @@ function _assemblePDF() {
           ];
           console.log(TimbreData);
           // Initilize key:values for formatted text in Objects (lines)
-          _i = 0, _dataObjects = dataObjects;
-        case 114:
-          if (!(_i < _dataObjects.length)) {
-            _context6.next = 124;
+          _i2 = 0, _dataObjects = dataObjects;
+        case 180:
+          if (!(_i2 < _dataObjects.length)) {
+            _context7.next = 190;
             break;
           }
-          dataObject = _dataObjects[_i];
-          _context6.next = 118;
+          dataObject = _dataObjects[_i2];
+          _context7.next = 184;
           return dataObject.formatData();
-        case 118:
+        case 184:
           dataObject.lines = _toConsumableArray(dataObject.formattedData);
-          _context6.next = 121;
-          return printTextToPdf(dataObject, SaldoAnterior);
-        case 121:
-          _i++;
-          _context6.next = 114;
+          _context7.next = 187;
+          return printTextToPdf(dataObject, SaldoAnterior, fontCache);
+        case 187:
+          _i2++;
+          _context7.next = 180;
           break;
-        case 124:
-          if (!(!disableAviso && mainDataObject.Aviso[i] && String(mainDataObject.Aviso[i]).trim() !== "")) {
-            _context6.next = 130;
+        case 190:
+          if (!(!disableAviso && mainDataObject.Aviso[_i] && String(mainDataObject.Aviso[_i]).trim() !== "")) {
+            _context7.next = 196;
             break;
           }
-          _context6.next = 127;
+          _context7.next = 193;
           return AvisoData.formatData();
-        case 127:
+        case 193:
           AvisoData.lines = _toConsumableArray(AvisoData.formattedData);
-          _context6.next = 130;
-          return printTextToPdf(AvisoData, SaldoAnterior);
-        case 130:
-          _context6.next = 132;
-          return drawImageToPdf(TimbreData);
-        case 132:
-          i++;
-          _context6.next = 21;
+          _context7.next = 196;
+          return printTextToPdf(AvisoData, SaldoAnterior, fontCache);
+        case 196:
+          _context7.next = 198;
+          return drawImageToPdf(TimbreData, imageCache, defaultImageBytes);
+        case 198:
+          // Update progress for each page
+          processedPages++;
+          if (progressManager) {
+            statusMessage = "Processing page ".concat(processedPages, " (Client: ").concat(CdgIntRecep, ")");
+            progressManager.updateProgress(processedPages, statusMessage);
+          }
+        case 200:
+          _i++;
+          _context7.next = 92;
           break;
-        case 135:
-          _context6.next = 137;
-          return pdfDoc.save();
-        case 137:
-          pdfBytes = _context6.sent;
+        case 203:
+          // More aggressive memory management between batches
+          if (typeof window !== "undefined" && window.gc) {
+            window.gc(); // Force garbage collection if available
+          }
+
+          // Clear compressed image cache more frequently to save memory
+          if (batchStart / batchSize % 2 === 0) {
+            _iterator = _createForOfIteratorHelper(imageCache.entries());
+            try {
+              for (_iterator.s(); !(_step = _iterator.n()).done;) {
+                _step$value = _slicedToArray(_step.value, 2), key = _step$value[0], value = _step$value[1];
+                if (key.endsWith("_compressed") && !key.startsWith("_default")) {
+                  imageCache["delete"](key);
+                }
+              }
+            } catch (err) {
+              _iterator.e(err);
+            } finally {
+              _iterator.f();
+            }
+            console.log("Cleared compressed image cache to free memory");
+          }
+        case 205:
+          batchStart += batchSize;
+          _context7.next = 84;
+          break;
+        case 208:
+          // Update progress: Finalizing PDF
+          if (progressManager) {
+            progressManager.updatePhase("Finalizing PDF", "Applying compression and saving");
+          }
+
+          // Save PDF with maximum compression options
+          console.log("Saving PDF with maximum compression...");
+          _context7.next = 212;
+          return pdfDoc.save({
+            useObjectStreams: true,
+            addDefaultPage: false,
+            objectsPerTick: 10,
+            // Even more aggressive compression
+            updateFieldAppearances: false,
+            // Additional compression options
+            compress: true,
+            fastWebView: true
+          });
+        case 212:
+          pdfBytes = _context7.sent;
+          // Update progress: Creating blob and displaying
+          if (progressManager) {
+            progressManager.updatePhase("Completing", "Creating PDF blob and displaying");
+          }
+
           // Create a blob with the bytes as type PDF
           blob = new Blob([pdfBytes], {
             type: "application/pdf"
           }); // Create URL from blob
           pdfUrl = URL.createObjectURL(blob); // Assign URL to src of iFrame
           document.getElementById("pdfIframe").src = pdfUrl;
-          _context6.next = 146;
+
+          // Log final file size
+          fileSizeMB = (pdfBytes.byteLength / (1024 * 1024)).toFixed(2);
+          console.log("PDF generation completed! Final file size: ".concat(fileSizeMB, " MB"));
+          if (progressManager) {
+            progressManager.updatePhase("Complete", "PDF generated successfully (".concat(fileSizeMB, " MB)"));
+          }
+          _context7.next = 227;
           break;
-        case 143:
-          _context6.prev = 143;
-          _context6.t0 = _context6["catch"](0);
-          console.log("Error in PDF Assembly Function: ".concat(_context6.t0));
-        case 146:
+        case 222:
+          _context7.prev = 222;
+          _context7.t2 = _context7["catch"](1);
+          console.log("Error in PDF Assembly Function: ".concat(_context7.t2));
+          if (progressManager) {
+            progressManager.error(_context7.t2.message || "An error occurred during PDF generation");
+          }
+          throw _context7.t2;
+        case 227:
         case "end":
-          return _context6.stop();
+          return _context7.stop();
       }
-    }, _callee6, null, [[0, 143]]);
+    }, _callee7, null, [[1, 222], [15, 31], [37, 51]]);
   }));
   return _assemblePDF.apply(this, arguments);
 }
+
+/***/ }),
+
+/***/ "./src/progress-manager.js":
+/*!*********************************!*\
+  !*** ./src/progress-manager.js ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+
+
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+var ProgressManager = /*#__PURE__*/function () {
+  function ProgressManager() {
+    _classCallCheck(this, ProgressManager);
+    this.startTime = null;
+    this.totalPages = 0;
+    this.processedPages = 0;
+    this.isVisible = false;
+    this.currentPhase = "";
+
+    // Get DOM elements
+    this.loadingContainer = null;
+    this.progressBar = null;
+    this.loadingPercentage = null;
+    this.loadingStatus = null;
+    this.processedCount = null;
+    this.totalCount = null;
+    this.estimatedTime = null;
+    this.generateButton = null;
+
+    // Initialize when DOM is ready
+    this.initializeElements();
+  }
+  _createClass(ProgressManager, [{
+    key: "initializeElements",
+    value: function initializeElements() {
+      // Wait for DOM to be ready
+      if (typeof document !== "undefined") {
+        this.loadingContainer = document.getElementById("loadingContainer");
+        this.progressBar = document.getElementById("progressBar");
+        this.loadingPercentage = document.getElementById("loadingPercentage");
+        this.loadingStatus = document.getElementById("loadingStatus");
+        this.processedCount = document.getElementById("processedCount");
+        this.totalCount = document.getElementById("totalCount");
+        this.estimatedTime = document.getElementById("estimatedTime");
+        this.generateButton = document.getElementById("generateBoletasButton");
+      }
+    }
+  }, {
+    key: "show",
+    value: function show(totalPages) {
+      if (!this.loadingContainer) this.initializeElements();
+      this.totalPages = totalPages;
+      this.processedPages = 0;
+      this.startTime = Date.now();
+      this.isVisible = true;
+
+      // Show loading container and disable generate button
+      this.loadingContainer.style.display = "block";
+      if (this.generateButton) {
+        this.generateButton.disabled = true;
+        this.generateButton.textContent = "Generating...";
+      }
+
+      // Initialize display
+      this.updateDisplay(0, "Initializing PDF generation...");
+      console.log("Progress Manager: Starting generation of ".concat(totalPages, " pages"));
+    }
+  }, {
+    key: "updateProgress",
+    value: function updateProgress(processedPages) {
+      var status = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
+      if (!this.isVisible) return;
+      this.processedPages = Math.min(processedPages, this.totalPages);
+      var percentage = this.totalPages > 0 ? this.processedPages / this.totalPages * 100 : 0;
+      this.updateDisplay(percentage, status);
+
+      // Log progress every 10 pages or on phase changes
+      if (processedPages % 10 === 0 || status !== this.currentPhase) {
+        console.log("Progress: ".concat(processedPages, "/").concat(this.totalPages, " pages (").concat(percentage.toFixed(1), "%) - ").concat(status));
+        this.currentPhase = status;
+      }
+    }
+  }, {
+    key: "updatePhase",
+    value: function updatePhase(phase) {
+      var additionalInfo = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
+      if (!this.isVisible) return;
+      var status = additionalInfo ? "".concat(phase, " - ").concat(additionalInfo) : phase;
+      this.updateDisplay(null, status); // null means don't change percentage
+
+      console.log("Progress Phase: ".concat(status));
+    }
+  }, {
+    key: "updateDisplay",
+    value: function updateDisplay() {
+      var percentage = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var status = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
+      if (!this.loadingContainer) return;
+
+      // Update percentage if provided
+      if (percentage !== null) {
+        var roundedPercentage = Math.round(percentage);
+        if (this.progressBar) {
+          this.progressBar.style.width = "".concat(percentage, "%");
+        }
+        if (this.loadingPercentage) {
+          this.loadingPercentage.textContent = "".concat(roundedPercentage, "%");
+        }
+      }
+
+      // Update status text
+      if (status && this.loadingStatus) {
+        this.loadingStatus.textContent = status;
+      }
+
+      // Update counters
+      if (this.processedCount) {
+        this.processedCount.textContent = this.processedPages;
+      }
+      if (this.totalCount) {
+        this.totalCount.textContent = this.totalPages;
+      }
+
+      // Calculate and update ETA
+      if (this.estimatedTime && this.startTime && this.processedPages > 0) {
+        var elapsed = Date.now() - this.startTime;
+        var rate = this.processedPages / elapsed; // pages per millisecond
+        var remaining = this.totalPages - this.processedPages;
+        var eta = remaining / rate; // milliseconds remaining
+
+        if (eta > 0 && eta < Infinity) {
+          var etaSeconds = Math.round(eta / 1000);
+          var minutes = Math.floor(etaSeconds / 60);
+          var seconds = etaSeconds % 60;
+          this.estimatedTime.textContent = "".concat(minutes, ":").concat(seconds.toString().padStart(2, "0"));
+        } else {
+          this.estimatedTime.textContent = "--:--";
+        }
+      }
+    }
+  }, {
+    key: "hide",
+    value: function hide() {
+      if (!this.loadingContainer) return;
+      this.isVisible = false;
+
+      // Hide loading container and re-enable generate button
+      this.loadingContainer.style.display = "none";
+      if (this.generateButton) {
+        this.generateButton.disabled = false;
+        this.generateButton.textContent = "Generate Boletas";
+      }
+
+      // Calculate total time
+      if (this.startTime) {
+        var totalTime = Date.now() - this.startTime;
+        var minutes = Math.floor(totalTime / 60000);
+        var seconds = Math.floor(totalTime % 60000 / 1000);
+        console.log("Progress Manager: Generation completed in ".concat(minutes, ":").concat(seconds.toString().padStart(2, "0")));
+      }
+
+      // Reset values
+      this.startTime = null;
+      this.totalPages = 0;
+      this.processedPages = 0;
+      this.currentPhase = "";
+    }
+  }, {
+    key: "error",
+    value: function error(errorMessage) {
+      var _this = this;
+      console.error("Progress Manager Error: ".concat(errorMessage));
+      if (this.loadingStatus) {
+        this.loadingStatus.textContent = "Error: ".concat(errorMessage);
+        this.loadingStatus.style.color = "#ff6b6b";
+      }
+
+      // Hide after a delay to show the error
+      setTimeout(function () {
+        _this.hide();
+        if (_this.loadingStatus) {
+          _this.loadingStatus.style.color = ""; // Reset color
+        }
+      }, 3000);
+    }
+  }]);
+  return ProgressManager;
+}(); // Create singleton instance
+var progressManager = new ProgressManager();
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (progressManager);
 
 /***/ }),
 
@@ -60823,15 +61493,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _assets_boletaTemplate_pdf__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./assets/boletaTemplate.pdf */ "./src/assets/boletaTemplate.pdf");
 /* harmony import */ var _pdf_assembly_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./pdf-assembly.js */ "./src/pdf-assembly.js");
 /* harmony import */ var _database_data_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./database-data.js */ "./src/database-data.js");
-/* harmony import */ var xlsx__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! xlsx */ "./node_modules/xlsx/xlsx.mjs");
+/* harmony import */ var xlsx__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! xlsx */ "./node_modules/xlsx/xlsx.mjs");
+/* harmony import */ var _progress_manager_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./progress-manager.js */ "./src/progress-manager.js");
 
 
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw new Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw new Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : String(i); }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+
 
 
 
@@ -60872,7 +61547,7 @@ document.addEventListener("DOMContentLoaded", function () {
       var data = new Uint8Array(e.target.result);
 
       // Assign the Uint8Array data as type 'array' to workbook variable
-      workbook = xlsx__WEBPACK_IMPORTED_MODULE_8__.read(data, {
+      workbook = xlsx__WEBPACK_IMPORTED_MODULE_9__.read(data, {
         type: "array"
       });
 
@@ -60911,7 +61586,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Generate Boletas from sheet data (DataBase)
   fetchDataButton.addEventListener("click", function () {
     // Get Data from selected sheet as json
-    dataObject = _objectSpread({}, _database_data_js__WEBPACK_IMPORTED_MODULE_7__.compileData(xlsx__WEBPACK_IMPORTED_MODULE_8__.utils.sheet_to_json(workbook.Sheets[sheetList.value])));
+    dataObject = _objectSpread({}, _database_data_js__WEBPACK_IMPORTED_MODULE_7__.compileData(xlsx__WEBPACK_IMPORTED_MODULE_9__.utils.sheet_to_json(workbook.Sheets[sheetList.value])));
     _button_style_js__WEBPACK_IMPORTED_MODULE_3__.setButtonClicked(sheetList);
     _button_style_js__WEBPACK_IMPORTED_MODULE_3__.setButtonClicked(fetchDataButton);
     _button_style_js__WEBPACK_IMPORTED_MODULE_3__.revealButton(generateBoletasButton);
@@ -60921,15 +61596,45 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("test");
   });
 
-  // Generate Boletas from sheet data (DataBase)
-  generateBoletasButton.addEventListener("click", function () {
-    // Assigning the selected sheet as an object to a variable
-    // const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetList.value]);
-    var disableAviso = __webpack_require__.g.disableAvisoCheckbox.checked;
-    (0,_pdf_assembly_js__WEBPACK_IMPORTED_MODULE_6__.assemblePDF)(_assets_boletaTemplate_pdf__WEBPACK_IMPORTED_MODULE_5__, disableAviso)["catch"](function (err) {
-      return console.error(err);
-    });
-  });
+  // Generate Boletas from sheet data (DataBase) with progress tracking
+  generateBoletasButton.addEventListener("click", /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+    var disableAviso, _dataObject, totalPages;
+    return _regeneratorRuntime().wrap(function _callee$(_context) {
+      while (1) switch (_context.prev = _context.next) {
+        case 0:
+          disableAviso = __webpack_require__.g.disableAvisoCheckbox.checked;
+          _context.prev = 1;
+          // Get total number of pages to generate
+          totalPages = ((_dataObject = dataObject) === null || _dataObject === void 0 || (_dataObject = _dataObject.Numero) === null || _dataObject === void 0 ? void 0 : _dataObject.length) || 0;
+          if (!(totalPages === 0)) {
+            _context.next = 6;
+            break;
+          }
+          alert("No data found. Please make sure you have loaded an Excel file with data.");
+          return _context.abrupt("return");
+        case 6:
+          // Show progress bar
+          _progress_manager_js__WEBPACK_IMPORTED_MODULE_8__["default"].show(totalPages);
+
+          // Start PDF generation with progress tracking
+          _context.next = 9;
+          return (0,_pdf_assembly_js__WEBPACK_IMPORTED_MODULE_6__.assemblePDF)(_assets_boletaTemplate_pdf__WEBPACK_IMPORTED_MODULE_5__, disableAviso, _progress_manager_js__WEBPACK_IMPORTED_MODULE_8__["default"]);
+        case 9:
+          // Hide progress bar on completion
+          _progress_manager_js__WEBPACK_IMPORTED_MODULE_8__["default"].hide();
+          _context.next = 16;
+          break;
+        case 12:
+          _context.prev = 12;
+          _context.t0 = _context["catch"](1);
+          console.error("PDF Generation Error:", _context.t0);
+          _progress_manager_js__WEBPACK_IMPORTED_MODULE_8__["default"].error(_context.t0.message || "An error occurred during PDF generation");
+        case 16:
+        case "end":
+          return _context.stop();
+      }
+    }, _callee, null, [[1, 12]]);
+  })));
   var avisoCount = 0;
   addAvisoButton.addEventListener("click", function () {
     var avisoInjectButtonId = "avisoInjectButton".concat(avisoCount);
@@ -60960,4 +61665,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /******/ })()
 ;
-//# sourceMappingURL=bundle8b98c43afde13e6e21c1.js.map
+//# sourceMappingURL=bundleb48381604d1ef438f2b4.js.map
