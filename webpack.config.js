@@ -17,6 +17,7 @@ module.exports = (env, argv) => {
       filename: "[name][contenthash].js",
       clean: true,
       assetModuleFilename: "[name][ext]",
+      publicPath: "/",
     },
     devtool: isProduction ? false : "source-map",
     devServer: isProduction
@@ -73,7 +74,11 @@ module.exports = (env, argv) => {
       rules: [
         {
           test: /\.scss$/,
-          use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+          use: [
+            isProduction ? MiniCssExtractPlugin.loader : "style-loader",
+            "css-loader",
+            "sass-loader",
+          ],
         },
         {
           test: /\.js$/,
@@ -99,7 +104,10 @@ module.exports = (env, argv) => {
         template: "src/indexTemplate.html",
         cache: true, // Enable template caching
       }),
-      new MiniCssExtractPlugin(),
+      new MiniCssExtractPlugin({
+        filename: "[name].css",
+        chunkFilename: "[id].css",
+      }),
     ],
     optimization: {
       minimizer: [new TerserPlugin(), new CssMinimizerPlugin()],

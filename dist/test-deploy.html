@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Deploy</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      .test-item {
+        margin: 10px 0;
+        padding: 10px;
+        border: 1px solid #ccc;
+      }
+      .success {
+        background-color: #d4edda;
+      }
+      .error {
+        background-color: #f8d7da;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Deployment Test</h1>
+
+    <div id="css-test" class="test-item">
+      CSS Test: If this has a border and padding, CSS is working.
+    </div>
+
+    <div id="js-test" class="test-item">JavaScript Test: Waiting...</div>
+
+    <div id="assets-test" class="test-item">
+      Assets Test:
+      <img
+        id="test-img"
+        src="./boletaTemplate.pdf"
+        alt="PDF test"
+        style="width: 50px"
+      />
+    </div>
+
+    <script>
+      // Test JavaScript execution
+      document.getElementById("js-test").textContent =
+        "JavaScript Test: Working!";
+      document.getElementById("js-test").className = "test-item success";
+
+      // Test asset loading
+      const img = document.getElementById("test-img");
+      img.onerror = function () {
+        document.getElementById("assets-test").innerHTML =
+          "Assets Test: PDF not found (expected)";
+        document.getElementById("assets-test").className = "test-item";
+      };
+
+      // Log current location for debugging
+      console.log("Current URL:", window.location.href);
+      console.log("Base URL:", window.location.origin);
+
+      // Test CSS loading
+      const computed = window.getComputedStyle(
+        document.getElementById("css-test")
+      );
+      if (computed.border !== "none" && computed.border !== "") {
+        document.getElementById("css-test").className = "test-item success";
+      } else {
+        document.getElementById("css-test").className = "test-item error";
+        document.getElementById("css-test").textContent =
+          "CSS Test: Failed - no styles applied";
+      }
+
+      // Check for your main bundle
+      fetch("/bundle.css")
+        .then((response) => {
+          if (response.ok) {
+            console.log("Bundle CSS is accessible");
+          } else {
+            console.error("Bundle CSS not found:", response.status);
+          }
+        })
+        .catch((err) => console.error("Error loading bundle CSS:", err));
+
+      fetch("/bundle6d4bc56f2bac3ecd6fc3.js")
+        .then((response) => {
+          if (response.ok) {
+            console.log("Bundle JS is accessible");
+          } else {
+            console.error("Bundle JS not found:", response.status);
+          }
+        })
+        .catch((err) => console.error("Error loading bundle JS:", err));
+    </script>
+  </body>
+</html>
