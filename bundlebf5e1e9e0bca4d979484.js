@@ -1454,6 +1454,7 @@ var compileData = function compileData(excelData) {
     SaldoAnterior: [],
     Descuento: [],
     Subsidio: [],
+    Reposicion: [],
     Aviso: [],
     Timbre: [],
     Color: []
@@ -1499,6 +1500,7 @@ var compileData = function compileData(excelData) {
       mainDataObject.SaldoAnterior.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Saldo Anterior"]));
       mainDataObject.Descuento.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Descuento"]));
       mainDataObject.Subsidio.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Subsidio"]));
+      mainDataObject.Reposicion.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Reposicion"]));
       mainDataObject.Aviso.push(String(data["Aviso"]));
       mainDataObject.Color.push(data["Color"].trim().split(",").map(function (num) {
         return Number(num.trim());
@@ -2119,6 +2121,7 @@ function _assemblePDF() {
       SaldoAnterior,
       Descuento,
       Subsidio,
+      Reposicion,
       Aviso,
       Timbre,
       Color,
@@ -2339,7 +2342,7 @@ function _assemblePDF() {
           batchStart = 0;
         case 84:
           if (!(batchStart < totalPages)) {
-            _context7.next = 208;
+            _context7.next = 210;
             break;
           }
           batchEnd = Math.min(batchStart + batchSize, totalPages); // Update progress for batch
@@ -2358,7 +2361,7 @@ function _assemblePDF() {
           _i = batchStart;
         case 92:
           if (!(_i < batchEnd)) {
-            _context7.next = 203;
+            _context7.next = 205;
             break;
           }
           pageIndex = _i - batchStart;
@@ -2389,6 +2392,7 @@ function _assemblePDF() {
           SaldoAnterior = mainDataObject.SaldoAnterior[_i];
           Descuento = mainDataObject.Descuento[_i];
           Subsidio = mainDataObject.Subsidio[_i];
+          Reposicion = mainDataObject.Reposicion[_i];
           Aviso = mainDataObject.Aviso[_i];
           Timbre = mainDataObject.Timbre[_i];
           Color = mainDataObject.Color[_i]; ////////////////////////////////////////////////
@@ -2529,7 +2533,7 @@ function _assemblePDF() {
             Vencimiento: ["VENCIMIENTO: ".concat(FchVenc)],
             VlrPagar: ["TOTAL A PAGAR: ".concat(VlrPagar)],
             DetalleConsumoTitulo: ["DETALLE DE CONSUMO:"],
-            Consumo1: ["Cargo Fijo:", "Agua:", "Alcantarillado y Tratamiento:"],
+            Consumo1: ["Cargo Fijo:", "Agua ($580/m\xB3):", "Alcantarillado ($950/m\xB3):"],
             ConsumoValores1: ["".concat(CargoFijo), "".concat(CostoTotalAgua), "".concat(CostoTotalAlcantarilladoTratamiento)],
             // Consumo2: [
             //   ``, // Placeholder String
@@ -2559,6 +2563,10 @@ function _assemblePDF() {
           if (Subsidio !== "$0") {
             textArrays.Desglose.push("Subsidio");
             textArrays.DesgloseValores.push("".concat(Subsidio));
+          }
+          if (Reposicion !== "$0") {
+            textArrays.Consumo1.push("Reposici\xF3n por corte:");
+            textArrays.ConsumoValores1.push("".concat(Reposicion));
           }
           // if (Multas !== '$0') {
           //   textArrays.Consumo2.pop();
@@ -2841,48 +2849,48 @@ function _assemblePDF() {
           console.log(TimbreData);
           // Initilize key:values for formatted text in Objects (lines)
           _i2 = 0, _dataObjects = dataObjects;
-        case 180:
+        case 182:
           if (!(_i2 < _dataObjects.length)) {
-            _context7.next = 190;
+            _context7.next = 192;
             break;
           }
           dataObject = _dataObjects[_i2];
-          _context7.next = 184;
+          _context7.next = 186;
           return dataObject.formatData();
-        case 184:
+        case 186:
           dataObject.lines = _toConsumableArray(dataObject.formattedData);
-          _context7.next = 187;
+          _context7.next = 189;
           return printTextToPdf(dataObject, SaldoAnterior, fontCache);
-        case 187:
+        case 189:
           _i2++;
-          _context7.next = 180;
+          _context7.next = 182;
           break;
-        case 190:
+        case 192:
           if (!(!disableAviso && mainDataObject.Aviso[_i] && String(mainDataObject.Aviso[_i]).trim() !== "")) {
-            _context7.next = 196;
+            _context7.next = 198;
             break;
           }
-          _context7.next = 193;
+          _context7.next = 195;
           return AvisoData.formatData();
-        case 193:
+        case 195:
           AvisoData.lines = _toConsumableArray(AvisoData.formattedData);
-          _context7.next = 196;
-          return printTextToPdf(AvisoData, SaldoAnterior, fontCache);
-        case 196:
           _context7.next = 198;
-          return drawImageToPdf(TimbreData, imageCache, defaultImageBytes);
+          return printTextToPdf(AvisoData, SaldoAnterior, fontCache);
         case 198:
+          _context7.next = 200;
+          return drawImageToPdf(TimbreData, imageCache, defaultImageBytes);
+        case 200:
           // Update progress for each page
           processedPages++;
           if (progressManager) {
             statusMessage = "Processing page ".concat(processedPages, " (Client: ").concat(CdgIntRecep, ")");
             progressManager.updateProgress(processedPages, statusMessage);
           }
-        case 200:
+        case 202:
           _i++;
           _context7.next = 92;
           break;
-        case 203:
+        case 205:
           // More aggressive memory management between batches
           if (typeof window !== "undefined" && window.gc) {
             window.gc(); // Force garbage collection if available
@@ -2905,11 +2913,11 @@ function _assemblePDF() {
             }
             console.log("Cleared compressed image cache to free memory");
           }
-        case 205:
+        case 207:
           batchStart += batchSize;
           _context7.next = 84;
           break;
-        case 208:
+        case 210:
           // Update progress: Finalizing PDF
           if (progressManager) {
             progressManager.updatePhase("Finalizing PDF", "Applying compression and saving");
@@ -2917,7 +2925,7 @@ function _assemblePDF() {
 
           // Save PDF with maximum compression options
           console.log("Saving PDF with maximum compression...");
-          _context7.next = 212;
+          _context7.next = 214;
           return pdfDoc.save({
             useObjectStreams: true,
             addDefaultPage: false,
@@ -2928,7 +2936,7 @@ function _assemblePDF() {
             compress: true,
             fastWebView: true
           });
-        case 212:
+        case 214:
           pdfBytes = _context7.sent;
           // Update progress: Creating blob and displaying
           if (progressManager) {
@@ -2948,21 +2956,21 @@ function _assemblePDF() {
           if (progressManager) {
             progressManager.updatePhase("Complete", "PDF generated successfully (".concat(fileSizeMB, " MB)"));
           }
-          _context7.next = 227;
+          _context7.next = 229;
           break;
-        case 222:
-          _context7.prev = 222;
+        case 224:
+          _context7.prev = 224;
           _context7.t2 = _context7["catch"](1);
           console.log("Error in PDF Assembly Function: ".concat(_context7.t2));
           if (progressManager) {
             progressManager.error(_context7.t2.message || "An error occurred during PDF generation");
           }
           throw _context7.t2;
-        case 227:
+        case 229:
         case "end":
           return _context7.stop();
       }
-    }, _callee7, null, [[1, 222], [15, 31], [37, 51]]);
+    }, _callee7, null, [[1, 224], [15, 31], [37, 51]]);
   }));
   return _assemblePDF.apply(this, arguments);
 }
@@ -62357,4 +62365,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /******/ })()
 ;
-//# sourceMappingURL=bundleb00067e493650bac677f.js.map
+//# sourceMappingURL=bundlebf5e1e9e0bca4d979484.js.map
