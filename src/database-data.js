@@ -47,6 +47,7 @@ const compileData = function (excelData) {
     SaldoAnterior: [],
     Descuento: [],
     Subsidio: [],
+    Reposicion: [],
     Aviso: [],
     Timbre: [],
     Color: [],
@@ -110,6 +111,9 @@ const compileData = function (excelData) {
     );
     mainDataObject.Subsidio.push(
       formatUtil.getFormattedAsCurrecy(data["Subsidio"])
+    );
+    mainDataObject.Reposicion.push(
+      formatUtil.getFormattedAsCurrecy(data["Reposicion"])
     );
     mainDataObject.Aviso.push(String(data["Aviso"]));
     mainDataObject.Color.push(

@@ -473,6 +473,7 @@ export async function assemblePDF(
         const SaldoAnterior = mainDataObject.SaldoAnterior[i];
         const Descuento = mainDataObject.Descuento[i];
         const Subsidio = mainDataObject.Subsidio[i];
+        const Reposicion = mainDataObject.Reposicion[i];
         const Aviso = mainDataObject.Aviso[i];
         const Timbre = mainDataObject.Timbre[i];
         const Color = mainDataObject.Color[i];
@@ -553,7 +554,11 @@ export async function assemblePDF(
           Vencimiento: [`VENCIMIENTO: ${FchVenc}`],
           VlrPagar: [`TOTAL A PAGAR: ${VlrPagar}`],
           DetalleConsumoTitulo: [`DETALLE DE CONSUMO:`],
-          Consumo1: [`Cargo Fijo:`, `Agua:`, `Alcantarillado y Tratamiento:`],
+          Consumo1: [
+            `Cargo Fijo:`,
+            `Agua ($580/m³):`,
+            `Alcantarillado ($950/m³):`,
+          ],
           ConsumoValores1: [
             `${CargoFijo}`,
             `${CostoTotalAgua}`,
@@ -597,6 +602,10 @@ export async function assemblePDF(
         if (Subsidio !== "$0") {
           textArrays.Desglose.push(`Subsidio`);
           textArrays.DesgloseValores.push(`${Subsidio}`);
+        }
+        if (Reposicion !== "$0") {
+          textArrays.Consumo1.push(`Reposición por corte:`);
+          textArrays.ConsumoValores1.push(`${Reposicion}`);
         }
         // if (Multas !== '$0') {
         //   textArrays.Consumo2.pop();
