@@ -215,6 +215,42 @@ body {
   }
 }
 
+.generation-filter-container,
+.manual-period-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  max-width: 420px;
+}
+
+.generation-filter-label,
+.manual-period-label,
+.generation-filter-help,
+.manual-period-help {
+  color: #ffffff;
+}
+
+.generation-filter-help,
+.manual-period-help {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.manual-period-help {
+  color: #ffd089;
+}
+
+.generation-filter-input,
+.period-input-field {
+  height: 38px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 15px;
+}
+
 .btn {
   background-color: $primary-color;
   color: #ffffff;
@@ -267,7 +303,9 @@ body {
 #fileInput,
 #sheetList,
 #addAvisoButton,
-#loadingContainer {
+#loadingContainer,
+#generationFilterContainer,
+#manualPeriodContainer {
   display: none;
 }
 

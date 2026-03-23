@@ -12,6 +12,16 @@ const createDomVariables = function () {
   global.addAviso = document.getElementById("addAvisoButton");
   global.avisoInputContainer = document.getElementById("avisoInputContainer");
   global.disableAvisoCheckbox = document.getElementById("disableAvisoCheckbox");
+  global.generationFilterContainer = document.getElementById(
+    "generationFilterContainer"
+  );
+  global.generationClientInput = document.getElementById(
+    "generationClientInput"
+  );
+  global.manualPeriodContainer = document.getElementById(
+    "manualPeriodContainer"
+  );
+  global.manualPeriodInput = document.getElementById("manualPeriodInput");
 };
 
 export default createDomVariables;

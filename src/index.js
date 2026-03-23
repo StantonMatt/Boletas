@@ -1,56 +1,113 @@
 "use strict";
 
 import "./main.scss";
-import * as dateUtil from "./format-strings.js";
 import * as userInput from "./user-input.js";
 import * as buttonUtil from "./button-style.js";
 import createDomVariables from "./global-variables.js";
 import boletaTemplate from "./assets/boletaTemplate.pdf";
-import { assemblePDF, fillPdfForm } from "./pdf-assembly.js";
-import * as excelData from "./database-data.js";
+import { assemblePDF } from "./pdf-assembly.js";
+import { buildGenerationData, compileData } from "./database-data.js";
 import * as XLSX from "xlsx";
 import progressManager from "./progress-manager.js";
+
+const SHEET_PERIOD_REGEX = /^(\d{4})-(\d{2})\s+Planilla Boleta Gen(?:\.(xlsx|xls))?$/i;
+const MANUAL_PERIOD_REGEX = /^(\d{4})-(\d{2})$/;
+
+const getBillingPeriodFromText = function (value) {
+  const matches = String(value ?? "").trim().match(SHEET_PERIOD_REGEX);
+
+  if (!matches) {
+    return null;
+  }
+
+  const year = Number(matches[1]);
+  const month = Number(matches[2]);
+
+  if (!Number.isInteger(year) || !Number.isInteger(month)) {
+    return null;
+  }
+
+  if (month < 1 || month > 12) {
+    return null;
+  }
+
+  return { year, month };
+};
+
+const getBillingPeriod = function (sheetName, fileName) {
+  return (
+    getBillingPeriodFromText(sheetName) || getBillingPeriodFromText(fileName)
+  );
+};
+
+const getBillingPeriodFromManualInput = function (manualPeriodValue) {
+  const matches = String(manualPeriodValue ?? "")
+    .trim()
+    .match(MANUAL_PERIOD_REGEX);
+
+  if (!matches) {
+    return null;
+  }
+
+  const year = Number(matches[1]);
+  const month = Number(matches[2]);
+
+  if (!Number.isInteger(year) || !Number.isInteger(month)) {
+    return null;
+  }
+
+  if (month < 1 || month > 12) {
+    return null;
+  }
+
+  return { year, month };
+};
+
+const hideManualPeriodPicker = function () {
+  manualPeriodContainer.style.display = "none";
+};
+
+const showManualPeriodPicker = function () {
+  manualPeriodContainer.style.display = "flex";
+};
+
+const resetManualPeriodPicker = function () {
+  manualPeriodInput.value = "";
+  hideManualPeriodPicker();
+};
 
 // EventListener for DOMContentLoaded to make sure the DOM is loaded
 document.addEventListener("DOMContentLoaded", function () {
   let dataObject = {};
-  // Create variable names for DOM elements
   createDomVariables();
-  // Assigning boletaTemplate.pdf to iframe source
   pdfIframe.src = boletaTemplate;
-  // Create workbook variable to hold Excel Data
+
   let workbook;
   let reader;
   let excelFile;
 
   const readExcel = function (e) {
-    // Assign first file selected to excelFile
     excelFile = e.target.files[0];
-    // if nothing was selected exit function and hide dropdown list
+
     if (excelFile === undefined || excelFile.length === 0) {
       buttonUtil.setInputButtonNotClicked(fileInputButton, sheetList);
       buttonUtil.setButtonNotClicked(fetchDataButton);
-
+      buttonUtil.hideButton(generateBoletasButton);
+      generationFilterContainer.style.display = "none";
+      resetManualPeriodPicker();
       return;
     }
 
-    // Create a FileReader()
     reader = new FileReader();
 
-    // on reader load, read excel file and assign
-    reader.onload = function (e) {
-      // Create variable and assign it the excel data as Uint8Array
-      const data = new Uint8Array(e.target.result);
-
-      // Assign the Uint8Array data as type 'array' to workbook variable
+    reader.onload = function (loadEvent) {
+      const data = new Uint8Array(loadEvent.target.result);
       workbook = XLSX.read(data, { type: "array" });
 
-      // Delete all sheets from sheetList before populating again
       while (sheetList.firstChild) {
         sheetList.removeChild(sheetList.firstChild);
       }
 
-      // Loop through all sheets in workbook and push them into sheetList
       workbook.SheetNames.forEach((sheet) => {
         const option = document.createElement("option");
         option.text = sheet;
@@ -59,8 +116,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
       buttonUtil.setInputButtonClicked(fileInputButton, excelFile, sheetList);
       buttonUtil.revealButton(fetchDataButton);
+      generationFilterContainer.style.display = "none";
+      resetManualPeriodPicker();
     };
-    // Call reader as array buffer with input excel file
+
     reader.readAsArrayBuffer(excelFile);
     fetchDataButton.disabled = false;
   };
@@ -68,41 +127,68 @@ document.addEventListener("DOMContentLoaded", function () {
   sheetList.addEventListener("change", function () {
     fetchDataButton.disabled = false;
     buttonUtil.revealButton(fetchDataButton);
+    resetManualPeriodPicker();
   });
 
-  // Click hidden fileInput when fileInputButton is clicked by user (because fileInput is ugly)
   fileInputButton.addEventListener("click", function () {
     fileInput.click();
   });
 
-  // Event Listener for wehn a file is selected by the User
   fileInput.addEventListener("change", readExcel);
   fileInput.addEventListener("cancel", readExcel);
 
-  // Generate Boletas from sheet data (DataBase)
   fetchDataButton.addEventListener("click", function () {
-    // Get Data from selected sheet as json
     dataObject = {
-      ...excelData.compileData(
-        XLSX.utils.sheet_to_json(workbook.Sheets[sheetList.value])
-      ),
+      ...compileData(XLSX.utils.sheet_to_json(workbook.Sheets[sheetList.value])),
     };
+
     buttonUtil.setButtonClicked(sheetList);
     buttonUtil.setButtonClicked(fetchDataButton);
     buttonUtil.revealButton(generateBoletasButton);
+    generationFilterContainer.style.display = "flex";
     optionsContainer.style.display = "inline";
     buttonUtil.revealButton(addAvisoButton);
     fetchDataButton.disabled = true;
-    console.log("test");
+    resetManualPeriodPicker();
   });
 
-  // Generate Boletas from sheet data (DataBase) with progress tracking
   generateBoletasButton.addEventListener("click", async function () {
     const disableAviso = global.disableAvisoCheckbox.checked;
 
     try {
-      // Get total number of pages to generate
-      const totalPages = dataObject?.Numero?.length || 0;
+      const selectedClients = userInput.parseClientSelection(
+        dataObject.CdgIntRecep ?? [],
+        generationClientInput.value,
+        { allowEmptySelection: true }
+      );
+
+      if (!selectedClients.isValid) {
+        alert(selectedClients.errorMessage);
+        return;
+      }
+
+      let billingPeriod = getBillingPeriod(sheetList.value, excelFile?.name);
+
+      if (!billingPeriod) {
+        showManualPeriodPicker();
+        billingPeriod = getBillingPeriodFromManualInput(manualPeriodInput.value);
+
+        if (!billingPeriod) {
+          alert(
+            "Year and month were not identified from the sheet name. Please select the billing period from the month picker."
+          );
+          return;
+        }
+      } else {
+        hideManualPeriodPicker();
+      }
+
+      const generationData = buildGenerationData({
+        billingPeriod,
+        selectedClientIndexes: selectedClients.selectedIndexes,
+      });
+
+      const totalPages = generationData?.Numero?.length || 0;
 
       if (totalPages === 0) {
         alert(
@@ -111,13 +197,13 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // Show progress bar
       progressManager.show(totalPages);
-
-      // Start PDF generation with progress tracking
-      await assemblePDF(boletaTemplate, disableAviso, progressManager);
-
-      // Hide progress bar on completion
+      await assemblePDF(
+        boletaTemplate,
+        disableAviso,
+        progressManager,
+        generationData
+      );
       progressManager.hide();
     } catch (error) {
       console.error("PDF Generation Error:", error);
@@ -133,6 +219,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const avisoTextInputId = `avisoTextInput${avisoCount}`;
     const clientNumberInputId = `clientNumberInput${avisoCount}`;
     const avisoTextColorId = `avisoTextColor${avisoCount}`;
+
     avisoInputContainer.insertAdjacentHTML(
       "afterbegin",
       `
@@ -149,11 +236,12 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
           </div> 
           <div>
-            <textarea id="${avisoTextInputId}" class="text-input" type="text" name="aviso" placeholder="Write custom aviso message here.\nEnter client numbers in the input box above.\nExamples:\nFor a custom message for one particular client, type: 111310\nSeprate by comma \',\' for multiple clients: 110070,111710,120170\nUse a dash \'-\' to select a range of clients: 110020-110660"></textarea>
+            <textarea id="${avisoTextInputId}" class="text-input" type="text" name="aviso" placeholder="Write custom aviso message here.\nEnter client numbers in the input box above.\nExamples:\nFor a custom message for one particular client, type: 111310\nSeprate by comma ',' for multiple clients: 110070,111710,120170\nUse a dash '-' to select a range of clients: 110020-110660"></textarea>
           </div>
         </div>    
     `
     );
+
     const avisoInjectButton = document.getElementById(avisoInjectButtonId);
     const avisoTextInput = document.getElementById(avisoTextInputId);
     const clientNumberInput = document.getElementById(clientNumberInputId);
@@ -161,15 +249,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
     avisoInjectButton.addEventListener("click", function () {
       const hex = avisoTextColor.value;
-      const r = parseInt(hex.substr(1, 2), 16); // Extracts and converts the RR part of #RRGGBB to decimal
-      const g = parseInt(hex.substr(3, 2), 16); // Extracts and converts the GG part
-      const b = parseInt(hex.substr(5, 2), 16); // Extracts and converts the BB part
+      const r = parseInt(hex.substr(1, 2), 16);
+      const g = parseInt(hex.substr(3, 2), 16);
+      const b = parseInt(hex.substr(5, 2), 16);
 
-      userInput.injectAviso(dataObject, avisoTextInput, clientNumberInput, [
-        r,
-        g,
-        b,
-      ]);
+      const injectResult = userInput.injectAviso(
+        dataObject,
+        avisoTextInput,
+        clientNumberInput,
+        [r, g, b]
+      );
+
+      if (!injectResult.isValid) {
+        alert(injectResult.errorMessage);
+        return;
+      }
+
       buttonUtil.setButtonClicked(avisoInjectButton);
     });
 

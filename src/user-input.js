@@ -1,7 +1,144 @@
-'use stricts';
+"use strict";
 
-import * as databaseVariables from './database-data.js';
-const validNumbersInputArray = [];
+const getNumericClientNumbers = function (clientNumbers) {
+  return clientNumbers.map((clientNumber) => Number(clientNumber));
+};
+
+const getClientIndexMap = function (clientNumbers) {
+  const clientIndexMap = new Map();
+
+  clientNumbers.forEach((clientNumber, index) => {
+    const numericClientNumber = Number(clientNumber);
+
+    if (!clientIndexMap.has(numericClientNumber)) {
+      clientIndexMap.set(numericClientNumber, []);
+    }
+
+    clientIndexMap.get(numericClientNumber).push(index);
+  });
+
+  return clientIndexMap;
+};
+
+const getParsedClientNumber = function (value) {
+  const parsedValue = Number(String(value).trim());
+  return Number.isFinite(parsedValue) ? parsedValue : null;
+};
+
+const buildErrorResult = function (errorMessage, invalidClientNumbers = []) {
+  return {
+    isValid: false,
+    selectedIndexes: [],
+    invalidClientNumbers,
+    errorMessage,
+  };
+};
+
+const buildSuccessResult = function (selectedIndexes) {
+  return {
+    isValid: true,
+    selectedIndexes: [...new Set(selectedIndexes)].sort((a, b) => a - b),
+    invalidClientNumbers: [],
+    errorMessage: "",
+  };
+};
+
+const parseClientSelection = function (
+  clientNumbers,
+  rawInput,
+  { allowEmptySelection = false } = {}
+) {
+  const trimmedInput = String(rawInput ?? "").trim();
+  const normalizedClientNumbers = getNumericClientNumbers(clientNumbers);
+
+  if (!trimmedInput) {
+    if (!allowEmptySelection) {
+      return buildErrorResult("Please enter at least one client number.");
+    }
+
+    return buildSuccessResult(normalizedClientNumbers.map((_, index) => index));
+  }
+
+  const clientIndexMap = getClientIndexMap(clientNumbers);
+
+  if (trimmedInput.includes(",") && trimmedInput.includes("-")) {
+    return buildErrorResult(
+      "Use either a comma-separated list or a single range with a dash."
+    );
+  }
+
+  if (trimmedInput.includes("-")) {
+    const rangeParts = trimmedInput.split("-").map((part) => part.trim());
+
+    if (rangeParts.length !== 2) {
+      return buildErrorResult(
+        "Client ranges must contain exactly two client numbers."
+      );
+    }
+
+    const rangeStart = getParsedClientNumber(rangeParts[0]);
+    const rangeEnd = getParsedClientNumber(rangeParts[1]);
+
+    if (rangeStart === null || rangeEnd === null) {
+      return buildErrorResult("Client ranges must contain valid numbers.");
+    }
+
+    const minimumClientNumber = Math.min(rangeStart, rangeEnd);
+    const maximumClientNumber = Math.max(rangeStart, rangeEnd);
+    const selectedIndexes = [];
+
+    normalizedClientNumbers.forEach((clientNumber, index) => {
+      if (
+        clientNumber >= minimumClientNumber &&
+        clientNumber <= maximumClientNumber
+      ) {
+        selectedIndexes.push(index);
+      }
+    });
+
+    if (!selectedIndexes.length) {
+      return buildErrorResult(
+        `No clients were found in the range ${minimumClientNumber}-${maximumClientNumber}.`
+      );
+    }
+
+    return buildSuccessResult(selectedIndexes);
+  }
+
+  const requestedClientNumbers = trimmedInput.includes(",")
+    ? trimmedInput.split(",").map((part) => part.trim())
+    : [trimmedInput];
+
+  const invalidClientNumbers = [];
+  const selectedIndexes = [];
+
+  requestedClientNumbers.forEach((clientNumberValue) => {
+    const parsedClientNumber = getParsedClientNumber(clientNumberValue);
+
+    if (parsedClientNumber === null) {
+      invalidClientNumbers.push(clientNumberValue);
+      return;
+    }
+
+    const matchingIndexes = clientIndexMap.get(parsedClientNumber);
+
+    if (!matchingIndexes || !matchingIndexes.length) {
+      invalidClientNumbers.push(parsedClientNumber);
+      return;
+    }
+
+    selectedIndexes.push(...matchingIndexes);
+  });
+
+  if (invalidClientNumbers.length) {
+    return buildErrorResult(
+      `Client numbers not found: ${invalidClientNumbers.join(", ")}.`,
+      invalidClientNumbers
+    );
+  }
+
+  return buildSuccessResult(selectedIndexes);
+};
 
 const injectAviso = function (
   dataObject,
@@ -9,117 +146,24 @@ const injectAviso = function (
   clientNumberInput,
   avisoTextColorValue = [0, 0, 0]
 ) {
-  let isValidEntry = true;
-  let hasFoundClient = false;
-  const wrongNumbersInputArray = [];
-  const validNumberIndexArray = [];
-  console.log(avisoTextColorValue);
-  let clientNumberArray;
-  let clientNumberValue = clientNumberInput.value.trim();
-  const dataObjectLength = dataObject.CdgIntRecep.length;
-  const firstNumeroCliente = Number(dataObject.CdgIntRecep[0]);
-  const lastNumeroCliente = Number(dataObject.CdgIntRecep[dataObjectLength - 1]);
+  const selection = parseClientSelection(
+    dataObject.CdgIntRecep,
+    clientNumberInput.value,
+    { allowEmptySelection: false }
+  );
 
-  //110070,110020,121400
-  //110056,110320,110424
-  //110070,110020,12140
-  if (clientNumberValue.includes('-')) {
-    clientNumberArray = clientNumberValue
-      .split('-')
-      .map(num => Number(num.trim()))
-      .sort((a, b) => a - b);
-    if (
-      clientNumberArray.length > 2 ||
-      !isFinite(clientNumberArray[0]) ||
-      !isFinite(clientNumberArray[1]) ||
-      clientNumberArray[0] < firstNumeroCliente ||
-      clientNumberArray[1] > lastNumeroCliente
-    ) {
-      console.error('DASH ENTRY');
-      isValidEntry = false;
-    }
-    if (isValidEntry) {
-      for (let i = 0; i < dataObjectLength; i++) {
-        if (clientNumberArray[0] === dataObject.CdgIntRecep[i]) {
-          hasFoundClient = true;
-        }
-        if (hasFoundClient) {
-          validNumbersInputArray.push(dataObject.CdgIntRecep[i]);
-          dataObject.Aviso[i] = avisoInputText.value;
-          dataObject.Color[i] = avisoTextColorValue;
-        }
-        if (clientNumberArray[1] === dataObject.CdgIntRecep[i]) break;
-      }
-    }
-  } else if (clientNumberValue.includes(',')) {
-    clientNumberArray = clientNumberValue
-      .split(',')
-      .map(num => Number(num.trim()))
-      .sort((a, b) => a - b);
-    if (
-      clientNumberArray[0] < dataObject.CdgIntRecep[0] ||
-      clientNumberArray[clientNumberArray.length - 1] >
-        dataObject.CdgIntRecep[dataObjectLength - 1]
-    ) {
-      console.error('COMMA ENTRY');
-      isValidEntry = false;
-    }
-    clientNumberArray.forEach(num => {
-      if (!isFinite(num)) {
-        isValidEntry = false;
-        console.error('COMMA ENTRY');
-      }
-    });
-    if (isValidEntry) {
-      console.log(`Valid input for clients ${clientNumberArray} `);
-      for (let i = 0; i < dataObjectLength; i++) {
-        if (dataObject.CdgIntRecep[i] > clientNumberArray[0]) {
-          wrongNumbersInputArray.push(clientNumberArray.shift());
-        }
-        if (clientNumberArray[0] === dataObject.CdgIntRecep[i]) {
-          hasFoundClient = true;
-          validNumbersInputArray.push(clientNumberArray.shift());
-          validNumberIndexArray.push(i);
-          if (!clientNumberArray.length) break;
-        }
-      }
-      if (wrongNumbersInputArray.length) {
-        hasFoundClient = false;
-      } else {
-        validNumberIndexArray.forEach(num => {
-          dataObject.Color[num] = avisoTextColorValue;
-          dataObject.Aviso[num] = avisoInputText.value;
-        });
-      }
-    }
-  } else {
-    clientNumberValue = Number(clientNumberValue);
-    if (
-      !isFinite(clientNumberValue) ||
-      clientNumberValue < dataObject.CdgIntRecep[0] ||
-      clientNumberValue > dataObject.CdgIntRecep[dataObjectLength - 1]
-    ) {
-      console.error('SINGLE ENTRY', typeof clientNumberValue);
-      isValidEntry = false;
-    }
-    if (isValidEntry) {
-      console.log(`Valid input for client ${clientNumberValue} `);
-      for (let i = 0; i < dataObjectLength; i++) {
-        if (clientNumberValue === dataObject.CdgIntRecep[i]) {
-          hasFoundClient = true;
-          validNumbersInputArray.push(clientNumberValue);
-          dataObject.Aviso[i] = avisoInputText.value;
-          dataObject.Color[i] = avisoTextColorValue;
-          break;
-        }
-      }
-    }
+  if (!selection.isValid) {
+    console.error(selection.errorMessage);
+    return selection;
   }
 
-  if (isValidEntry) {
-    clientNumberInput.disabled = true;
-  }
-  if (!hasFoundClient) console.error('INVALID INPUT');
+  selection.selectedIndexes.forEach((index) => {
+    dataObject.Aviso[index] = avisoInputText.value;
+    dataObject.Color[index] = avisoTextColorValue;
+  });
+
+  clientNumberInput.disabled = true;
+  return selection;
 };
 
-export { injectAviso };
+export { injectAviso, parseClientSelection };

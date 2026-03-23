@@ -25,6 +25,21 @@
           <input type="checkbox" id="disableAvisoCheckbox" name="disableAviso">
           <label for="disableAvisoCheckbox">Disable Avisos</label>
         </div>
+        <div id="generationFilterContainer" class="generation-filter-container">
+          <label for="generationClientInput" class="generation-filter-label">Generate only these client numbers</label>
+          <input
+            id="generationClientInput"
+            class="generation-filter-input"
+            type="text"
+            placeholder="Optional: 111310, 110070-110660"
+          >
+          <p class="generation-filter-help">Leave blank to generate all clients. Use a comma-separated list or a single dash range.</p>
+        </div>
+        <div id="manualPeriodContainer" class="manual-period-container">
+          <label for="manualPeriodInput" class="manual-period-label">Billing period</label>
+          <input id="manualPeriodInput" class="period-input-field" type="month">
+          <p id="manualPeriodHelp" class="manual-period-help">Year and month could not be identified from the sheet name. Select the billing period to continue.</p>
+        </div>
         <button id="generateBoletasButton" class="btn">Generate Boletas</button>
         
         <!-- Loading Bar Container -->

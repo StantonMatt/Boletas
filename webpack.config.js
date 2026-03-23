@@ -31,7 +31,7 @@ module.exports = (env, argv) => {
               poll: 1000, // Check for changes every 1 second instead of constantly
             },
           },
-          port: 5000,
+          port: 5001,
           open: true,
           hot: true,
           compress: true,
@@ -71,6 +71,12 @@ module.exports = (env, argv) => {
           },
         },
     module: {
+      parser: {
+        javascript: {
+          // Work around a webpack export-presence crash triggered by the current Node/Webpack combination.
+          exportsPresence: false,
+        },
+      },
       rules: [
         {
           test: /\.scss$/,

@@ -2,7 +2,6 @@
 
 import * as PDFLIB from "pdf-lib";
 import * as formatUtil from "./format-strings.js";
-import * as excelData from "./database-data.js";
 
 function createDataObject(baseConfig, overrides) {
   return { ...baseConfig, ...overrides };
@@ -288,10 +287,15 @@ async function getFormattedData(
 export async function assemblePDF(
   template,
   disableAviso,
-  progressManager = null
+  progressManager = null,
+  generationData = null
 ) {
   try {
-    const mainDataObject = excelData.fetchData();
+    if (!generationData) {
+      throw new Error("No generation data was provided.");
+    }
+
+    const mainDataObject = generationData;
     console.log(mainDataObject);
 
     // Initialize progress tracking
@@ -396,6 +400,7 @@ export async function assemblePDF(
     const CostoM3AlcantarilladoTratamiento =
       mainDataObject.CostoM3AlcantarilladoTratamiento[0];
     const TipoBoleta = `BOLETA ELECTRONICA`;
+    const EstadoDeCuenta = `ESTADO DE CUENTA`;
     const TimbreTexto = `Timbre electrónico S.I.I`;
     const FchVenc = formatUtil.getShortExpiryDate();
     const FchEmis = formatUtil.getIssueDate();
@@ -453,6 +458,7 @@ export async function assemblePDF(
         //////////////////////////////////////////////
 
         const Folio = mainDataObject.Folio[i];
+        const HasFolio = Boolean(mainDataObject.HasFolio[i]);
         const Numero = mainDataObject.Numero[i];
         const CdgIntRecep = mainDataObject.CdgIntRecep[i];
         const RznSocRecep = mainDataObject.RznSocRecep[i];
@@ -547,8 +553,15 @@ export async function assemblePDF(
         const VlrPagar2Pos = { x: rightSideOfPage - 24, y: 200, al: "right" };
         const AvisoPos = { x: leftSideOfPage, y: 125, al: "left" };
 
+        const documentTitle = HasFolio ? TipoBoleta : EstadoDeCuenta;
+        const tipoBoletaLines = [`RUT: ${RUTEmisor}`, `${documentTitle}`];
+
+        if (HasFolio && Folio !== null && Folio !== undefined) {
+          tipoBoletaLines.push(`N° ${Folio}`);
+        }
+
         const textArrays = {
-          TipoBoleta: [`RUT: ${RUTEmisor}`, `${TipoBoleta}`, `N° ${Folio}`],
+          TipoBoleta: tipoBoletaLines,
           DetalleCliente: [RznSocRecep, DirRecep, CiudadRecep],
           CdgIntRecep: [`NUMERO CLIENTE: ${CdgIntRecep}`],
           Vencimiento: [`VENCIMIENTO: ${FchVenc}`],
@@ -578,7 +591,7 @@ export async function assemblePDF(
           LecturaAnterior: [`LEC ANTERIOR: ${LecturaAnterior}`],
           LecturaActual: [`LEC ACTUAL: ${LecturaActual}`],
           ConsumoM3: [`CONSUMO: ${ConsumoM3}`],
-          TimbreTexto: [TimbreTexto],
+          TimbreTexto: HasFolio ? [TimbreTexto] : [],
           Desglose: [
             `Numero Cliente:`,
             `Vencimiento:`,
@@ -825,20 +838,22 @@ export async function assemblePDF(
           alignment: ConsumoM3Pos.al,
         });
 
-        const TimbreData = createDataObject(baseConfig, {
-          data: textArrays.TimbreTexto,
-          Numero,
-          RznSocRecep,
-          Timbre,
-          x: TimbreTextoPos.x,
-          y: TimbreTextoPos.y,
-          TimbreX: TimbrePos.x,
-          TimbreY: TimbrePos.y,
-          maxWidth: 252,
-          maxHeight: 80,
-          fontSize: fontSize.large,
-          alignment: TimbreTextoPos.al,
-        });
+        const TimbreData = HasFolio
+          ? createDataObject(baseConfig, {
+              data: textArrays.TimbreTexto,
+              Numero,
+              RznSocRecep,
+              Timbre,
+              x: TimbreTextoPos.x,
+              y: TimbreTextoPos.y,
+              TimbreX: TimbrePos.x,
+              TimbreY: TimbrePos.y,
+              maxWidth: 252,
+              maxHeight: 80,
+              fontSize: fontSize.large,
+              alignment: TimbreTextoPos.al,
+            })
+          : null;
 
         const DesgloseData = createDataObject(baseConfig, {
           data: textArrays.Desglose,
@@ -915,13 +930,15 @@ export async function assemblePDF(
           LecturaAnteriorData,
           LecturaActualData,
           ConsumoM3Data,
-          TimbreData,
           DesgloseData,
           DesgloseValoresData,
           VlrPagarData2,
           VlrPagarTituloData2,
           // AvisoData, // AvisoData will be handled conditionally
         ];
+        if (TimbreData) {
+          dataObjects.push(TimbreData);
+        }
         console.log(TimbreData);
         // Initilize key:values for formatted text in Objects (lines)
         for (const dataObject of dataObjects) {
@@ -942,7 +959,9 @@ export async function assemblePDF(
           await printTextToPdf(AvisoData, SaldoAnterior, fontCache);
         }
 
-        await drawImageToPdf(TimbreData, imageCache, defaultImageBytes);
+        if (TimbreData) {
+          await drawImageToPdf(TimbreData, imageCache, defaultImageBytes);
+        }
 
         // Update progress for each page
         processedPages++;
