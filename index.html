@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>COAB</title>
-  <script defer src="/bundle1b1ae140067639de258b.js"></script></head>
+  <script defer src="/bundle7b4d121e8590bea42718.js"></script></head>
   <body>
     <div class="options-container">
       <div class="add-aviso-container">
@@ -24,6 +24,21 @@
         <div class="checkbox-container">
           <input type="checkbox" id="disableAvisoCheckbox" name="disableAviso">
           <label for="disableAvisoCheckbox">Disable Avisos</label>
+        </div>
+        <div id="generationFilterContainer" class="generation-filter-container">
+          <label for="generationClientInput" class="generation-filter-label">Generate only these client numbers</label>
+          <input
+            id="generationClientInput"
+            class="generation-filter-input"
+            type="text"
+            placeholder="Optional: 111310, 110070-110660"
+          >
+          <p class="generation-filter-help">Leave blank to generate all clients. Use a comma-separated list or a single dash range.</p>
+        </div>
+        <div id="manualPeriodContainer" class="manual-period-container">
+          <label for="manualPeriodInput" class="manual-period-label">Billing period</label>
+          <input id="manualPeriodInput" class="period-input-field" type="month">
+          <p id="manualPeriodHelp" class="manual-period-help">Year and month could not be identified from the sheet name. Select the billing period to continue.</p>
         </div>
         <button id="generateBoletasButton" class="btn">Generate Boletas</button>
         

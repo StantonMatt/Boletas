@@ -1395,6 +1395,7 @@ var hideButton = function hideButton(button) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   buildGenerationData: () => (/* binding */ buildGenerationData),
 /* harmony export */   compileData: () => (/* binding */ compileData),
 /* harmony export */   fetchData: () => (/* binding */ fetchData)
 /* harmony export */ });
@@ -1402,33 +1403,22 @@ __webpack_require__.r(__webpack_exports__);
 
 
 function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
-function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 __webpack_require__("./src/assets/timbres sync recursive \\.png$");
 var mainDataObject = {};
-var fetchData = function fetchData() {
-  return mainDataObject;
-};
-var compileData = function compileData(excelData) {
-  var primerFolio;
-  if (Object.keys(mainDataObject).length > 0 && mainDataObject.constructor === Object) {
-    for (var _i = 0, _Object$entries = Object.entries(mainDataObject); _i < _Object$entries.length; _i++) {
-      var _Object$entries$_i = _slicedToArray(_Object$entries[_i], 2),
-        key = _Object$entries$_i[0],
-        value = _Object$entries$_i[1];
-      delete mainDataObject[key];
-      console.log("deleting");
-    }
-  }
-  console.log("in compileData function");
-  mainDataObject = {
+var createEmptyDataObject = function createEmptyDataObject() {
+  return {
+    SourceFolioStart: null,
+    SourceFolio: [],
+    TotalSubsidiadoRaw: [],
+    HasFolio: [],
     Folio: [],
-    // RUTEmisor: [],
     TipoBoleta: [],
     FchVenc: [],
     FchEmis: [],
@@ -1459,22 +1449,64 @@ var compileData = function compileData(excelData) {
     Timbre: [],
     Color: []
   };
+};
+var getNumericValue = function getNumericValue(value) {
+  if (Number.isFinite(value)) {
+    return Number(value);
+  }
+  if (typeof value !== "string") {
+    return 0;
+  }
+  var trimmedValue = value.trim();
+  if (!trimmedValue) {
+    return 0;
+  }
+  var normalizedValue = trimmedValue.replace(/\s+/g, "").replace(/\.(?=\d{3}(?:\D|$))/g, "").replace(/,/g, ".").replace(/[^\d.-]/g, "");
+  var parsedValue = Number(normalizedValue);
+  return Number.isFinite(parsedValue) ? parsedValue : 0;
+};
+var shouldApplyConditionalFolioRule = function shouldApplyConditionalFolioRule(billingPeriod) {
+  if (!billingPeriod) {
+    return false;
+  }
+  if (billingPeriod.year > 2026) {
+    return true;
+  }
+  return billingPeriod.year === 2026 && billingPeriod.month >= 2;
+};
+var getSelectedIndexes = function getSelectedIndexes(selectedClientIndexes, totalRows) {
+  if (!Array.isArray(selectedClientIndexes) || !selectedClientIndexes.length) {
+    return Array.from({
+      length: totalRows
+    }, function (_, index) {
+      return index;
+    });
+  }
+  return _toConsumableArray(new Set(selectedClientIndexes)).sort(function (a, b) {
+    return a - b;
+  });
+};
+var fetchData = function fetchData() {
+  return mainDataObject;
+};
+var compileData = function compileData(excelData) {
+  mainDataObject = createEmptyDataObject();
   var _iterator = _createForOfIteratorHelper(excelData),
     _step;
   try {
     for (_iterator.s(); !(_step = _iterator.n()).done;) {
+      var _data$Aviso, _data$Color;
       var data = _step.value;
-      if (isFinite(data["Folio"])) primerFolio = data["Folio"];
+      var sourceFolio = getNumericValue(data["Folio"]);
+      if (mainDataObject.SourceFolioStart === null && Number.isFinite(sourceFolio) && sourceFolio > 0) {
+        mainDataObject.SourceFolioStart = sourceFolio;
+      }
       if (Number(data["Recibe Factura"]) == 1) continue;
-      if (!isFinite(data["N#"])) continue;
-      console.log(data);
-
-      // if (data.RUTEmisor) {
-      //   mainDataObject.RUTEmisor.push(formatUtil.getFormattedRut(data.RUTEmisor));
-      // }
+      if (!Number.isFinite(Number(data["N#"]))) continue;
       mainDataObject.Timbre.push("/".concat(data["RUT"], ".png"));
-      console.log(data["RUT"]);
-      mainDataObject.Folio.push(primerFolio++);
+      mainDataObject.SourceFolio.push(sourceFolio > 0 ? sourceFolio : null);
+      mainDataObject.Folio.push(null);
+      mainDataObject.HasFolio.push(false);
       mainDataObject.TipoBoleta.push("BOLETA ELECTRONICA");
       mainDataObject.FchVenc.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getShortExpiryDate());
       mainDataObject.FchEmis.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getIssueDate());
@@ -1500,9 +1532,10 @@ var compileData = function compileData(excelData) {
       mainDataObject.SaldoAnterior.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Saldo Anterior"]));
       mainDataObject.Descuento.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Descuento"]));
       mainDataObject.Subsidio.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Subsidio"]));
+      mainDataObject.TotalSubsidiadoRaw.push(getNumericValue(data["Total Subsidiado"]));
       mainDataObject.Reposicion.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Reposicion"]));
-      mainDataObject.Aviso.push(String(data["Aviso"]));
-      mainDataObject.Color.push(data["Color"].trim().split(",").map(function (num) {
+      mainDataObject.Aviso.push(String((_data$Aviso = data["Aviso"]) !== null && _data$Aviso !== void 0 ? _data$Aviso : ""));
+      mainDataObject.Color.push(String((_data$Color = data["Color"]) !== null && _data$Color !== void 0 ? _data$Color : "0,0,0").trim().split(",").map(function (num) {
         return Number(num.trim());
       }));
     }
@@ -1511,9 +1544,98 @@ var compileData = function compileData(excelData) {
   } finally {
     _iterator.f();
   }
-  console.log(mainDataObject.Timbre);
-  console.log(mainDataObject.Color);
   return mainDataObject;
+};
+var buildGenerationData = function buildGenerationData() {
+  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+    billingPeriod = _ref.billingPeriod,
+    _ref$selectedClientIn = _ref.selectedClientIndexes,
+    selectedClientIndexes = _ref$selectedClientIn === void 0 ? [] : _ref$selectedClientIn;
+  var totalRows = mainDataObject.Numero.length;
+  var allEffectiveFolios = new Array(totalRows).fill(null);
+  var allHasFolio = new Array(totalRows).fill(false);
+  var applyConditionalFolioRule = shouldApplyConditionalFolioRule(billingPeriod);
+  var nextFolio = mainDataObject.SourceFolioStart;
+  for (var index = 0; index < totalRows; index++) {
+    var totalSubsidiado = mainDataObject.TotalSubsidiadoRaw[index];
+    var rowShouldReceiveFolio = Number.isFinite(nextFolio) && (!applyConditionalFolioRule || totalSubsidiado > 0);
+    if (rowShouldReceiveFolio) {
+      allEffectiveFolios[index] = nextFolio;
+      allHasFolio[index] = true;
+      nextFolio += 1;
+    }
+  }
+  var indexesToGenerate = getSelectedIndexes(selectedClientIndexes, totalRows);
+  var generationData = {
+    SourceFolioStart: mainDataObject.SourceFolioStart,
+    TipoBoleta: [],
+    FchVenc: [],
+    FchEmis: [],
+    CostoM3Agua: [],
+    CostoM3AlcantarilladoTratamiento: [],
+    RUTRecep: [],
+    Numero: [],
+    CdgIntRecep: [],
+    RznSocRecep: [],
+    DirRecep: [],
+    CiudadRecep: [],
+    VlrPagar: [],
+    CargoFijo: [],
+    CostoTotalAgua: [],
+    CostoTotalAlcantarilladoTratamiento: [],
+    Repactacion: [],
+    Multas: [],
+    Otros: [],
+    MntTotal: [],
+    LecturaAnterior: [],
+    LecturaActual: [],
+    ConsumoM3: [],
+    SaldoAnterior: [],
+    Descuento: [],
+    Subsidio: [],
+    TotalSubsidiadoRaw: [],
+    Reposicion: [],
+    Aviso: [],
+    Timbre: [],
+    Color: [],
+    Folio: [],
+    HasFolio: []
+  };
+  indexesToGenerate.forEach(function (index) {
+    generationData.TipoBoleta.push(mainDataObject.TipoBoleta[index]);
+    generationData.FchVenc.push(mainDataObject.FchVenc[index]);
+    generationData.FchEmis.push(mainDataObject.FchEmis[index]);
+    generationData.CostoM3Agua.push(mainDataObject.CostoM3Agua[index]);
+    generationData.CostoM3AlcantarilladoTratamiento.push(mainDataObject.CostoM3AlcantarilladoTratamiento[index]);
+    generationData.RUTRecep.push(mainDataObject.RUTRecep[index]);
+    generationData.Numero.push(mainDataObject.Numero[index]);
+    generationData.CdgIntRecep.push(mainDataObject.CdgIntRecep[index]);
+    generationData.RznSocRecep.push(mainDataObject.RznSocRecep[index]);
+    generationData.DirRecep.push(mainDataObject.DirRecep[index]);
+    generationData.CiudadRecep.push(mainDataObject.CiudadRecep[index]);
+    generationData.VlrPagar.push(mainDataObject.VlrPagar[index]);
+    generationData.CargoFijo.push(mainDataObject.CargoFijo[index]);
+    generationData.CostoTotalAgua.push(mainDataObject.CostoTotalAgua[index]);
+    generationData.CostoTotalAlcantarilladoTratamiento.push(mainDataObject.CostoTotalAlcantarilladoTratamiento[index]);
+    generationData.Repactacion.push(mainDataObject.Repactacion[index]);
+    generationData.Multas.push(mainDataObject.Multas[index]);
+    generationData.Otros.push(mainDataObject.Otros[index]);
+    generationData.MntTotal.push(mainDataObject.MntTotal[index]);
+    generationData.LecturaAnterior.push(mainDataObject.LecturaAnterior[index]);
+    generationData.LecturaActual.push(mainDataObject.LecturaActual[index]);
+    generationData.ConsumoM3.push(mainDataObject.ConsumoM3[index]);
+    generationData.SaldoAnterior.push(mainDataObject.SaldoAnterior[index]);
+    generationData.Descuento.push(mainDataObject.Descuento[index]);
+    generationData.Subsidio.push(mainDataObject.Subsidio[index]);
+    generationData.TotalSubsidiadoRaw.push(mainDataObject.TotalSubsidiadoRaw[index]);
+    generationData.Reposicion.push(mainDataObject.Reposicion[index]);
+    generationData.Aviso.push(mainDataObject.Aviso[index]);
+    generationData.Timbre.push(mainDataObject.Timbre[index]);
+    generationData.Color.push(mainDataObject.Color[index]);
+    generationData.Folio.push(allEffectiveFolios[index]);
+    generationData.HasFolio.push(allHasFolio[index]);
+  });
+  return generationData;
 };
 
 
@@ -1622,6 +1744,10 @@ var createDomVariables = function createDomVariables() {
   __webpack_require__.g.addAviso = document.getElementById("addAvisoButton");
   __webpack_require__.g.avisoInputContainer = document.getElementById("avisoInputContainer");
   __webpack_require__.g.disableAvisoCheckbox = document.getElementById("disableAvisoCheckbox");
+  __webpack_require__.g.generationFilterContainer = document.getElementById("generationFilterContainer");
+  __webpack_require__.g.generationClientInput = document.getElementById("generationClientInput");
+  __webpack_require__.g.manualPeriodContainer = document.getElementById("manualPeriodContainer");
+  __webpack_require__.g.manualPeriodInput = document.getElementById("manualPeriodInput");
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (createDomVariables);
 
@@ -1640,7 +1766,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var pdf_lib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! pdf-lib */ "./node_modules/pdf-lib/es/index.js");
 /* harmony import */ var _format_strings_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./format-strings.js */ "./src/format-strings.js");
-/* harmony import */ var _database_data_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./database-data.js */ "./src/database-data.js");
 
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
@@ -1663,7 +1788,6 @@ function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t =
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : String(i); }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
-
 
 
 function createDataObject(baseConfig, overrides) {
@@ -2064,6 +2188,7 @@ function assemblePDF(_x17, _x18) {
 function _assemblePDF() {
   _assemblePDF = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7(template, disableAviso) {
     var progressManager,
+      generationData,
       mainDataObject,
       totalPages,
       processedPages,
@@ -2088,6 +2213,7 @@ function _assemblePDF() {
       CostoM3Agua,
       CostoM3AlcantarilladoTratamiento,
       TipoBoleta,
+      EstadoDeCuenta,
       TimbreTexto,
       FchVenc,
       FchEmis,
@@ -2102,6 +2228,7 @@ function _assemblePDF() {
       templatePage,
       page,
       Folio,
+      HasFolio,
       Numero,
       CdgIntRecep,
       RznSocRecep,
@@ -2157,6 +2284,8 @@ function _assemblePDF() {
       VlrPagarTitulo2Pos,
       VlrPagar2Pos,
       AvisoPos,
+      documentTitle,
+      tipoBoletaLines,
       textArrays,
       baseConfig,
       TipoBoletaData,
@@ -2199,8 +2328,15 @@ function _assemblePDF() {
       while (1) switch (_context7.prev = _context7.next) {
         case 0:
           progressManager = _args7.length > 2 && _args7[2] !== undefined ? _args7[2] : null;
-          _context7.prev = 1;
-          mainDataObject = _database_data_js__WEBPACK_IMPORTED_MODULE_2__.fetchData();
+          generationData = _args7.length > 3 && _args7[3] !== undefined ? _args7[3] : null;
+          _context7.prev = 2;
+          if (generationData) {
+            _context7.next = 5;
+            break;
+          }
+          throw new Error("No generation data was provided.");
+        case 5:
+          mainDataObject = generationData;
           console.log(mainDataObject);
 
           // Initialize progress tracking
@@ -2217,28 +2353,28 @@ function _assemblePDF() {
           uniqueImages = _toConsumableArray(new Set(mainDataObject.Timbre));
           defaultImageBytes = null;
           i = 0;
-        case 13:
+        case 16:
           if (!(i < uniqueImages.length)) {
-            _context7.next = 37;
+            _context7.next = 40;
             break;
           }
           imagePath = uniqueImages[i];
-          _context7.prev = 15;
-          _context7.next = 18;
+          _context7.prev = 18;
+          _context7.next = 21;
           return fetch(imagePath);
-        case 18:
+        case 21:
           response = _context7.sent;
           if (!response.ok) {
-            _context7.next = 29;
+            _context7.next = 32;
             break;
           }
-          _context7.next = 22;
-          return response.arrayBuffer();
-        case 22:
-          originalBytes = _context7.sent;
           _context7.next = 25;
-          return compressImage(originalBytes, 0.7);
+          return response.arrayBuffer();
         case 25:
+          originalBytes = _context7.sent;
+          _context7.next = 28;
+          return compressImage(originalBytes, 0.7);
+        case 28:
           compressedBytes = _context7.sent;
           imageCache.set(imagePath + "_compressed", compressedBytes);
           console.log("Processed image: ".concat(imagePath));
@@ -2247,63 +2383,63 @@ function _assemblePDF() {
           if (progressManager) {
             progressManager.updatePhase("Pre-loading images", "".concat(i + 1, "/").concat(uniqueImages.length, " images processed"));
           }
-        case 29:
-          _context7.next = 34;
+        case 32:
+          _context7.next = 37;
           break;
-        case 31:
-          _context7.prev = 31;
-          _context7.t0 = _context7["catch"](15);
-          console.log("Failed to pre-load image ".concat(imagePath, ":"), _context7.t0.message);
         case 34:
-          i++;
-          _context7.next = 13;
-          break;
+          _context7.prev = 34;
+          _context7.t0 = _context7["catch"](18);
+          console.log("Failed to pre-load image ".concat(imagePath, ":"), _context7.t0.message);
         case 37:
-          _context7.prev = 37;
-          _context7.next = 40;
-          return fetch("/15246448-7.png");
+          i++;
+          _context7.next = 16;
+          break;
         case 40:
+          _context7.prev = 40;
+          _context7.next = 43;
+          return fetch("/15246448-7.png");
+        case 43:
           fallbackResponse = _context7.sent;
           if (!fallbackResponse.ok) {
-            _context7.next = 49;
+            _context7.next = 52;
             break;
           }
-          _context7.next = 44;
-          return fallbackResponse.arrayBuffer();
-        case 44:
-          _originalBytes = _context7.sent;
           _context7.next = 47;
-          return compressImage(_originalBytes, 0.7);
+          return fallbackResponse.arrayBuffer();
         case 47:
+          _originalBytes = _context7.sent;
+          _context7.next = 50;
+          return compressImage(_originalBytes, 0.7);
+        case 50:
           _compressedBytes = _context7.sent;
           imageCache.set("_default_compressed", _compressedBytes);
-        case 49:
-          _context7.next = 54;
+        case 52:
+          _context7.next = 57;
           break;
-        case 51:
-          _context7.prev = 51;
-          _context7.t1 = _context7["catch"](37);
-          console.log("Failed to load default image:", _context7.t1.message);
         case 54:
+          _context7.prev = 54;
+          _context7.t1 = _context7["catch"](40);
+          console.log("Failed to load default image:", _context7.t1.message);
+        case 57:
           // Update progress: Loading template
           if (progressManager) {
             progressManager.updatePhase("Loading template", "Processing PDF template");
           }
 
           // fetch template and convert it to raw binary data buffer
-          _context7.next = 57;
+          _context7.next = 60;
           return fetch(template).then(function (res) {
             return res.arrayBuffer();
           });
-        case 57:
-          existingPdfBytes = _context7.sent;
-          _context7.next = 60;
-          return pdf_lib__WEBPACK_IMPORTED_MODULE_0__.PDFDocument.load(existingPdfBytes);
         case 60:
-          templatePdfDoc = _context7.sent;
+          existingPdfBytes = _context7.sent;
           _context7.next = 63;
-          return pdf_lib__WEBPACK_IMPORTED_MODULE_0__.PDFDocument.create();
+          return pdf_lib__WEBPACK_IMPORTED_MODULE_0__.PDFDocument.load(existingPdfBytes);
         case 63:
+          templatePdfDoc = _context7.sent;
+          _context7.next = 66;
+          return pdf_lib__WEBPACK_IMPORTED_MODULE_0__.PDFDocument.create();
+        case 66:
           pdfDoc = _context7.sent;
           // Update progress: Pre-embedding fonts
           if (progressManager) {
@@ -2312,13 +2448,13 @@ function _assemblePDF() {
 
           // Pre-embed all fonts that will be reused
           console.log("Pre-embedding fonts...");
-          _context7.next = 68;
-          return pdfDoc.embedFont(pdf_lib__WEBPACK_IMPORTED_MODULE_0__.StandardFonts.Helvetica);
-        case 68:
-          helveticaFont = _context7.sent;
           _context7.next = 71;
-          return pdfDoc.embedFont(pdf_lib__WEBPACK_IMPORTED_MODULE_0__.StandardFonts.HelveticaBold);
+          return pdfDoc.embedFont(pdf_lib__WEBPACK_IMPORTED_MODULE_0__.StandardFonts.Helvetica);
         case 71:
+          helveticaFont = _context7.sent;
+          _context7.next = 74;
+          return pdfDoc.embedFont(pdf_lib__WEBPACK_IMPORTED_MODULE_0__.StandardFonts.HelveticaBold);
+        case 74:
           helveticaBoldFont = _context7.sent;
           fontCache.set("Helvetica", helveticaFont);
           fontCache.set("HelveticaBold", helveticaBoldFont);
@@ -2330,6 +2466,7 @@ function _assemblePDF() {
           CostoM3Agua = mainDataObject.CostoM3Agua[0];
           CostoM3AlcantarilladoTratamiento = mainDataObject.CostoM3AlcantarilladoTratamiento[0];
           TipoBoleta = "BOLETA ELECTRONICA";
+          EstadoDeCuenta = "ESTADO DE CUENTA";
           TimbreTexto = "Timbre electr\xF3nico S.I.I";
           FchVenc = _format_strings_js__WEBPACK_IMPORTED_MODULE_1__.getShortExpiryDate();
           FchEmis = _format_strings_js__WEBPACK_IMPORTED_MODULE_1__.getIssueDate(); // Update progress: Starting page generation
@@ -2340,9 +2477,9 @@ function _assemblePDF() {
           // Process pages in smaller batches for better compression
           batchSize = 20; // Smaller batches
           batchStart = 0;
-        case 84:
+        case 88:
           if (!(batchStart < totalPages)) {
-            _context7.next = 210;
+            _context7.next = 220;
             break;
           }
           batchEnd = Math.min(batchStart + batchSize, totalPages); // Update progress for batch
@@ -2354,14 +2491,14 @@ function _assemblePDF() {
           console.log("Processing batch ".concat(Math.floor(batchStart / batchSize) + 1, "/").concat(Math.ceil(totalPages / batchSize), ": pages ").concat(batchStart + 1, "-").concat(batchEnd));
 
           // Copy template pages for this batch
-          _context7.next = 90;
+          _context7.next = 94;
           return pdfDoc.copyPages(templatePdfDoc, Array(batchEnd - batchStart).fill(0));
-        case 90:
+        case 94:
           templatePages = _context7.sent;
           _i = batchStart;
-        case 92:
+        case 96:
           if (!(_i < batchEnd)) {
-            _context7.next = 205;
+            _context7.next = 215;
             break;
           }
           pageIndex = _i - batchStart;
@@ -2373,6 +2510,7 @@ function _assemblePDF() {
           ////////////GET EXCEL COLUMN VALUES////////////
           //////////////////////////////////////////////
           Folio = mainDataObject.Folio[_i];
+          HasFolio = Boolean(mainDataObject.HasFolio[_i]);
           Numero = mainDataObject.Numero[_i];
           CdgIntRecep = mainDataObject.CdgIntRecep[_i];
           RznSocRecep = mainDataObject.RznSocRecep[_i];
@@ -2526,8 +2664,13 @@ function _assemblePDF() {
             y: 125,
             al: "left"
           };
+          documentTitle = HasFolio ? TipoBoleta : EstadoDeCuenta;
+          tipoBoletaLines = ["RUT: ".concat(RUTEmisor), "".concat(documentTitle)];
+          if (HasFolio && Folio !== null && Folio !== undefined) {
+            tipoBoletaLines.push("N\xB0 ".concat(Folio));
+          }
           textArrays = {
-            TipoBoleta: ["RUT: ".concat(RUTEmisor), "".concat(TipoBoleta), "N\xB0 ".concat(Folio)],
+            TipoBoleta: tipoBoletaLines,
             DetalleCliente: [RznSocRecep, DirRecep, CiudadRecep],
             CdgIntRecep: ["NUMERO CLIENTE: ".concat(CdgIntRecep)],
             Vencimiento: ["VENCIMIENTO: ".concat(FchVenc)],
@@ -2549,7 +2692,7 @@ function _assemblePDF() {
             LecturaAnterior: ["LEC ANTERIOR: ".concat(LecturaAnterior)],
             LecturaActual: ["LEC ACTUAL: ".concat(LecturaActual)],
             ConsumoM3: ["CONSUMO: ".concat(ConsumoM3)],
-            TimbreTexto: [TimbreTexto],
+            TimbreTexto: HasFolio ? [TimbreTexto] : [],
             Desglose: ["Numero Cliente:", "Vencimiento:", "Total del Mes:", "Saldo Anterior:"],
             DesgloseValores: ["".concat(CdgIntRecep), "".concat(FchVenc), "".concat(MntTotal), "".concat(SaldoAnterior)],
             VlrPagarTitulo2: ["TOTAL A PAGAR:"],
@@ -2775,7 +2918,7 @@ function _assemblePDF() {
             fontFamily: mainFontBold,
             alignment: ConsumoM3Pos.al
           });
-          TimbreData = createDataObject(baseConfig, {
+          TimbreData = HasFolio ? createDataObject(baseConfig, {
             data: textArrays.TimbreTexto,
             Numero: Numero,
             RznSocRecep: RznSocRecep,
@@ -2788,7 +2931,7 @@ function _assemblePDF() {
             maxHeight: 80,
             fontSize: fontSize.large,
             alignment: TimbreTextoPos.al
-          });
+          }) : null;
           DesgloseData = createDataObject(baseConfig, {
             data: textArrays.Desglose,
             x: DesglosePos.x,
@@ -2843,54 +2986,61 @@ function _assemblePDF() {
           dataObjects = [TipoBoletaData, DetalleClienteData, NumeroClienteData, VencimientoData, VlrPagarData, DetalleConsumoTituloData, consumoData1, consumoValoresData1,
           // consumoData2,
           // consumoValoresData2,
-          MntTotalTituloData, FchEmisTituloData, MntTotalData, FchEmisData, LecturaAnteriorData, LecturaActualData, ConsumoM3Data, TimbreData, DesgloseData, DesgloseValoresData, VlrPagarData2, VlrPagarTituloData2
+          MntTotalTituloData, FchEmisTituloData, MntTotalData, FchEmisData, LecturaAnteriorData, LecturaActualData, ConsumoM3Data, DesgloseData, DesgloseValoresData, VlrPagarData2, VlrPagarTituloData2
           // AvisoData, // AvisoData will be handled conditionally
           ];
+          if (TimbreData) {
+            dataObjects.push(TimbreData);
+          }
           console.log(TimbreData);
           // Initilize key:values for formatted text in Objects (lines)
           _i2 = 0, _dataObjects = dataObjects;
-        case 182:
+        case 191:
           if (!(_i2 < _dataObjects.length)) {
-            _context7.next = 192;
+            _context7.next = 201;
             break;
           }
           dataObject = _dataObjects[_i2];
-          _context7.next = 186;
+          _context7.next = 195;
           return dataObject.formatData();
-        case 186:
+        case 195:
           dataObject.lines = _toConsumableArray(dataObject.formattedData);
-          _context7.next = 189;
+          _context7.next = 198;
           return printTextToPdf(dataObject, SaldoAnterior, fontCache);
-        case 189:
+        case 198:
           _i2++;
-          _context7.next = 182;
+          _context7.next = 191;
           break;
-        case 192:
+        case 201:
           if (!(!disableAviso && mainDataObject.Aviso[_i] && String(mainDataObject.Aviso[_i]).trim() !== "")) {
-            _context7.next = 198;
+            _context7.next = 207;
             break;
           }
-          _context7.next = 195;
+          _context7.next = 204;
           return AvisoData.formatData();
-        case 195:
+        case 204:
           AvisoData.lines = _toConsumableArray(AvisoData.formattedData);
-          _context7.next = 198;
+          _context7.next = 207;
           return printTextToPdf(AvisoData, SaldoAnterior, fontCache);
-        case 198:
-          _context7.next = 200;
+        case 207:
+          if (!TimbreData) {
+            _context7.next = 210;
+            break;
+          }
+          _context7.next = 210;
           return drawImageToPdf(TimbreData, imageCache, defaultImageBytes);
-        case 200:
+        case 210:
           // Update progress for each page
           processedPages++;
           if (progressManager) {
             statusMessage = "Processing page ".concat(processedPages, " (Client: ").concat(CdgIntRecep, ")");
             progressManager.updateProgress(processedPages, statusMessage);
           }
-        case 202:
+        case 212:
           _i++;
-          _context7.next = 92;
+          _context7.next = 96;
           break;
-        case 205:
+        case 215:
           // More aggressive memory management between batches
           if (typeof window !== "undefined" && window.gc) {
             window.gc(); // Force garbage collection if available
@@ -2913,11 +3063,11 @@ function _assemblePDF() {
             }
             console.log("Cleared compressed image cache to free memory");
           }
-        case 207:
+        case 217:
           batchStart += batchSize;
-          _context7.next = 84;
+          _context7.next = 88;
           break;
-        case 210:
+        case 220:
           // Update progress: Finalizing PDF
           if (progressManager) {
             progressManager.updatePhase("Finalizing PDF", "Applying compression and saving");
@@ -2925,7 +3075,7 @@ function _assemblePDF() {
 
           // Save PDF with maximum compression options
           console.log("Saving PDF with maximum compression...");
-          _context7.next = 214;
+          _context7.next = 224;
           return pdfDoc.save({
             useObjectStreams: true,
             addDefaultPage: false,
@@ -2936,7 +3086,7 @@ function _assemblePDF() {
             compress: true,
             fastWebView: true
           });
-        case 214:
+        case 224:
           pdfBytes = _context7.sent;
           // Update progress: Creating blob and displaying
           if (progressManager) {
@@ -2956,21 +3106,21 @@ function _assemblePDF() {
           if (progressManager) {
             progressManager.updatePhase("Complete", "PDF generated successfully (".concat(fileSizeMB, " MB)"));
           }
-          _context7.next = 229;
+          _context7.next = 239;
           break;
-        case 224:
-          _context7.prev = 224;
-          _context7.t2 = _context7["catch"](1);
+        case 234:
+          _context7.prev = 234;
+          _context7.t2 = _context7["catch"](2);
           console.log("Error in PDF Assembly Function: ".concat(_context7.t2));
           if (progressManager) {
             progressManager.error(_context7.t2.message || "An error occurred during PDF generation");
           }
           throw _context7.t2;
-        case 229:
+        case 239:
         case "end":
           return _context7.stop();
       }
-    }, _callee7, null, [[1, 224], [15, 31], [37, 51]]);
+    }, _callee7, null, [[2, 234], [18, 34], [40, 54]]);
   }));
   return _assemblePDF.apply(this, arguments);
 }
@@ -3188,114 +3338,137 @@ var progressManager = new ProgressManager();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   injectAviso: () => (/* binding */ injectAviso)
+/* harmony export */   injectAviso: () => (/* binding */ injectAviso),
+/* harmony export */   parseClientSelection: () => (/* binding */ parseClientSelection)
 /* harmony export */ });
-/* harmony import */ var _database_data_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./database-data.js */ "./src/database-data.js");
-'use stricts';
 
-function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 
-var validNumbersInputArray = [];
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+var getNumericClientNumbers = function getNumericClientNumbers(clientNumbers) {
+  return clientNumbers.map(function (clientNumber) {
+    return Number(clientNumber);
+  });
+};
+var getClientIndexMap = function getClientIndexMap(clientNumbers) {
+  var clientIndexMap = new Map();
+  clientNumbers.forEach(function (clientNumber, index) {
+    var numericClientNumber = Number(clientNumber);
+    if (!clientIndexMap.has(numericClientNumber)) {
+      clientIndexMap.set(numericClientNumber, []);
+    }
+    clientIndexMap.get(numericClientNumber).push(index);
+  });
+  return clientIndexMap;
+};
+var getParsedClientNumber = function getParsedClientNumber(value) {
+  var parsedValue = Number(String(value).trim());
+  return Number.isFinite(parsedValue) ? parsedValue : null;
+};
+var buildErrorResult = function buildErrorResult(errorMessage) {
+  var invalidClientNumbers = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+  return {
+    isValid: false,
+    selectedIndexes: [],
+    invalidClientNumbers: invalidClientNumbers,
+    errorMessage: errorMessage
+  };
+};
+var buildSuccessResult = function buildSuccessResult(selectedIndexes) {
+  return {
+    isValid: true,
+    selectedIndexes: _toConsumableArray(new Set(selectedIndexes)).sort(function (a, b) {
+      return a - b;
+    }),
+    invalidClientNumbers: [],
+    errorMessage: ""
+  };
+};
+var parseClientSelection = function parseClientSelection(clientNumbers, rawInput) {
+  var _ref = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+    _ref$allowEmptySelect = _ref.allowEmptySelection,
+    allowEmptySelection = _ref$allowEmptySelect === void 0 ? false : _ref$allowEmptySelect;
+  var trimmedInput = String(rawInput !== null && rawInput !== void 0 ? rawInput : "").trim();
+  var normalizedClientNumbers = getNumericClientNumbers(clientNumbers);
+  if (!trimmedInput) {
+    if (!allowEmptySelection) {
+      return buildErrorResult("Please enter at least one client number.");
+    }
+    return buildSuccessResult(normalizedClientNumbers.map(function (_, index) {
+      return index;
+    }));
+  }
+  var clientIndexMap = getClientIndexMap(clientNumbers);
+  if (trimmedInput.includes(",") && trimmedInput.includes("-")) {
+    return buildErrorResult("Use either a comma-separated list or a single range with a dash.");
+  }
+  if (trimmedInput.includes("-")) {
+    var rangeParts = trimmedInput.split("-").map(function (part) {
+      return part.trim();
+    });
+    if (rangeParts.length !== 2) {
+      return buildErrorResult("Client ranges must contain exactly two client numbers.");
+    }
+    var rangeStart = getParsedClientNumber(rangeParts[0]);
+    var rangeEnd = getParsedClientNumber(rangeParts[1]);
+    if (rangeStart === null || rangeEnd === null) {
+      return buildErrorResult("Client ranges must contain valid numbers.");
+    }
+    var minimumClientNumber = Math.min(rangeStart, rangeEnd);
+    var maximumClientNumber = Math.max(rangeStart, rangeEnd);
+    var _selectedIndexes = [];
+    normalizedClientNumbers.forEach(function (clientNumber, index) {
+      if (clientNumber >= minimumClientNumber && clientNumber <= maximumClientNumber) {
+        _selectedIndexes.push(index);
+      }
+    });
+    if (!_selectedIndexes.length) {
+      return buildErrorResult("No clients were found in the range ".concat(minimumClientNumber, "-").concat(maximumClientNumber, "."));
+    }
+    return buildSuccessResult(_selectedIndexes);
+  }
+  var requestedClientNumbers = trimmedInput.includes(",") ? trimmedInput.split(",").map(function (part) {
+    return part.trim();
+  }) : [trimmedInput];
+  var invalidClientNumbers = [];
+  var selectedIndexes = [];
+  requestedClientNumbers.forEach(function (clientNumberValue) {
+    var parsedClientNumber = getParsedClientNumber(clientNumberValue);
+    if (parsedClientNumber === null) {
+      invalidClientNumbers.push(clientNumberValue);
+      return;
+    }
+    var matchingIndexes = clientIndexMap.get(parsedClientNumber);
+    if (!matchingIndexes || !matchingIndexes.length) {
+      invalidClientNumbers.push(parsedClientNumber);
+      return;
+    }
+    selectedIndexes.push.apply(selectedIndexes, _toConsumableArray(matchingIndexes));
+  });
+  if (invalidClientNumbers.length) {
+    return buildErrorResult("Client numbers not found: ".concat(invalidClientNumbers.join(", "), "."), invalidClientNumbers);
+  }
+  return buildSuccessResult(selectedIndexes);
+};
 var injectAviso = function injectAviso(dataObject, avisoInputText, clientNumberInput) {
   var avisoTextColorValue = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [0, 0, 0];
-  var isValidEntry = true;
-  var hasFoundClient = false;
-  var wrongNumbersInputArray = [];
-  var validNumberIndexArray = [];
-  console.log(avisoTextColorValue);
-  var clientNumberArray;
-  var clientNumberValue = clientNumberInput.value.trim();
-  var dataObjectLength = dataObject.CdgIntRecep.length;
-  var firstNumeroCliente = Number(dataObject.CdgIntRecep[0]);
-  var lastNumeroCliente = Number(dataObject.CdgIntRecep[dataObjectLength - 1]);
-
-  //110070,110020,121400
-  //110056,110320,110424
-  //110070,110020,12140
-  if (clientNumberValue.includes('-')) {
-    clientNumberArray = clientNumberValue.split('-').map(function (num) {
-      return Number(num.trim());
-    }).sort(function (a, b) {
-      return a - b;
-    });
-    if (clientNumberArray.length > 2 || !isFinite(clientNumberArray[0]) || !isFinite(clientNumberArray[1]) || clientNumberArray[0] < firstNumeroCliente || clientNumberArray[1] > lastNumeroCliente) {
-      console.error('DASH ENTRY');
-      isValidEntry = false;
-    }
-    if (isValidEntry) {
-      for (var i = 0; i < dataObjectLength; i++) {
-        if (clientNumberArray[0] === dataObject.CdgIntRecep[i]) {
-          hasFoundClient = true;
-        }
-        if (hasFoundClient) {
-          validNumbersInputArray.push(dataObject.CdgIntRecep[i]);
-          dataObject.Aviso[i] = avisoInputText.value;
-          dataObject.Color[i] = avisoTextColorValue;
-        }
-        if (clientNumberArray[1] === dataObject.CdgIntRecep[i]) break;
-      }
-    }
-  } else if (clientNumberValue.includes(',')) {
-    clientNumberArray = clientNumberValue.split(',').map(function (num) {
-      return Number(num.trim());
-    }).sort(function (a, b) {
-      return a - b;
-    });
-    if (clientNumberArray[0] < dataObject.CdgIntRecep[0] || clientNumberArray[clientNumberArray.length - 1] > dataObject.CdgIntRecep[dataObjectLength - 1]) {
-      console.error('COMMA ENTRY');
-      isValidEntry = false;
-    }
-    clientNumberArray.forEach(function (num) {
-      if (!isFinite(num)) {
-        isValidEntry = false;
-        console.error('COMMA ENTRY');
-      }
-    });
-    if (isValidEntry) {
-      console.log("Valid input for clients ".concat(clientNumberArray, " "));
-      for (var _i = 0; _i < dataObjectLength; _i++) {
-        if (dataObject.CdgIntRecep[_i] > clientNumberArray[0]) {
-          wrongNumbersInputArray.push(clientNumberArray.shift());
-        }
-        if (clientNumberArray[0] === dataObject.CdgIntRecep[_i]) {
-          hasFoundClient = true;
-          validNumbersInputArray.push(clientNumberArray.shift());
-          validNumberIndexArray.push(_i);
-          if (!clientNumberArray.length) break;
-        }
-      }
-      if (wrongNumbersInputArray.length) {
-        hasFoundClient = false;
-      } else {
-        validNumberIndexArray.forEach(function (num) {
-          dataObject.Color[num] = avisoTextColorValue;
-          dataObject.Aviso[num] = avisoInputText.value;
-        });
-      }
-    }
-  } else {
-    clientNumberValue = Number(clientNumberValue);
-    if (!isFinite(clientNumberValue) || clientNumberValue < dataObject.CdgIntRecep[0] || clientNumberValue > dataObject.CdgIntRecep[dataObjectLength - 1]) {
-      console.error('SINGLE ENTRY', _typeof(clientNumberValue));
-      isValidEntry = false;
-    }
-    if (isValidEntry) {
-      console.log("Valid input for client ".concat(clientNumberValue, " "));
-      for (var _i2 = 0; _i2 < dataObjectLength; _i2++) {
-        if (clientNumberValue === dataObject.CdgIntRecep[_i2]) {
-          hasFoundClient = true;
-          validNumbersInputArray.push(clientNumberValue);
-          dataObject.Aviso[_i2] = avisoInputText.value;
-          dataObject.Color[_i2] = avisoTextColorValue;
-          break;
-        }
-      }
-    }
+  var selection = parseClientSelection(dataObject.CdgIntRecep, clientNumberInput.value, {
+    allowEmptySelection: false
+  });
+  if (!selection.isValid) {
+    console.error(selection.errorMessage);
+    return selection;
   }
-  if (isValidEntry) {
-    clientNumberInput.disabled = true;
-  }
-  if (!hasFoundClient) console.error('INVALID INPUT');
+  selection.selectedIndexes.forEach(function (index) {
+    dataObject.Aviso[index] = avisoInputText.value;
+    dataObject.Color[index] = avisoTextColorValue;
+  });
+  clientNumberInput.disabled = true;
+  return selection;
 };
 
 
@@ -3510,6 +3683,42 @@ body {
   margin-right: 5px;
 }
 
+.generation-filter-container,
+.manual-period-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  max-width: 420px;
+}
+
+.generation-filter-label,
+.manual-period-label,
+.generation-filter-help,
+.manual-period-help {
+  color: #ffffff;
+}
+
+.generation-filter-help,
+.manual-period-help {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.manual-period-help {
+  color: #ffd089;
+}
+
+.generation-filter-input,
+.period-input-field {
+  height: 38px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 15px;
+}
+
 .btn {
   background-color: #273136;
   color: #ffffff;
@@ -3557,13 +3766,15 @@ body {
 #fileInput,
 #sheetList,
 #addAvisoButton,
-#loadingContainer {
+#loadingContainer,
+#generationFilterContainer,
+#manualPeriodContainer {
   display: none;
 }
 
 #addAvisoButton {
   margin: 0;
-}`, "",{"version":3,"sources":["webpack://./src/main.scss"],"names":[],"mappings":"AAUA;EACE,sBAAA;AARF;;AAWA;EACE,yBAbc;EAcd,iCAAA;EACA,aAAA;EACA,uBAAA;EACA,gBAAA;EACA,YAAA;AARF;;AAWA;EACE,WAAA;EACA,yBAtBgB;EAuBhB,wEApBW;EAqBX,mBAAA;EACA,aAAA;EACA,gBAAA;EACA,aAAA,EAAA,mBAAA;EACA,sBAAA,EAAA,8BAAA;EACA,uBAAA,EAAA,0DAAA;AARF;;AAWA;EACE,eAAA;EACA,sBAAA,EAAA,8BAAA;EACA,aAAA;AARF;;AAWA;EACE,yBAvCgB;EAyChB,aAAA;EACA,mBAAA;EACA,sBAAA,EAAA,8BAAA;EACA,uBAAA,EAAA,0DAAA;EACA,aAAA;EACA,kBAAA;AATF;;AAWA;EACE,aAAA;EACA,mBAAA;AARF;;AAWA;EACE,aAAA;EACA,sBAAA;EACA,iBAAA;AARF;;AAWA;;EAEE,cAAA;AARF;;AAWA;EACE,YAAA;EACA,YAAA;AARF;;AAWA;EACE,aAAA;EACA,sBAAA;EACA,iBAAA;AARF;;AAWA;EACE,YAAA;EACA,WAAA;AARF;;AAWA;EACE,gBAAA;EACA,YAAA;EACA,YAAA;EACA,aAAA;EACA,kBAAA;AARF;;AAWA;EACE,aAAA;EACA,yBA1FgB;EA2FhB,wEAxFW;EAyFX,mBAAA;EACA,eAAA;EACA,eAAA;EACA,gBAAA;AARF;;AAYA;EACE,aAAA;EACA,yBAtGc;EAuGd,mBAAA;EACA,aAAA;EACA,gBAAA;EACA,wEAtGW;EAuGX,WAAA;EACA,gBAAA;EACA,cAAA;AATF;;AAYA;EACE,aAAA;EACA,8BAAA;EACA,mBAAA;EACA,mBAAA;AATF;AAWE;EACE,SAAA;EACA,cAAA;EACA,eAAA;EACA,gBAAA;AATJ;AAYE;EACE,eAAA;EACA,gBAAA;EACA,cA3Ha;AAiHjB;;AAcA;EACE,WAAA;EACA,YAAA;EACA,yBAjIY;EAkIZ,kBAAA;EACA,gBAAA;EACA,mBAAA;EACA,8CAAA;AAXF;;AAcA;EACE,YAAA;EACA,SAAA;EACA,oDAAA;EAKA,kBAAA;EACA,2BAAA;EACA,kBAAA;AAfF;AAiBE;EACE,WAAA;EACA,kBAAA;EACA,MAAA;EACA,OAAA;EACA,QAAA;EACA,SAAA;EACA,sFAAA;EAMA,8BAAA;AApBJ;;AAwBA;EACE;IACE,4BAAA;EArBF;EAuBA;IACE,2BAAA;EArBF;AACF;AAwBA;EACE,eAAA;AAtBF;AAwBE;EACE,kBAAA;EACA,cAAA;EACA,gBAAA;AAtBJ;AAyBE;EACE,aAAA;EACA,8BAAA;EACA,eAAA;EACA,cAAA;AAvBJ;AAyBI;EACE,aAAA;EACA,QAAA;AAvBN;;AA4BA;EACE,mBAAA;AAzBF;AA2BE;EACE,cAAA;EACA,gBAAA;AAzBJ;AA4BE;EACE,iBAAA;AA1BJ;;AA8BA;EACE,yBAxNc;EAyNd,cAAA;EACA,mBAAA;EACA,SAAA;EACA,mBAAA;EACA,mBAAA;EACA,2CAAA;EACA,kBAAA;EACA,eAAA;EACA,eAAA;AA3BF;AA6BE;EACE,sBAAA;EACA,wCAAA;AA3BJ;AA8BE;EACE,UAAA;AA5BJ;AA+BE;EACE,yBA3Oa;AA8MjB;AAgCE;EACE,yBAAA;EACA,mBAAA;EACA,YAAA;AA9BJ;AAgCI;EACE,yBAAA;AA9BN;;AAmCA;EACE,wEAxPW;EAyPX,cAAA;EACA,gBAAA;EACA,SAAA;EACA,cAAA;EACA,gBAAA;EACA,aAAA;EACA,eAAA;AAhCF;;AAmCA;;;;;;EAME,aAAA;AAhCF;;AAmCA;EACE,SAAA;AAhCF","sourcesContent":["@import url(\"https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap\");\n\n$primary-color: #273136;\n$secondary-color: #495264;\n$thirdary-color: #375c4d;\n$selected-file-button-color: #246b4f;\n$box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);\n$progress-color: #4caf50;\n$progress-bg: #e0e0e0;\n\n* {\n  box-sizing: border-box;\n}\n\nbody {\n  background-color: $primary-color;\n  font-family: \"Roboto\", sans-serif;\n  display: flex;\n  justify-content: center;\n  overflow: hidden;\n  height: 100%;\n}\n\n.main-container {\n  margin: 2vh;\n  background-color: $secondary-color;\n  box-shadow: $box-shadow;\n  border-radius: 10px;\n  padding: 10px;\n  text-align: left;\n  display: flex; /* Enable flexbox */\n  flex-direction: column; /* Stack children vertically */\n  align-items: flex-start; /* Align items to the start of the flex container (left) */\n}\n\n.options-container {\n  margin-top: 2vh;\n  flex-direction: column; /* Stack children vertically */\n  display: flex;\n}\n\n.add-aviso-container {\n  background-color: $secondary-color;\n\n  padding: 10px;\n  border-radius: 10px;\n  flex-direction: column; /* Stack children vertically */\n  align-items: flex-start; /* Align items to the start of the flex container (left) */\n  display: flex;\n  text-align: center;\n}\n.aviso-header-container {\n  display: flex;\n  flex-direction: row;\n}\n\n.client-input-container {\n  display: flex;\n  flex-direction: column;\n  margin-left: 20px;\n}\n\n.client-input-label,\n.color-input-label {\n  color: #ffffff;\n}\n\n.client-input-field {\n  height: 25px;\n  width: 250px;\n}\n\n.color-input-container {\n  display: flex;\n  flex-direction: column;\n  margin-left: 20px;\n}\n\n.color-input-field {\n  height: 25px;\n  width: 85px;\n}\n\n.text-input {\n  text-align: left;\n  resize: none;\n  width: 500px;\n  height: 200px;\n  border-radius: 5px;\n}\n\n.aviso {\n  padding: 10px;\n  background-color: $secondary-color;\n  box-shadow: $box-shadow;\n  border-radius: 10px;\n  margin-top: 2vh;\n  max-width: 90vw;\n  max-height: 88vh;\n}\n\n// Loading Bar Styles\n.loading-container {\n  display: none;\n  background-color: $primary-color;\n  border-radius: 10px;\n  padding: 20px;\n  margin-top: 15px;\n  box-shadow: $box-shadow;\n  width: 100%;\n  max-width: 500px;\n  color: #ffffff;\n}\n\n.loading-header {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-bottom: 15px;\n\n  h3 {\n    margin: 0;\n    color: #ffffff;\n    font-size: 18px;\n    font-weight: 700;\n  }\n\n  #loadingPercentage {\n    font-size: 16px;\n    font-weight: 700;\n    color: $progress-color;\n  }\n}\n\n.progress-bar-container {\n  width: 100%;\n  height: 12px;\n  background-color: $progress-bg;\n  border-radius: 6px;\n  overflow: hidden;\n  margin-bottom: 15px;\n  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);\n}\n\n.progress-bar {\n  height: 100%;\n  width: 0%;\n  background: linear-gradient(\n    90deg,\n    $progress-color,\n    lighten($progress-color, 10%)\n  );\n  border-radius: 6px;\n  transition: width 0.3s ease;\n  position: relative;\n\n  &::after {\n    content: \"\";\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    background: linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 255, 255, 0.3),\n      transparent\n    );\n    animation: shimmer 2s infinite;\n  }\n}\n\n@keyframes shimmer {\n  0% {\n    transform: translateX(-100%);\n  }\n  100% {\n    transform: translateX(100%);\n  }\n}\n\n.loading-details {\n  font-size: 14px;\n\n  #loadingStatus {\n    margin-bottom: 8px;\n    color: #cccccc;\n    font-weight: 500;\n  }\n\n  #loadingStats {\n    display: flex;\n    justify-content: space-between;\n    font-size: 12px;\n    color: #aaaaaa;\n\n    span {\n      display: flex;\n      gap: 4px;\n    }\n  }\n}\n\n.checkbox-container {\n  margin-bottom: 10px;\n\n  label {\n    color: #ffffff;\n    margin-left: 8px;\n  }\n\n  input[type=\"checkbox\"] {\n    margin-right: 5px;\n  }\n}\n\n.btn {\n  background-color: $primary-color;\n  color: #ffffff;\n  font-weight: bolder;\n  border: 0;\n  margin-bottom: 10px;\n  border-radius: 10px;\n  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);\n  padding: 12px 12px;\n  font-size: 16px;\n  cursor: pointer;\n\n  &:active {\n    transform: scale(0.98);\n    box-shadow: 3px 3px 3px rgba(0, 0, 0, 0);\n  }\n\n  &:focus {\n    outline: 0;\n  }\n\n  &:hover {\n    background-color: $thirdary-color;\n  }\n\n  &:disabled {\n    background-color: #666666;\n    cursor: not-allowed;\n    opacity: 0.6;\n\n    &:hover {\n      background-color: #666666;\n    }\n  }\n}\n\n#pdfIframe {\n  box-shadow: $box-shadow;\n  display: block;\n  background: #000;\n  border: 0;\n  height: 1200px;\n  max-height: 88vh;\n  width: 1600px;\n  max-width: 90vw;\n}\n\n#generateBoletasButton,\n#fetchDataButton,\n#fileInput,\n#sheetList,\n#addAvisoButton,\n#loadingContainer {\n  display: none;\n}\n\n#addAvisoButton {\n  margin: 0;\n}\n"],"sourceRoot":""}]);
+}`, "",{"version":3,"sources":["webpack://./src/main.scss"],"names":[],"mappings":"AAUA;EACE,sBAAA;AARF;;AAWA;EACE,yBAbc;EAcd,iCAAA;EACA,aAAA;EACA,uBAAA;EACA,gBAAA;EACA,YAAA;AARF;;AAWA;EACE,WAAA;EACA,yBAtBgB;EAuBhB,wEApBW;EAqBX,mBAAA;EACA,aAAA;EACA,gBAAA;EACA,aAAA,EAAA,mBAAA;EACA,sBAAA,EAAA,8BAAA;EACA,uBAAA,EAAA,0DAAA;AARF;;AAWA;EACE,eAAA;EACA,sBAAA,EAAA,8BAAA;EACA,aAAA;AARF;;AAWA;EACE,yBAvCgB;EAyChB,aAAA;EACA,mBAAA;EACA,sBAAA,EAAA,8BAAA;EACA,uBAAA,EAAA,0DAAA;EACA,aAAA;EACA,kBAAA;AATF;;AAWA;EACE,aAAA;EACA,mBAAA;AARF;;AAWA;EACE,aAAA;EACA,sBAAA;EACA,iBAAA;AARF;;AAWA;;EAEE,cAAA;AARF;;AAWA;EACE,YAAA;EACA,YAAA;AARF;;AAWA;EACE,aAAA;EACA,sBAAA;EACA,iBAAA;AARF;;AAWA;EACE,YAAA;EACA,WAAA;AARF;;AAWA;EACE,gBAAA;EACA,YAAA;EACA,YAAA;EACA,aAAA;EACA,kBAAA;AARF;;AAWA;EACE,aAAA;EACA,yBA1FgB;EA2FhB,wEAxFW;EAyFX,mBAAA;EACA,eAAA;EACA,eAAA;EACA,gBAAA;AARF;;AAYA;EACE,aAAA;EACA,yBAtGc;EAuGd,mBAAA;EACA,aAAA;EACA,gBAAA;EACA,wEAtGW;EAuGX,WAAA;EACA,gBAAA;EACA,cAAA;AATF;;AAYA;EACE,aAAA;EACA,8BAAA;EACA,mBAAA;EACA,mBAAA;AATF;AAWE;EACE,SAAA;EACA,cAAA;EACA,eAAA;EACA,gBAAA;AATJ;AAYE;EACE,eAAA;EACA,gBAAA;EACA,cA3Ha;AAiHjB;;AAcA;EACE,WAAA;EACA,YAAA;EACA,yBAjIY;EAkIZ,kBAAA;EACA,gBAAA;EACA,mBAAA;EACA,8CAAA;AAXF;;AAcA;EACE,YAAA;EACA,SAAA;EACA,oDAAA;EAKA,kBAAA;EACA,2BAAA;EACA,kBAAA;AAfF;AAiBE;EACE,WAAA;EACA,kBAAA;EACA,MAAA;EACA,OAAA;EACA,QAAA;EACA,SAAA;EACA,sFAAA;EAMA,8BAAA;AApBJ;;AAwBA;EACE;IACE,4BAAA;EArBF;EAuBA;IACE,2BAAA;EArBF;AACF;AAwBA;EACE,eAAA;AAtBF;AAwBE;EACE,kBAAA;EACA,cAAA;EACA,gBAAA;AAtBJ;AAyBE;EACE,aAAA;EACA,8BAAA;EACA,eAAA;EACA,cAAA;AAvBJ;AAyBI;EACE,aAAA;EACA,QAAA;AAvBN;;AA4BA;EACE,mBAAA;AAzBF;AA2BE;EACE,cAAA;EACA,gBAAA;AAzBJ;AA4BE;EACE,iBAAA;AA1BJ;;AA8BA;;EAEE,aAAA;EACA,sBAAA;EACA,QAAA;EACA,mBAAA;EACA,gBAAA;AA3BF;;AA8BA;;;;EAIE,cAAA;AA3BF;;AA8BA;;EAEE,SAAA;EACA,eAAA;EACA,gBAAA;AA3BF;;AA8BA;EACE,cAAA;AA3BF;;AA8BA;;EAEE,YAAA;EACA,SAAA;EACA,kBAAA;EACA,eAAA;EACA,eAAA;AA3BF;;AA8BA;EACE,yBA5Pc;EA6Pd,cAAA;EACA,mBAAA;EACA,SAAA;EACA,mBAAA;EACA,mBAAA;EACA,2CAAA;EACA,kBAAA;EACA,eAAA;EACA,eAAA;AA3BF;AA6BE;EACE,sBAAA;EACA,wCAAA;AA3BJ;AA8BE;EACE,UAAA;AA5BJ;AA+BE;EACE,yBA/Qa;AAkPjB;AAgCE;EACE,yBAAA;EACA,mBAAA;EACA,YAAA;AA9BJ;AAgCI;EACE,yBAAA;AA9BN;;AAmCA;EACE,wEA5RW;EA6RX,cAAA;EACA,gBAAA;EACA,SAAA;EACA,cAAA;EACA,gBAAA;EACA,aAAA;EACA,eAAA;AAhCF;;AAmCA;;;;;;;;EAQE,aAAA;AAhCF;;AAmCA;EACE,SAAA;AAhCF","sourcesContent":["@import url(\"https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap\");\n\n$primary-color: #273136;\n$secondary-color: #495264;\n$thirdary-color: #375c4d;\n$selected-file-button-color: #246b4f;\n$box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);\n$progress-color: #4caf50;\n$progress-bg: #e0e0e0;\n\n* {\n  box-sizing: border-box;\n}\n\nbody {\n  background-color: $primary-color;\n  font-family: \"Roboto\", sans-serif;\n  display: flex;\n  justify-content: center;\n  overflow: hidden;\n  height: 100%;\n}\n\n.main-container {\n  margin: 2vh;\n  background-color: $secondary-color;\n  box-shadow: $box-shadow;\n  border-radius: 10px;\n  padding: 10px;\n  text-align: left;\n  display: flex; /* Enable flexbox */\n  flex-direction: column; /* Stack children vertically */\n  align-items: flex-start; /* Align items to the start of the flex container (left) */\n}\n\n.options-container {\n  margin-top: 2vh;\n  flex-direction: column; /* Stack children vertically */\n  display: flex;\n}\n\n.add-aviso-container {\n  background-color: $secondary-color;\n\n  padding: 10px;\n  border-radius: 10px;\n  flex-direction: column; /* Stack children vertically */\n  align-items: flex-start; /* Align items to the start of the flex container (left) */\n  display: flex;\n  text-align: center;\n}\n.aviso-header-container {\n  display: flex;\n  flex-direction: row;\n}\n\n.client-input-container {\n  display: flex;\n  flex-direction: column;\n  margin-left: 20px;\n}\n\n.client-input-label,\n.color-input-label {\n  color: #ffffff;\n}\n\n.client-input-field {\n  height: 25px;\n  width: 250px;\n}\n\n.color-input-container {\n  display: flex;\n  flex-direction: column;\n  margin-left: 20px;\n}\n\n.color-input-field {\n  height: 25px;\n  width: 85px;\n}\n\n.text-input {\n  text-align: left;\n  resize: none;\n  width: 500px;\n  height: 200px;\n  border-radius: 5px;\n}\n\n.aviso {\n  padding: 10px;\n  background-color: $secondary-color;\n  box-shadow: $box-shadow;\n  border-radius: 10px;\n  margin-top: 2vh;\n  max-width: 90vw;\n  max-height: 88vh;\n}\n\n// Loading Bar Styles\n.loading-container {\n  display: none;\n  background-color: $primary-color;\n  border-radius: 10px;\n  padding: 20px;\n  margin-top: 15px;\n  box-shadow: $box-shadow;\n  width: 100%;\n  max-width: 500px;\n  color: #ffffff;\n}\n\n.loading-header {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-bottom: 15px;\n\n  h3 {\n    margin: 0;\n    color: #ffffff;\n    font-size: 18px;\n    font-weight: 700;\n  }\n\n  #loadingPercentage {\n    font-size: 16px;\n    font-weight: 700;\n    color: $progress-color;\n  }\n}\n\n.progress-bar-container {\n  width: 100%;\n  height: 12px;\n  background-color: $progress-bg;\n  border-radius: 6px;\n  overflow: hidden;\n  margin-bottom: 15px;\n  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);\n}\n\n.progress-bar {\n  height: 100%;\n  width: 0%;\n  background: linear-gradient(\n    90deg,\n    $progress-color,\n    lighten($progress-color, 10%)\n  );\n  border-radius: 6px;\n  transition: width 0.3s ease;\n  position: relative;\n\n  &::after {\n    content: \"\";\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    background: linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 255, 255, 0.3),\n      transparent\n    );\n    animation: shimmer 2s infinite;\n  }\n}\n\n@keyframes shimmer {\n  0% {\n    transform: translateX(-100%);\n  }\n  100% {\n    transform: translateX(100%);\n  }\n}\n\n.loading-details {\n  font-size: 14px;\n\n  #loadingStatus {\n    margin-bottom: 8px;\n    color: #cccccc;\n    font-weight: 500;\n  }\n\n  #loadingStats {\n    display: flex;\n    justify-content: space-between;\n    font-size: 12px;\n    color: #aaaaaa;\n\n    span {\n      display: flex;\n      gap: 4px;\n    }\n  }\n}\n\n.checkbox-container {\n  margin-bottom: 10px;\n\n  label {\n    color: #ffffff;\n    margin-left: 8px;\n  }\n\n  input[type=\"checkbox\"] {\n    margin-right: 5px;\n  }\n}\n\n.generation-filter-container,\n.manual-period-container {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  margin-bottom: 12px;\n  max-width: 420px;\n}\n\n.generation-filter-label,\n.manual-period-label,\n.generation-filter-help,\n.manual-period-help {\n  color: #ffffff;\n}\n\n.generation-filter-help,\n.manual-period-help {\n  margin: 0;\n  font-size: 13px;\n  line-height: 1.4;\n}\n\n.manual-period-help {\n  color: #ffd089;\n}\n\n.generation-filter-input,\n.period-input-field {\n  height: 38px;\n  border: 0;\n  border-radius: 8px;\n  padding: 0 12px;\n  font-size: 15px;\n}\n\n.btn {\n  background-color: $primary-color;\n  color: #ffffff;\n  font-weight: bolder;\n  border: 0;\n  margin-bottom: 10px;\n  border-radius: 10px;\n  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);\n  padding: 12px 12px;\n  font-size: 16px;\n  cursor: pointer;\n\n  &:active {\n    transform: scale(0.98);\n    box-shadow: 3px 3px 3px rgba(0, 0, 0, 0);\n  }\n\n  &:focus {\n    outline: 0;\n  }\n\n  &:hover {\n    background-color: $thirdary-color;\n  }\n\n  &:disabled {\n    background-color: #666666;\n    cursor: not-allowed;\n    opacity: 0.6;\n\n    &:hover {\n      background-color: #666666;\n    }\n  }\n}\n\n#pdfIframe {\n  box-shadow: $box-shadow;\n  display: block;\n  background: #000;\n  border: 0;\n  height: 1200px;\n  max-height: 88vh;\n  width: 1600px;\n  max-width: 90vw;\n}\n\n#generateBoletasButton,\n#fetchDataButton,\n#fileInput,\n#sheetList,\n#addAvisoButton,\n#loadingContainer,\n#generationFilterContainer,\n#manualPeriodContainer {\n  display: none;\n}\n\n#addAvisoButton {\n  margin: 0;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -62186,15 +62397,14 @@ var __webpack_exports__ = {};
   \**********************/
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _main_scss__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./main.scss */ "./src/main.scss");
-/* harmony import */ var _format_strings_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./format-strings.js */ "./src/format-strings.js");
-/* harmony import */ var _user_input_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./user-input.js */ "./src/user-input.js");
-/* harmony import */ var _button_style_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./button-style.js */ "./src/button-style.js");
-/* harmony import */ var _global_variables_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./global-variables.js */ "./src/global-variables.js");
-/* harmony import */ var _assets_boletaTemplate_pdf__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./assets/boletaTemplate.pdf */ "./src/assets/boletaTemplate.pdf");
-/* harmony import */ var _pdf_assembly_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./pdf-assembly.js */ "./src/pdf-assembly.js");
-/* harmony import */ var _database_data_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./database-data.js */ "./src/database-data.js");
-/* harmony import */ var xlsx__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! xlsx */ "./node_modules/xlsx/xlsx.mjs");
-/* harmony import */ var _progress_manager_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./progress-manager.js */ "./src/progress-manager.js");
+/* harmony import */ var _user_input_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./user-input.js */ "./src/user-input.js");
+/* harmony import */ var _button_style_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./button-style.js */ "./src/button-style.js");
+/* harmony import */ var _global_variables_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./global-variables.js */ "./src/global-variables.js");
+/* harmony import */ var _assets_boletaTemplate_pdf__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./assets/boletaTemplate.pdf */ "./src/assets/boletaTemplate.pdf");
+/* harmony import */ var _pdf_assembly_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./pdf-assembly.js */ "./src/pdf-assembly.js");
+/* harmony import */ var _database_data_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./database-data.js */ "./src/database-data.js");
+/* harmony import */ var xlsx__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! xlsx */ "./node_modules/xlsx/xlsx.mjs");
+/* harmony import */ var _progress_manager_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./progress-manager.js */ "./src/progress-manager.js");
 
 
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
@@ -62215,125 +62425,184 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
 
 
 
-
+var SHEET_PERIOD_REGEX = /^(\d{4})-(\d{2})\s+Planilla Boleta Gen(?:\.(xlsx|xls))?$/i;
+var MANUAL_PERIOD_REGEX = /^(\d{4})-(\d{2})$/;
+var getBillingPeriodFromText = function getBillingPeriodFromText(value) {
+  var matches = String(value !== null && value !== void 0 ? value : "").trim().match(SHEET_PERIOD_REGEX);
+  if (!matches) {
+    return null;
+  }
+  var year = Number(matches[1]);
+  var month = Number(matches[2]);
+  if (!Number.isInteger(year) || !Number.isInteger(month)) {
+    return null;
+  }
+  if (month < 1 || month > 12) {
+    return null;
+  }
+  return {
+    year: year,
+    month: month
+  };
+};
+var getBillingPeriod = function getBillingPeriod(sheetName, fileName) {
+  return getBillingPeriodFromText(sheetName) || getBillingPeriodFromText(fileName);
+};
+var getBillingPeriodFromManualInput = function getBillingPeriodFromManualInput(manualPeriodValue) {
+  var matches = String(manualPeriodValue !== null && manualPeriodValue !== void 0 ? manualPeriodValue : "").trim().match(MANUAL_PERIOD_REGEX);
+  if (!matches) {
+    return null;
+  }
+  var year = Number(matches[1]);
+  var month = Number(matches[2]);
+  if (!Number.isInteger(year) || !Number.isInteger(month)) {
+    return null;
+  }
+  if (month < 1 || month > 12) {
+    return null;
+  }
+  return {
+    year: year,
+    month: month
+  };
+};
+var hideManualPeriodPicker = function hideManualPeriodPicker() {
+  manualPeriodContainer.style.display = "none";
+};
+var showManualPeriodPicker = function showManualPeriodPicker() {
+  manualPeriodContainer.style.display = "flex";
+};
+var resetManualPeriodPicker = function resetManualPeriodPicker() {
+  manualPeriodInput.value = "";
+  hideManualPeriodPicker();
+};
 
 // EventListener for DOMContentLoaded to make sure the DOM is loaded
 document.addEventListener("DOMContentLoaded", function () {
   var dataObject = {};
-  // Create variable names for DOM elements
-  (0,_global_variables_js__WEBPACK_IMPORTED_MODULE_4__["default"])();
-  // Assigning boletaTemplate.pdf to iframe source
-  pdfIframe.src = _assets_boletaTemplate_pdf__WEBPACK_IMPORTED_MODULE_5__;
-  // Create workbook variable to hold Excel Data
+  (0,_global_variables_js__WEBPACK_IMPORTED_MODULE_3__["default"])();
+  pdfIframe.src = _assets_boletaTemplate_pdf__WEBPACK_IMPORTED_MODULE_4__;
   var workbook;
   var reader;
   var excelFile;
   var readExcel = function readExcel(e) {
-    // Assign first file selected to excelFile
     excelFile = e.target.files[0];
-    // if nothing was selected exit function and hide dropdown list
     if (excelFile === undefined || excelFile.length === 0) {
-      _button_style_js__WEBPACK_IMPORTED_MODULE_3__.setInputButtonNotClicked(fileInputButton, sheetList);
-      _button_style_js__WEBPACK_IMPORTED_MODULE_3__.setButtonNotClicked(fetchDataButton);
+      _button_style_js__WEBPACK_IMPORTED_MODULE_2__.setInputButtonNotClicked(fileInputButton, sheetList);
+      _button_style_js__WEBPACK_IMPORTED_MODULE_2__.setButtonNotClicked(fetchDataButton);
+      _button_style_js__WEBPACK_IMPORTED_MODULE_2__.hideButton(generateBoletasButton);
+      generationFilterContainer.style.display = "none";
+      resetManualPeriodPicker();
       return;
     }
-
-    // Create a FileReader()
     reader = new FileReader();
-
-    // on reader load, read excel file and assign
-    reader.onload = function (e) {
-      // Create variable and assign it the excel data as Uint8Array
-      var data = new Uint8Array(e.target.result);
-
-      // Assign the Uint8Array data as type 'array' to workbook variable
-      workbook = xlsx__WEBPACK_IMPORTED_MODULE_9__.read(data, {
+    reader.onload = function (loadEvent) {
+      var data = new Uint8Array(loadEvent.target.result);
+      workbook = xlsx__WEBPACK_IMPORTED_MODULE_8__.read(data, {
         type: "array"
       });
-
-      // Delete all sheets from sheetList before populating again
       while (sheetList.firstChild) {
         sheetList.removeChild(sheetList.firstChild);
       }
-
-      // Loop through all sheets in workbook and push them into sheetList
       workbook.SheetNames.forEach(function (sheet) {
         var option = document.createElement("option");
         option.text = sheet;
         sheetList.add(option);
       });
-      _button_style_js__WEBPACK_IMPORTED_MODULE_3__.setInputButtonClicked(fileInputButton, excelFile, sheetList);
-      _button_style_js__WEBPACK_IMPORTED_MODULE_3__.revealButton(fetchDataButton);
+      _button_style_js__WEBPACK_IMPORTED_MODULE_2__.setInputButtonClicked(fileInputButton, excelFile, sheetList);
+      _button_style_js__WEBPACK_IMPORTED_MODULE_2__.revealButton(fetchDataButton);
+      generationFilterContainer.style.display = "none";
+      resetManualPeriodPicker();
     };
-    // Call reader as array buffer with input excel file
     reader.readAsArrayBuffer(excelFile);
     fetchDataButton.disabled = false;
   };
   sheetList.addEventListener("change", function () {
     fetchDataButton.disabled = false;
-    _button_style_js__WEBPACK_IMPORTED_MODULE_3__.revealButton(fetchDataButton);
+    _button_style_js__WEBPACK_IMPORTED_MODULE_2__.revealButton(fetchDataButton);
+    resetManualPeriodPicker();
   });
-
-  // Click hidden fileInput when fileInputButton is clicked by user (because fileInput is ugly)
   fileInputButton.addEventListener("click", function () {
     fileInput.click();
   });
-
-  // Event Listener for wehn a file is selected by the User
   fileInput.addEventListener("change", readExcel);
   fileInput.addEventListener("cancel", readExcel);
-
-  // Generate Boletas from sheet data (DataBase)
   fetchDataButton.addEventListener("click", function () {
-    // Get Data from selected sheet as json
-    dataObject = _objectSpread({}, _database_data_js__WEBPACK_IMPORTED_MODULE_7__.compileData(xlsx__WEBPACK_IMPORTED_MODULE_9__.utils.sheet_to_json(workbook.Sheets[sheetList.value])));
-    _button_style_js__WEBPACK_IMPORTED_MODULE_3__.setButtonClicked(sheetList);
-    _button_style_js__WEBPACK_IMPORTED_MODULE_3__.setButtonClicked(fetchDataButton);
-    _button_style_js__WEBPACK_IMPORTED_MODULE_3__.revealButton(generateBoletasButton);
+    dataObject = _objectSpread({}, (0,_database_data_js__WEBPACK_IMPORTED_MODULE_6__.compileData)(xlsx__WEBPACK_IMPORTED_MODULE_8__.utils.sheet_to_json(workbook.Sheets[sheetList.value])));
+    _button_style_js__WEBPACK_IMPORTED_MODULE_2__.setButtonClicked(sheetList);
+    _button_style_js__WEBPACK_IMPORTED_MODULE_2__.setButtonClicked(fetchDataButton);
+    _button_style_js__WEBPACK_IMPORTED_MODULE_2__.revealButton(generateBoletasButton);
+    generationFilterContainer.style.display = "flex";
     optionsContainer.style.display = "inline";
-    _button_style_js__WEBPACK_IMPORTED_MODULE_3__.revealButton(addAvisoButton);
+    _button_style_js__WEBPACK_IMPORTED_MODULE_2__.revealButton(addAvisoButton);
     fetchDataButton.disabled = true;
-    console.log("test");
+    resetManualPeriodPicker();
   });
-
-  // Generate Boletas from sheet data (DataBase) with progress tracking
   generateBoletasButton.addEventListener("click", /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-    var disableAviso, _dataObject, totalPages;
+    var disableAviso, _dataObject$CdgIntRec, _excelFile, _generationData$Numer, selectedClients, billingPeriod, generationData, totalPages;
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
           disableAviso = __webpack_require__.g.disableAvisoCheckbox.checked;
           _context.prev = 1;
-          // Get total number of pages to generate
-          totalPages = ((_dataObject = dataObject) === null || _dataObject === void 0 || (_dataObject = _dataObject.Numero) === null || _dataObject === void 0 ? void 0 : _dataObject.length) || 0;
-          if (!(totalPages === 0)) {
+          selectedClients = _user_input_js__WEBPACK_IMPORTED_MODULE_1__.parseClientSelection((_dataObject$CdgIntRec = dataObject.CdgIntRecep) !== null && _dataObject$CdgIntRec !== void 0 ? _dataObject$CdgIntRec : [], generationClientInput.value, {
+            allowEmptySelection: true
+          });
+          if (selectedClients.isValid) {
             _context.next = 6;
+            break;
+          }
+          alert(selectedClients.errorMessage);
+          return _context.abrupt("return");
+        case 6:
+          billingPeriod = getBillingPeriod(sheetList.value, (_excelFile = excelFile) === null || _excelFile === void 0 ? void 0 : _excelFile.name);
+          if (billingPeriod) {
+            _context.next = 15;
+            break;
+          }
+          showManualPeriodPicker();
+          billingPeriod = getBillingPeriodFromManualInput(manualPeriodInput.value);
+          if (billingPeriod) {
+            _context.next = 13;
+            break;
+          }
+          alert("Year and month were not identified from the sheet name. Please select the billing period from the month picker.");
+          return _context.abrupt("return");
+        case 13:
+          _context.next = 16;
+          break;
+        case 15:
+          hideManualPeriodPicker();
+        case 16:
+          generationData = (0,_database_data_js__WEBPACK_IMPORTED_MODULE_6__.buildGenerationData)({
+            billingPeriod: billingPeriod,
+            selectedClientIndexes: selectedClients.selectedIndexes
+          });
+          totalPages = (generationData === null || generationData === void 0 || (_generationData$Numer = generationData.Numero) === null || _generationData$Numer === void 0 ? void 0 : _generationData$Numer.length) || 0;
+          if (!(totalPages === 0)) {
+            _context.next = 21;
             break;
           }
           alert("No data found. Please make sure you have loaded an Excel file with data.");
           return _context.abrupt("return");
-        case 6:
-          // Show progress bar
-          _progress_manager_js__WEBPACK_IMPORTED_MODULE_8__["default"].show(totalPages);
-
-          // Start PDF generation with progress tracking
-          _context.next = 9;
-          return (0,_pdf_assembly_js__WEBPACK_IMPORTED_MODULE_6__.assemblePDF)(_assets_boletaTemplate_pdf__WEBPACK_IMPORTED_MODULE_5__, disableAviso, _progress_manager_js__WEBPACK_IMPORTED_MODULE_8__["default"]);
-        case 9:
-          // Hide progress bar on completion
-          _progress_manager_js__WEBPACK_IMPORTED_MODULE_8__["default"].hide();
-          _context.next = 16;
+        case 21:
+          _progress_manager_js__WEBPACK_IMPORTED_MODULE_7__["default"].show(totalPages);
+          _context.next = 24;
+          return (0,_pdf_assembly_js__WEBPACK_IMPORTED_MODULE_5__.assemblePDF)(_assets_boletaTemplate_pdf__WEBPACK_IMPORTED_MODULE_4__, disableAviso, _progress_manager_js__WEBPACK_IMPORTED_MODULE_7__["default"], generationData);
+        case 24:
+          _progress_manager_js__WEBPACK_IMPORTED_MODULE_7__["default"].hide();
+          _context.next = 31;
           break;
-        case 12:
-          _context.prev = 12;
+        case 27:
+          _context.prev = 27;
           _context.t0 = _context["catch"](1);
           console.error("PDF Generation Error:", _context.t0);
-          _progress_manager_js__WEBPACK_IMPORTED_MODULE_8__["default"].error(_context.t0.message || "An error occurred during PDF generation");
-        case 16:
+          _progress_manager_js__WEBPACK_IMPORTED_MODULE_7__["default"].error(_context.t0.message || "An error occurred during PDF generation");
+        case 31:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[1, 12]]);
+    }, _callee, null, [[1, 27]]);
   })));
   var avisoCount = 0;
   addAvisoButton.addEventListener("click", function () {
@@ -62348,15 +62617,18 @@ document.addEventListener("DOMContentLoaded", function () {
     var avisoTextColor = document.getElementById(avisoTextColorId);
     avisoInjectButton.addEventListener("click", function () {
       var hex = avisoTextColor.value;
-      var r = parseInt(hex.substr(1, 2), 16); // Extracts and converts the RR part of #RRGGBB to decimal
-      var g = parseInt(hex.substr(3, 2), 16); // Extracts and converts the GG part
-      var b = parseInt(hex.substr(5, 2), 16); // Extracts and converts the BB part
-
-      _user_input_js__WEBPACK_IMPORTED_MODULE_2__.injectAviso(dataObject, avisoTextInput, clientNumberInput, [r, g, b]);
-      _button_style_js__WEBPACK_IMPORTED_MODULE_3__.setButtonClicked(avisoInjectButton);
+      var r = parseInt(hex.substr(1, 2), 16);
+      var g = parseInt(hex.substr(3, 2), 16);
+      var b = parseInt(hex.substr(5, 2), 16);
+      var injectResult = _user_input_js__WEBPACK_IMPORTED_MODULE_1__.injectAviso(dataObject, avisoTextInput, clientNumberInput, [r, g, b]);
+      if (!injectResult.isValid) {
+        alert(injectResult.errorMessage);
+        return;
+      }
+      _button_style_js__WEBPACK_IMPORTED_MODULE_2__.setButtonClicked(avisoInjectButton);
     });
     avisoTextInput.addEventListener("input", function () {
-      _button_style_js__WEBPACK_IMPORTED_MODULE_3__.revealButton(avisoInjectButton);
+      _button_style_js__WEBPACK_IMPORTED_MODULE_2__.revealButton(avisoInjectButton);
     });
     avisoCount++;
   });
@@ -62365,4 +62637,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /******/ })()
 ;
-//# sourceMappingURL=bundle1b1ae140067639de258b.js.map
+//# sourceMappingURL=bundle7b4d121e8590bea42718.js.map
