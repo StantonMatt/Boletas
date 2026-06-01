@@ -41,9 +41,6 @@ npm install
 npm run dev
 ```
 
-`npm run dev` rebuilds in watch mode. Serve the generated `dist` directory with
-your preferred local static server when testing the browser flow.
-
 Build for production:
 
 ```bash
