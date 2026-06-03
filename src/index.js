@@ -12,6 +12,7 @@ import progressManager from "./progress-manager.js";
 
 const SHEET_PERIOD_REGEX = /^(\d{4})-(\d{2})\s+Planilla Boleta Gen(?:\.(xlsx|xls))?$/i;
 const MANUAL_PERIOD_REGEX = /^(\d{4})-(\d{2})$/;
+const ISSUE_DATE_REGEX = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 const getBillingPeriodFromText = function (value) {
   const matches = String(value ?? "").trim().match(SHEET_PERIOD_REGEX);
@@ -63,6 +64,44 @@ const getBillingPeriodFromManualInput = function (manualPeriodValue) {
   return { year, month };
 };
 
+const getDefaultIssueDateInputValue = function (billingPeriod) {
+  if (!billingPeriod) {
+    return "";
+  }
+
+  const issueDate = new Date(billingPeriod.year, billingPeriod.month, 0);
+  const year = issueDate.getFullYear();
+  const month = String(issueDate.getMonth() + 1).padStart(2, "0");
+  const day = String(issueDate.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
+const getIssueDateFromInput = function (issueDateValue) {
+  const matches = String(issueDateValue ?? "")
+    .trim()
+    .match(ISSUE_DATE_REGEX);
+
+  if (!matches) {
+    return null;
+  }
+
+  const year = Number(matches[1]);
+  const month = Number(matches[2]);
+  const day = Number(matches[3]);
+  const date = new Date(year, month - 1, day);
+
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  ) {
+    return null;
+  }
+
+  return `${matches[1]}-${matches[2]}-${matches[3]}`;
+};
+
 const hideManualPeriodPicker = function () {
   manualPeriodContainer.style.display = "none";
 };
@@ -74,6 +113,32 @@ const showManualPeriodPicker = function () {
 const resetManualPeriodPicker = function () {
   manualPeriodInput.value = "";
   hideManualPeriodPicker();
+};
+
+const hideIssueDatePicker = function () {
+  issueDateContainer.style.display = "none";
+};
+
+const showIssueDatePicker = function (
+  billingPeriod,
+  { forceDefault = false } = {}
+) {
+  const defaultIssueDate = getDefaultIssueDateInputValue(billingPeriod);
+
+  issueDateContainer.style.display = "flex";
+
+  if (forceDefault || (!issueDateInput.value && defaultIssueDate)) {
+    issueDateInput.value = defaultIssueDate;
+  }
+};
+
+const resetIssueDatePicker = function () {
+  issueDateInput.value = "";
+  hideIssueDatePicker();
+};
+
+const ensureIssueDateDefault = function (billingPeriod) {
+  showIssueDatePicker(billingPeriod);
 };
 
 // EventListener for DOMContentLoaded to make sure the DOM is loaded
@@ -95,6 +160,7 @@ document.addEventListener("DOMContentLoaded", function () {
       buttonUtil.hideButton(generateBoletasButton);
       generationFilterContainer.style.display = "none";
       resetManualPeriodPicker();
+      resetIssueDatePicker();
       return;
     }
 
@@ -118,6 +184,7 @@ document.addEventListener("DOMContentLoaded", function () {
       buttonUtil.revealButton(fetchDataButton);
       generationFilterContainer.style.display = "none";
       resetManualPeriodPicker();
+      resetIssueDatePicker();
     };
 
     reader.readAsArrayBuffer(excelFile);
@@ -128,6 +195,12 @@ document.addEventListener("DOMContentLoaded", function () {
     fetchDataButton.disabled = false;
     buttonUtil.revealButton(fetchDataButton);
     resetManualPeriodPicker();
+    resetIssueDatePicker();
+  });
+
+  manualPeriodInput.addEventListener("change", function () {
+    const billingPeriod = getBillingPeriodFromManualInput(manualPeriodInput.value);
+    showIssueDatePicker(billingPeriod, { forceDefault: true });
   });
 
   fileInputButton.addEventListener("click", function () {
@@ -150,6 +223,9 @@ document.addEventListener("DOMContentLoaded", function () {
     buttonUtil.revealButton(addAvisoButton);
     fetchDataButton.disabled = true;
     resetManualPeriodPicker();
+    showIssueDatePicker(getBillingPeriod(sheetList.value, excelFile?.name), {
+      forceDefault: true,
+    });
   });
 
   generateBoletasButton.addEventListener("click", async function () {
@@ -183,8 +259,18 @@ document.addEventListener("DOMContentLoaded", function () {
         hideManualPeriodPicker();
       }
 
+      ensureIssueDateDefault(billingPeriod);
+
+      const issueDate = getIssueDateFromInput(issueDateInput.value);
+
+      if (!issueDate) {
+        alert("Please select a valid fecha emisión.");
+        return;
+      }
+
       const generationData = buildGenerationData({
         billingPeriod,
+        issueDate,
         selectedClientIndexes: selectedClients.selectedIndexes,
       });
 

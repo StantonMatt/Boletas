@@ -22,6 +22,8 @@ const createDomVariables = function () {
     "manualPeriodContainer"
   );
   global.manualPeriodInput = document.getElementById("manualPeriodInput");
+  global.issueDateContainer = document.getElementById("issueDateContainer");
+  global.issueDateInput = document.getElementById("issueDateInput");
 };
 
 export default createDomVariables;

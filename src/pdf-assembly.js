@@ -402,8 +402,6 @@ export async function assemblePDF(
     const TipoBoleta = `BOLETA ELECTRONICA`;
     const EstadoDeCuenta = `ESTADO DE CUENTA`;
     const TimbreTexto = `Timbre electrónico S.I.I`;
-    const FchVenc = formatUtil.getShortExpiryDate();
-    const FchEmis = formatUtil.getIssueDate();
 
     // Update progress: Starting page generation
     if (progressManager) {
@@ -459,6 +457,8 @@ export async function assemblePDF(
 
         const Folio = mainDataObject.Folio[i];
         const HasFolio = Boolean(mainDataObject.HasFolio[i]);
+        const FchVenc = mainDataObject.FchVenc[i];
+        const FchEmis = mainDataObject.FchEmis[i];
         const Numero = mainDataObject.Numero[i];
         const CdgIntRecep = mainDataObject.CdgIntRecep[i];
         const RznSocRecep = mainDataObject.RznSocRecep[i];

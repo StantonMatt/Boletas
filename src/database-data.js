@@ -178,6 +178,7 @@ const compileData = function (excelData) {
 
 const buildGenerationData = function ({
   billingPeriod,
+  issueDate,
   selectedClientIndexes = [],
 } = {}) {
   const totalRows = mainDataObject.Numero.length;
@@ -185,6 +186,9 @@ const buildGenerationData = function ({
   const allHasFolio = new Array(totalRows).fill(false);
   const applyConditionalFolioRule =
     shouldApplyConditionalFolioRule(billingPeriod);
+  const dateOptions = { billingPeriod, issueDate };
+  const formattedIssueDate = formatUtil.getIssueDate(dateOptions);
+  const expiryDate = formatUtil.getShortExpiryDate(dateOptions);
   let nextFolio = mainDataObject.SourceFolioStart;
 
   for (let index = 0; index < totalRows; index++) {
@@ -239,8 +243,8 @@ const buildGenerationData = function ({
 
   indexesToGenerate.forEach((index) => {
     generationData.TipoBoleta.push(mainDataObject.TipoBoleta[index]);
-    generationData.FchVenc.push(mainDataObject.FchVenc[index]);
-    generationData.FchEmis.push(mainDataObject.FchEmis[index]);
+    generationData.FchVenc.push(expiryDate);
+    generationData.FchEmis.push(formattedIssueDate);
     generationData.CostoM3Agua.push(mainDataObject.CostoM3Agua[index]);
     generationData.CostoM3AlcantarilladoTratamiento.push(
       mainDataObject.CostoM3AlcantarilladoTratamiento[index]

@@ -216,7 +216,8 @@ body {
 }
 
 .generation-filter-container,
-.manual-period-container {
+.manual-period-container,
+.issue-date-container {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -226,6 +227,7 @@ body {
 
 .generation-filter-label,
 .manual-period-label,
+.issue-date-label,
 .generation-filter-help,
 .manual-period-help {
   color: #ffffff;
@@ -243,7 +245,8 @@ body {
 }
 
 .generation-filter-input,
-.period-input-field {
+.period-input-field,
+.date-input-field {
   height: 38px;
   border: 0;
   border-radius: 8px;
@@ -305,7 +308,8 @@ body {
 #addAvisoButton,
 #loadingContainer,
 #generationFilterContainer,
-#manualPeriodContainer {
+#manualPeriodContainer,
+#issueDateContainer {
   display: none;
 }
 
