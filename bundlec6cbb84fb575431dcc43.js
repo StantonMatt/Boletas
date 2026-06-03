@@ -1549,12 +1549,19 @@ var compileData = function compileData(excelData) {
 var buildGenerationData = function buildGenerationData() {
   var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
     billingPeriod = _ref.billingPeriod,
+    issueDate = _ref.issueDate,
     _ref$selectedClientIn = _ref.selectedClientIndexes,
     selectedClientIndexes = _ref$selectedClientIn === void 0 ? [] : _ref$selectedClientIn;
   var totalRows = mainDataObject.Numero.length;
   var allEffectiveFolios = new Array(totalRows).fill(null);
   var allHasFolio = new Array(totalRows).fill(false);
   var applyConditionalFolioRule = shouldApplyConditionalFolioRule(billingPeriod);
+  var dateOptions = {
+    billingPeriod: billingPeriod,
+    issueDate: issueDate
+  };
+  var formattedIssueDate = _format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getIssueDate(dateOptions);
+  var expiryDate = _format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getShortExpiryDate(dateOptions);
   var nextFolio = mainDataObject.SourceFolioStart;
   for (var index = 0; index < totalRows; index++) {
     var totalSubsidiado = mainDataObject.TotalSubsidiadoRaw[index];
@@ -1603,8 +1610,8 @@ var buildGenerationData = function buildGenerationData() {
   };
   indexesToGenerate.forEach(function (index) {
     generationData.TipoBoleta.push(mainDataObject.TipoBoleta[index]);
-    generationData.FchVenc.push(mainDataObject.FchVenc[index]);
-    generationData.FchEmis.push(mainDataObject.FchEmis[index]);
+    generationData.FchVenc.push(expiryDate);
+    generationData.FchEmis.push(formattedIssueDate);
     generationData.CostoM3Agua.push(mainDataObject.CostoM3Agua[index]);
     generationData.CostoM3AlcantarilladoTratamiento.push(mainDataObject.CostoM3AlcantarilladoTratamiento[index]);
     generationData.RUTRecep.push(mainDataObject.RUTRecep[index]);
@@ -1660,9 +1667,58 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 
 
-var getExpiryDate = function getExpiryDate() {
-  var expiryDate = new Date();
-  expiryDate.setDate(20);
+var isValidBillingPeriod = function isValidBillingPeriod(billingPeriod) {
+  return billingPeriod && Number.isInteger(billingPeriod.year) && Number.isInteger(billingPeriod.month) && billingPeriod.month >= 1 && billingPeriod.month <= 12;
+};
+var normalizeDateOptions = function normalizeDateOptions(dateOptions) {
+  if (isValidBillingPeriod(dateOptions)) {
+    return {
+      billingPeriod: dateOptions
+    };
+  }
+  return dateOptions || {};
+};
+var getDateFromInputValue = function getDateFromInputValue(dateInputValue) {
+  if (dateInputValue instanceof Date && !Number.isNaN(dateInputValue.getTime())) {
+    return new Date(dateInputValue.getFullYear(), dateInputValue.getMonth(), dateInputValue.getDate());
+  }
+  var matches = String(dateInputValue !== null && dateInputValue !== void 0 ? dateInputValue : "").trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!matches) {
+    return null;
+  }
+  var year = Number(matches[1]);
+  var month = Number(matches[2]);
+  var day = Number(matches[3]);
+  var date = new Date(year, month - 1, day);
+  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+    return null;
+  }
+  return date;
+};
+var getIssueDateObject = function getIssueDateObject(dateOptions) {
+  var _normalizeDateOptions = normalizeDateOptions(dateOptions),
+    billingPeriod = _normalizeDateOptions.billingPeriod,
+    issueDate = _normalizeDateOptions.issueDate;
+  var selectedIssueDate = getDateFromInputValue(issueDate);
+  if (selectedIssueDate) {
+    return selectedIssueDate;
+  }
+  if (isValidBillingPeriod(billingPeriod)) {
+    return new Date(billingPeriod.year, billingPeriod.month, 0);
+  }
+  var fallbackIssueDate = new Date();
+  if (fallbackIssueDate.getDate() > 20) {
+    fallbackIssueDate.setMonth(fallbackIssueDate.getMonth() + 1);
+  }
+  fallbackIssueDate.setDate(0);
+  return fallbackIssueDate;
+};
+var getExpiryDateObject = function getExpiryDateObject(dateOptions) {
+  var issueDate = getIssueDateObject(dateOptions);
+  return new Date(issueDate.getFullYear(), issueDate.getMonth() + 1, 20);
+};
+var getExpiryDate = function getExpiryDate(dateOptions) {
+  var expiryDate = getExpiryDateObject(dateOptions);
   var date = expiryDate.getDate();
   var month = expiryDate.toLocaleString('es-CL', {
     month: 'long'
@@ -1670,25 +1726,21 @@ var getExpiryDate = function getExpiryDate() {
   var year = expiryDate.getFullYear();
   return "".concat(date, "-").concat(month, "-").concat(year);
 };
-var getShortExpiryDate = function getShortExpiryDate() {
-  var expiryDate = new Date();
-  expiryDate.setDate(20);
+var getShortExpiryDate = function getShortExpiryDate(dateOptions) {
+  var expiryDate = getExpiryDateObject(dateOptions);
   var option = {
     dateStyle: 'short'
   };
   return new Intl.DateTimeFormat('es-CL', option).format(expiryDate);
 };
-var getIssueDate = function getIssueDate() {
-  var issueDate = new Date();
-  if (issueDate.getDate() > 20) issueDate.setMonth(issueDate.getMonth() + 1);
-  issueDate.setDate(0);
+var getIssueDate = function getIssueDate(dateOptions) {
+  var issueDate = getIssueDateObject(dateOptions);
   return new Intl.DateTimeFormat('es-CL', {
     dateStyle: 'short'
   }).format(issueDate);
-  return "".concat(date, "-").concat(month, "-").concat(year);
 };
-var getShortIssueDate = function getShortIssueDate() {
-  var issueDate = new Date();
+var getShortIssueDate = function getShortIssueDate(dateOptions) {
+  var issueDate = getIssueDateObject(dateOptions);
   var option = {
     dateStyle: 'short'
   };
@@ -1748,6 +1800,8 @@ var createDomVariables = function createDomVariables() {
   __webpack_require__.g.generationClientInput = document.getElementById("generationClientInput");
   __webpack_require__.g.manualPeriodContainer = document.getElementById("manualPeriodContainer");
   __webpack_require__.g.manualPeriodInput = document.getElementById("manualPeriodInput");
+  __webpack_require__.g.issueDateContainer = document.getElementById("issueDateContainer");
+  __webpack_require__.g.issueDateInput = document.getElementById("issueDateInput");
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (createDomVariables);
 
@@ -2215,8 +2269,6 @@ function _assemblePDF() {
       TipoBoleta,
       EstadoDeCuenta,
       TimbreTexto,
-      FchVenc,
-      FchEmis,
       batchSize,
       batchStart,
       batchEnd,
@@ -2229,6 +2281,8 @@ function _assemblePDF() {
       page,
       Folio,
       HasFolio,
+      FchVenc,
+      FchEmis,
       Numero,
       CdgIntRecep,
       RznSocRecep,
@@ -2467,9 +2521,7 @@ function _assemblePDF() {
           CostoM3AlcantarilladoTratamiento = mainDataObject.CostoM3AlcantarilladoTratamiento[0];
           TipoBoleta = "BOLETA ELECTRONICA";
           EstadoDeCuenta = "ESTADO DE CUENTA";
-          TimbreTexto = "Timbre electr\xF3nico S.I.I";
-          FchVenc = _format_strings_js__WEBPACK_IMPORTED_MODULE_1__.getShortExpiryDate();
-          FchEmis = _format_strings_js__WEBPACK_IMPORTED_MODULE_1__.getIssueDate(); // Update progress: Starting page generation
+          TimbreTexto = "Timbre electr\xF3nico S.I.I"; // Update progress: Starting page generation
           if (progressManager) {
             progressManager.updatePhase("Generating pages", "Processing ".concat(totalPages, " boletas"));
           }
@@ -2477,7 +2529,7 @@ function _assemblePDF() {
           // Process pages in smaller batches for better compression
           batchSize = 20; // Smaller batches
           batchStart = 0;
-        case 88:
+        case 86:
           if (!(batchStart < totalPages)) {
             _context7.next = 220;
             break;
@@ -2491,12 +2543,12 @@ function _assemblePDF() {
           console.log("Processing batch ".concat(Math.floor(batchStart / batchSize) + 1, "/").concat(Math.ceil(totalPages / batchSize), ": pages ").concat(batchStart + 1, "-").concat(batchEnd));
 
           // Copy template pages for this batch
-          _context7.next = 94;
+          _context7.next = 92;
           return pdfDoc.copyPages(templatePdfDoc, Array(batchEnd - batchStart).fill(0));
-        case 94:
+        case 92:
           templatePages = _context7.sent;
           _i = batchStart;
-        case 96:
+        case 94:
           if (!(_i < batchEnd)) {
             _context7.next = 215;
             break;
@@ -2511,6 +2563,8 @@ function _assemblePDF() {
           //////////////////////////////////////////////
           Folio = mainDataObject.Folio[_i];
           HasFolio = Boolean(mainDataObject.HasFolio[_i]);
+          FchVenc = mainDataObject.FchVenc[_i];
+          FchEmis = mainDataObject.FchEmis[_i];
           Numero = mainDataObject.Numero[_i];
           CdgIntRecep = mainDataObject.CdgIntRecep[_i];
           RznSocRecep = mainDataObject.RznSocRecep[_i];
@@ -3038,7 +3092,7 @@ function _assemblePDF() {
           }
         case 212:
           _i++;
-          _context7.next = 96;
+          _context7.next = 94;
           break;
         case 215:
           // More aggressive memory management between batches
@@ -3065,7 +3119,7 @@ function _assemblePDF() {
           }
         case 217:
           batchStart += batchSize;
-          _context7.next = 88;
+          _context7.next = 86;
           break;
         case 220:
           // Update progress: Finalizing PDF
@@ -3684,7 +3738,8 @@ body {
 }
 
 .generation-filter-container,
-.manual-period-container {
+.manual-period-container,
+.issue-date-container {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -3694,6 +3749,7 @@ body {
 
 .generation-filter-label,
 .manual-period-label,
+.issue-date-label,
 .generation-filter-help,
 .manual-period-help {
   color: #ffffff;
@@ -3711,7 +3767,8 @@ body {
 }
 
 .generation-filter-input,
-.period-input-field {
+.period-input-field,
+.date-input-field {
   height: 38px;
   border: 0;
   border-radius: 8px;
@@ -3768,13 +3825,14 @@ body {
 #addAvisoButton,
 #loadingContainer,
 #generationFilterContainer,
-#manualPeriodContainer {
+#manualPeriodContainer,
+#issueDateContainer {
   display: none;
 }
 
 #addAvisoButton {
   margin: 0;
-}`, "",{"version":3,"sources":["webpack://./src/main.scss"],"names":[],"mappings":"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","sourcesContent":["@import url(\"https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap\");\n\n$primary-color: #273136;\n$secondary-color: #495264;\n$thirdary-color: #375c4d;\n$selected-file-button-color: #246b4f;\n$box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);\n$progress-color: #4caf50;\n$progress-bg: #e0e0e0;\n\n* {\n  box-sizing: border-box;\n}\n\nbody {\n  background-color: $primary-color;\n  font-family: \"Roboto\", sans-serif;\n  display: flex;\n  justify-content: center;\n  overflow: hidden;\n  height: 100%;\n}\n\n.main-container {\n  margin: 2vh;\n  background-color: $secondary-color;\n  box-shadow: $box-shadow;\n  border-radius: 10px;\n  padding: 10px;\n  text-align: left;\n  display: flex; /* Enable flexbox */\n  flex-direction: column; /* Stack children vertically */\n  align-items: flex-start; /* Align items to the start of the flex container (left) */\n}\n\n.options-container {\n  margin-top: 2vh;\n  flex-direction: column; /* Stack children vertically */\n  display: flex;\n}\n\n.add-aviso-container {\n  background-color: $secondary-color;\n\n  padding: 10px;\n  border-radius: 10px;\n  flex-direction: column; /* Stack children vertically */\n  align-items: flex-start; /* Align items to the start of the flex container (left) */\n  display: flex;\n  text-align: center;\n}\n.aviso-header-container {\n  display: flex;\n  flex-direction: row;\n}\n\n.client-input-container {\n  display: flex;\n  flex-direction: column;\n  margin-left: 20px;\n}\n\n.client-input-label,\n.color-input-label {\n  color: #ffffff;\n}\n\n.client-input-field {\n  height: 25px;\n  width: 250px;\n}\n\n.color-input-container {\n  display: flex;\n  flex-direction: column;\n  margin-left: 20px;\n}\n\n.color-input-field {\n  height: 25px;\n  width: 85px;\n}\n\n.text-input {\n  text-align: left;\n  resize: none;\n  width: 500px;\n  height: 200px;\n  border-radius: 5px;\n}\n\n.aviso {\n  padding: 10px;\n  background-color: $secondary-color;\n  box-shadow: $box-shadow;\n  border-radius: 10px;\n  margin-top: 2vh;\n  max-width: 90vw;\n  max-height: 88vh;\n}\n\n// Loading Bar Styles\n.loading-container {\n  display: none;\n  background-color: $primary-color;\n  border-radius: 10px;\n  padding: 20px;\n  margin-top: 15px;\n  box-shadow: $box-shadow;\n  width: 100%;\n  max-width: 500px;\n  color: #ffffff;\n}\n\n.loading-header {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-bottom: 15px;\n\n  h3 {\n    margin: 0;\n    color: #ffffff;\n    font-size: 18px;\n    font-weight: 700;\n  }\n\n  #loadingPercentage {\n    font-size: 16px;\n    font-weight: 700;\n    color: $progress-color;\n  }\n}\n\n.progress-bar-container {\n  width: 100%;\n  height: 12px;\n  background-color: $progress-bg;\n  border-radius: 6px;\n  overflow: hidden;\n  margin-bottom: 15px;\n  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);\n}\n\n.progress-bar {\n  height: 100%;\n  width: 0%;\n  background: linear-gradient(\n    90deg,\n    $progress-color,\n    lighten($progress-color, 10%)\n  );\n  border-radius: 6px;\n  transition: width 0.3s ease;\n  position: relative;\n\n  &::after {\n    content: \"\";\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    background: linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 255, 255, 0.3),\n      transparent\n    );\n    animation: shimmer 2s infinite;\n  }\n}\n\n@keyframes shimmer {\n  0% {\n    transform: translateX(-100%);\n  }\n  100% {\n    transform: translateX(100%);\n  }\n}\n\n.loading-details {\n  font-size: 14px;\n\n  #loadingStatus {\n    margin-bottom: 8px;\n    color: #cccccc;\n    font-weight: 500;\n  }\n\n  #loadingStats {\n    display: flex;\n    justify-content: space-between;\n    font-size: 12px;\n    color: #aaaaaa;\n\n    span {\n      display: flex;\n      gap: 4px;\n    }\n  }\n}\n\n.checkbox-container {\n  margin-bottom: 10px;\n\n  label {\n    color: #ffffff;\n    margin-left: 8px;\n  }\n\n  input[type=\"checkbox\"] {\n    margin-right: 5px;\n  }\n}\n\n.generation-filter-container,\n.manual-period-container {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  margin-bottom: 12px;\n  max-width: 420px;\n}\n\n.generation-filter-label,\n.manual-period-label,\n.generation-filter-help,\n.manual-period-help {\n  color: #ffffff;\n}\n\n.generation-filter-help,\n.manual-period-help {\n  margin: 0;\n  font-size: 13px;\n  line-height: 1.4;\n}\n\n.manual-period-help {\n  color: #ffd089;\n}\n\n.generation-filter-input,\n.period-input-field {\n  height: 38px;\n  border: 0;\n  border-radius: 8px;\n  padding: 0 12px;\n  font-size: 15px;\n}\n\n.btn {\n  background-color: $primary-color;\n  color: #ffffff;\n  font-weight: bolder;\n  border: 0;\n  margin-bottom: 10px;\n  border-radius: 10px;\n  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);\n  padding: 12px 12px;\n  font-size: 16px;\n  cursor: pointer;\n\n  &:active {\n    transform: scale(0.98);\n    box-shadow: 3px 3px 3px rgba(0, 0, 0, 0);\n  }\n\n  &:focus {\n    outline: 0;\n  }\n\n  &:hover {\n    background-color: $thirdary-color;\n  }\n\n  &:disabled {\n    background-color: #666666;\n    cursor: not-allowed;\n    opacity: 0.6;\n\n    &:hover {\n      background-color: #666666;\n    }\n  }\n}\n\n#pdfIframe {\n  box-shadow: $box-shadow;\n  display: block;\n  background: #000;\n  border: 0;\n  height: 1200px;\n  max-height: 88vh;\n  width: 1600px;\n  max-width: 90vw;\n}\n\n#generateBoletasButton,\n#fetchDataButton,\n#fileInput,\n#sheetList,\n#addAvisoButton,\n#loadingContainer,\n#generationFilterContainer,\n#manualPeriodContainer {\n  display: none;\n}\n\n#addAvisoButton {\n  margin: 0;\n}\n"],"sourceRoot":""}]);
+}`, "",{"version":3,"sources":["webpack://./src/main.scss"],"names":[],"mappings":"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","sourcesContent":["@import url(\"https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap\");\n\n$primary-color: #273136;\n$secondary-color: #495264;\n$thirdary-color: #375c4d;\n$selected-file-button-color: #246b4f;\n$box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);\n$progress-color: #4caf50;\n$progress-bg: #e0e0e0;\n\n* {\n  box-sizing: border-box;\n}\n\nbody {\n  background-color: $primary-color;\n  font-family: \"Roboto\", sans-serif;\n  display: flex;\n  justify-content: center;\n  overflow: hidden;\n  height: 100%;\n}\n\n.main-container {\n  margin: 2vh;\n  background-color: $secondary-color;\n  box-shadow: $box-shadow;\n  border-radius: 10px;\n  padding: 10px;\n  text-align: left;\n  display: flex; /* Enable flexbox */\n  flex-direction: column; /* Stack children vertically */\n  align-items: flex-start; /* Align items to the start of the flex container (left) */\n}\n\n.options-container {\n  margin-top: 2vh;\n  flex-direction: column; /* Stack children vertically */\n  display: flex;\n}\n\n.add-aviso-container {\n  background-color: $secondary-color;\n\n  padding: 10px;\n  border-radius: 10px;\n  flex-direction: column; /* Stack children vertically */\n  align-items: flex-start; /* Align items to the start of the flex container (left) */\n  display: flex;\n  text-align: center;\n}\n.aviso-header-container {\n  display: flex;\n  flex-direction: row;\n}\n\n.client-input-container {\n  display: flex;\n  flex-direction: column;\n  margin-left: 20px;\n}\n\n.client-input-label,\n.color-input-label {\n  color: #ffffff;\n}\n\n.client-input-field {\n  height: 25px;\n  width: 250px;\n}\n\n.color-input-container {\n  display: flex;\n  flex-direction: column;\n  margin-left: 20px;\n}\n\n.color-input-field {\n  height: 25px;\n  width: 85px;\n}\n\n.text-input {\n  text-align: left;\n  resize: none;\n  width: 500px;\n  height: 200px;\n  border-radius: 5px;\n}\n\n.aviso {\n  padding: 10px;\n  background-color: $secondary-color;\n  box-shadow: $box-shadow;\n  border-radius: 10px;\n  margin-top: 2vh;\n  max-width: 90vw;\n  max-height: 88vh;\n}\n\n// Loading Bar Styles\n.loading-container {\n  display: none;\n  background-color: $primary-color;\n  border-radius: 10px;\n  padding: 20px;\n  margin-top: 15px;\n  box-shadow: $box-shadow;\n  width: 100%;\n  max-width: 500px;\n  color: #ffffff;\n}\n\n.loading-header {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-bottom: 15px;\n\n  h3 {\n    margin: 0;\n    color: #ffffff;\n    font-size: 18px;\n    font-weight: 700;\n  }\n\n  #loadingPercentage {\n    font-size: 16px;\n    font-weight: 700;\n    color: $progress-color;\n  }\n}\n\n.progress-bar-container {\n  width: 100%;\n  height: 12px;\n  background-color: $progress-bg;\n  border-radius: 6px;\n  overflow: hidden;\n  margin-bottom: 15px;\n  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);\n}\n\n.progress-bar {\n  height: 100%;\n  width: 0%;\n  background: linear-gradient(\n    90deg,\n    $progress-color,\n    lighten($progress-color, 10%)\n  );\n  border-radius: 6px;\n  transition: width 0.3s ease;\n  position: relative;\n\n  &::after {\n    content: \"\";\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    background: linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 255, 255, 0.3),\n      transparent\n    );\n    animation: shimmer 2s infinite;\n  }\n}\n\n@keyframes shimmer {\n  0% {\n    transform: translateX(-100%);\n  }\n  100% {\n    transform: translateX(100%);\n  }\n}\n\n.loading-details {\n  font-size: 14px;\n\n  #loadingStatus {\n    margin-bottom: 8px;\n    color: #cccccc;\n    font-weight: 500;\n  }\n\n  #loadingStats {\n    display: flex;\n    justify-content: space-between;\n    font-size: 12px;\n    color: #aaaaaa;\n\n    span {\n      display: flex;\n      gap: 4px;\n    }\n  }\n}\n\n.checkbox-container {\n  margin-bottom: 10px;\n\n  label {\n    color: #ffffff;\n    margin-left: 8px;\n  }\n\n  input[type=\"checkbox\"] {\n    margin-right: 5px;\n  }\n}\n\n.generation-filter-container,\n.manual-period-container,\n.issue-date-container {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  margin-bottom: 12px;\n  max-width: 420px;\n}\n\n.generation-filter-label,\n.manual-period-label,\n.issue-date-label,\n.generation-filter-help,\n.manual-period-help {\n  color: #ffffff;\n}\n\n.generation-filter-help,\n.manual-period-help {\n  margin: 0;\n  font-size: 13px;\n  line-height: 1.4;\n}\n\n.manual-period-help {\n  color: #ffd089;\n}\n\n.generation-filter-input,\n.period-input-field,\n.date-input-field {\n  height: 38px;\n  border: 0;\n  border-radius: 8px;\n  padding: 0 12px;\n  font-size: 15px;\n}\n\n.btn {\n  background-color: $primary-color;\n  color: #ffffff;\n  font-weight: bolder;\n  border: 0;\n  margin-bottom: 10px;\n  border-radius: 10px;\n  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);\n  padding: 12px 12px;\n  font-size: 16px;\n  cursor: pointer;\n\n  &:active {\n    transform: scale(0.98);\n    box-shadow: 3px 3px 3px rgba(0, 0, 0, 0);\n  }\n\n  &:focus {\n    outline: 0;\n  }\n\n  &:hover {\n    background-color: $thirdary-color;\n  }\n\n  &:disabled {\n    background-color: #666666;\n    cursor: not-allowed;\n    opacity: 0.6;\n\n    &:hover {\n      background-color: #666666;\n    }\n  }\n}\n\n#pdfIframe {\n  box-shadow: $box-shadow;\n  display: block;\n  background: #000;\n  border: 0;\n  height: 1200px;\n  max-height: 88vh;\n  width: 1600px;\n  max-width: 90vw;\n}\n\n#generateBoletasButton,\n#fetchDataButton,\n#fileInput,\n#sheetList,\n#addAvisoButton,\n#loadingContainer,\n#generationFilterContainer,\n#manualPeriodContainer,\n#issueDateContainer {\n  display: none;\n}\n\n#addAvisoButton {\n  margin: 0;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -62427,6 +62485,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
 
 var SHEET_PERIOD_REGEX = /^(\d{4})-(\d{2})\s+Planilla Boleta Gen(?:\.(xlsx|xls))?$/i;
 var MANUAL_PERIOD_REGEX = /^(\d{4})-(\d{2})$/;
+var ISSUE_DATE_REGEX = /^(\d{4})-(\d{2})-(\d{2})$/;
 var getBillingPeriodFromText = function getBillingPeriodFromText(value) {
   var matches = String(value !== null && value !== void 0 ? value : "").trim().match(SHEET_PERIOD_REGEX);
   if (!matches) {
@@ -62466,6 +62525,30 @@ var getBillingPeriodFromManualInput = function getBillingPeriodFromManualInput(m
     month: month
   };
 };
+var getDefaultIssueDateInputValue = function getDefaultIssueDateInputValue(billingPeriod) {
+  if (!billingPeriod) {
+    return "";
+  }
+  var issueDate = new Date(billingPeriod.year, billingPeriod.month, 0);
+  var year = issueDate.getFullYear();
+  var month = String(issueDate.getMonth() + 1).padStart(2, "0");
+  var day = String(issueDate.getDate()).padStart(2, "0");
+  return "".concat(year, "-").concat(month, "-").concat(day);
+};
+var getIssueDateFromInput = function getIssueDateFromInput(issueDateValue) {
+  var matches = String(issueDateValue !== null && issueDateValue !== void 0 ? issueDateValue : "").trim().match(ISSUE_DATE_REGEX);
+  if (!matches) {
+    return null;
+  }
+  var year = Number(matches[1]);
+  var month = Number(matches[2]);
+  var day = Number(matches[3]);
+  var date = new Date(year, month - 1, day);
+  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+    return null;
+  }
+  return "".concat(matches[1], "-").concat(matches[2], "-").concat(matches[3]);
+};
 var hideManualPeriodPicker = function hideManualPeriodPicker() {
   manualPeriodContainer.style.display = "none";
 };
@@ -62475,6 +62558,26 @@ var showManualPeriodPicker = function showManualPeriodPicker() {
 var resetManualPeriodPicker = function resetManualPeriodPicker() {
   manualPeriodInput.value = "";
   hideManualPeriodPicker();
+};
+var hideIssueDatePicker = function hideIssueDatePicker() {
+  issueDateContainer.style.display = "none";
+};
+var showIssueDatePicker = function showIssueDatePicker(billingPeriod) {
+  var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+    _ref$forceDefault = _ref.forceDefault,
+    forceDefault = _ref$forceDefault === void 0 ? false : _ref$forceDefault;
+  var defaultIssueDate = getDefaultIssueDateInputValue(billingPeriod);
+  issueDateContainer.style.display = "flex";
+  if (forceDefault || !issueDateInput.value && defaultIssueDate) {
+    issueDateInput.value = defaultIssueDate;
+  }
+};
+var resetIssueDatePicker = function resetIssueDatePicker() {
+  issueDateInput.value = "";
+  hideIssueDatePicker();
+};
+var ensureIssueDateDefault = function ensureIssueDateDefault(billingPeriod) {
+  showIssueDatePicker(billingPeriod);
 };
 
 // EventListener for DOMContentLoaded to make sure the DOM is loaded
@@ -62493,6 +62596,7 @@ document.addEventListener("DOMContentLoaded", function () {
       _button_style_js__WEBPACK_IMPORTED_MODULE_2__.hideButton(generateBoletasButton);
       generationFilterContainer.style.display = "none";
       resetManualPeriodPicker();
+      resetIssueDatePicker();
       return;
     }
     reader = new FileReader();
@@ -62513,6 +62617,7 @@ document.addEventListener("DOMContentLoaded", function () {
       _button_style_js__WEBPACK_IMPORTED_MODULE_2__.revealButton(fetchDataButton);
       generationFilterContainer.style.display = "none";
       resetManualPeriodPicker();
+      resetIssueDatePicker();
     };
     reader.readAsArrayBuffer(excelFile);
     fetchDataButton.disabled = false;
@@ -62521,6 +62626,13 @@ document.addEventListener("DOMContentLoaded", function () {
     fetchDataButton.disabled = false;
     _button_style_js__WEBPACK_IMPORTED_MODULE_2__.revealButton(fetchDataButton);
     resetManualPeriodPicker();
+    resetIssueDatePicker();
+  });
+  manualPeriodInput.addEventListener("change", function () {
+    var billingPeriod = getBillingPeriodFromManualInput(manualPeriodInput.value);
+    showIssueDatePicker(billingPeriod, {
+      forceDefault: true
+    });
   });
   fileInputButton.addEventListener("click", function () {
     fileInput.click();
@@ -62528,6 +62640,7 @@ document.addEventListener("DOMContentLoaded", function () {
   fileInput.addEventListener("change", readExcel);
   fileInput.addEventListener("cancel", readExcel);
   fetchDataButton.addEventListener("click", function () {
+    var _excelFile;
     dataObject = _objectSpread({}, (0,_database_data_js__WEBPACK_IMPORTED_MODULE_6__.compileData)(xlsx__WEBPACK_IMPORTED_MODULE_8__.utils.sheet_to_json(workbook.Sheets[sheetList.value])));
     _button_style_js__WEBPACK_IMPORTED_MODULE_2__.setButtonClicked(sheetList);
     _button_style_js__WEBPACK_IMPORTED_MODULE_2__.setButtonClicked(fetchDataButton);
@@ -62537,9 +62650,12 @@ document.addEventListener("DOMContentLoaded", function () {
     _button_style_js__WEBPACK_IMPORTED_MODULE_2__.revealButton(addAvisoButton);
     fetchDataButton.disabled = true;
     resetManualPeriodPicker();
+    showIssueDatePicker(getBillingPeriod(sheetList.value, (_excelFile = excelFile) === null || _excelFile === void 0 ? void 0 : _excelFile.name), {
+      forceDefault: true
+    });
   });
   generateBoletasButton.addEventListener("click", /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-    var disableAviso, _dataObject$CdgIntRec, _excelFile, _generationData$Numer, selectedClients, billingPeriod, generationData, totalPages;
+    var disableAviso, _dataObject$CdgIntRec, _excelFile2, _generationData$Numer, selectedClients, billingPeriod, issueDate, generationData, totalPages;
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
@@ -62555,7 +62671,7 @@ document.addEventListener("DOMContentLoaded", function () {
           alert(selectedClients.errorMessage);
           return _context.abrupt("return");
         case 6:
-          billingPeriod = getBillingPeriod(sheetList.value, (_excelFile = excelFile) === null || _excelFile === void 0 ? void 0 : _excelFile.name);
+          billingPeriod = getBillingPeriod(sheetList.value, (_excelFile2 = excelFile) === null || _excelFile2 === void 0 ? void 0 : _excelFile2.name);
           if (billingPeriod) {
             _context.next = 15;
             break;
@@ -62574,35 +62690,45 @@ document.addEventListener("DOMContentLoaded", function () {
         case 15:
           hideManualPeriodPicker();
         case 16:
+          ensureIssueDateDefault(billingPeriod);
+          issueDate = getIssueDateFromInput(issueDateInput.value);
+          if (issueDate) {
+            _context.next = 21;
+            break;
+          }
+          alert("Please select a valid fecha emisión.");
+          return _context.abrupt("return");
+        case 21:
           generationData = (0,_database_data_js__WEBPACK_IMPORTED_MODULE_6__.buildGenerationData)({
             billingPeriod: billingPeriod,
+            issueDate: issueDate,
             selectedClientIndexes: selectedClients.selectedIndexes
           });
           totalPages = (generationData === null || generationData === void 0 || (_generationData$Numer = generationData.Numero) === null || _generationData$Numer === void 0 ? void 0 : _generationData$Numer.length) || 0;
           if (!(totalPages === 0)) {
-            _context.next = 21;
+            _context.next = 26;
             break;
           }
           alert("No data found. Please make sure you have loaded an Excel file with data.");
           return _context.abrupt("return");
-        case 21:
+        case 26:
           _progress_manager_js__WEBPACK_IMPORTED_MODULE_7__["default"].show(totalPages);
-          _context.next = 24;
+          _context.next = 29;
           return (0,_pdf_assembly_js__WEBPACK_IMPORTED_MODULE_5__.assemblePDF)(_assets_boletaTemplate_pdf__WEBPACK_IMPORTED_MODULE_4__, disableAviso, _progress_manager_js__WEBPACK_IMPORTED_MODULE_7__["default"], generationData);
-        case 24:
+        case 29:
           _progress_manager_js__WEBPACK_IMPORTED_MODULE_7__["default"].hide();
-          _context.next = 31;
+          _context.next = 36;
           break;
-        case 27:
-          _context.prev = 27;
+        case 32:
+          _context.prev = 32;
           _context.t0 = _context["catch"](1);
           console.error("PDF Generation Error:", _context.t0);
           _progress_manager_js__WEBPACK_IMPORTED_MODULE_7__["default"].error(_context.t0.message || "An error occurred during PDF generation");
-        case 31:
+        case 36:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[1, 27]]);
+    }, _callee, null, [[1, 32]]);
   })));
   var avisoCount = 0;
   addAvisoButton.addEventListener("click", function () {
@@ -62637,4 +62763,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /******/ })()
 ;
-//# sourceMappingURL=bundle7b4d121e8590bea42718.js.map
+//# sourceMappingURL=bundlec6cbb84fb575431dcc43.js.map
