@@ -3392,11 +3392,19 @@ var progressManager = new ProgressManager();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   applyAvisoApplications: () => (/* binding */ applyAvisoApplications),
+/* harmony export */   getAvisoApplication: () => (/* binding */ getAvisoApplication),
 /* harmony export */   injectAviso: () => (/* binding */ injectAviso),
 /* harmony export */   parseClientSelection: () => (/* binding */ parseClientSelection)
 /* harmony export */ });
 
 
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
@@ -3508,21 +3516,53 @@ var parseClientSelection = function parseClientSelection(clientNumbers, rawInput
   }
   return buildSuccessResult(selectedIndexes);
 };
-var injectAviso = function injectAviso(dataObject, avisoInputText, clientNumberInput) {
+var getAvisoApplication = function getAvisoApplication(dataObject, avisoInputText, clientNumberInput) {
+  var _avisoInputText$value;
   var avisoTextColorValue = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [0, 0, 0];
-  var selection = parseClientSelection(dataObject.CdgIntRecep, clientNumberInput.value, {
-    allowEmptySelection: false
+  var _ref2 = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {},
+    _ref2$applyToAllClien = _ref2.applyToAllClients,
+    applyToAllClients = _ref2$applyToAllClien === void 0 ? false : _ref2$applyToAllClien;
+  var avisoText = String((_avisoInputText$value = avisoInputText.value) !== null && _avisoInputText$value !== void 0 ? _avisoInputText$value : "").trim();
+  if (!avisoText) {
+    return buildErrorResult("Please write a custom aviso message.");
+  }
+  var selection = parseClientSelection(dataObject.CdgIntRecep, applyToAllClients ? "" : clientNumberInput.value, {
+    allowEmptySelection: applyToAllClients
   });
   if (!selection.isValid) {
     console.error(selection.errorMessage);
     return selection;
   }
-  selection.selectedIndexes.forEach(function (index) {
-    dataObject.Aviso[index] = avisoInputText.value;
-    dataObject.Color[index] = avisoTextColorValue;
+  return _objectSpread(_objectSpread({}, selection), {}, {
+    avisoText: avisoText,
+    avisoTextColorValue: _toConsumableArray(avisoTextColorValue)
   });
-  clientNumberInput.disabled = true;
-  return selection;
+};
+var applyAvisoApplication = function applyAvisoApplication(dataObject, application) {
+  application.selectedIndexes.forEach(function (index) {
+    dataObject.Aviso[index] = application.avisoText;
+    dataObject.Color[index] = _toConsumableArray(application.avisoTextColorValue);
+  });
+};
+var applyAvisoApplications = function applyAvisoApplications(dataObject, originalAvisos, originalColors, applications) {
+  var _dataObject$Aviso, _dataObject$Color;
+  (_dataObject$Aviso = dataObject.Aviso).splice.apply(_dataObject$Aviso, [0, dataObject.Aviso.length].concat(_toConsumableArray(originalAvisos)));
+  (_dataObject$Color = dataObject.Color).splice.apply(_dataObject$Color, [0, dataObject.Color.length].concat(_toConsumableArray(originalColors.map(function (color) {
+    return _toConsumableArray(color);
+  }))));
+  applications.forEach(function (application) {
+    applyAvisoApplication(dataObject, application);
+  });
+};
+var injectAviso = function injectAviso(dataObject, avisoInputText, clientNumberInput) {
+  var avisoTextColorValue = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [0, 0, 0];
+  var options = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
+  var application = getAvisoApplication(dataObject, avisoInputText, clientNumberInput, avisoTextColorValue, options);
+  if (!application.isValid) {
+    return application;
+  }
+  applyAvisoApplication(dataObject, application);
+  return application;
 };
 
 
@@ -3557,9 +3597,9 @@ body {
   background-color: #273136;
   font-family: "Roboto", sans-serif;
   display: flex;
-  justify-content: center;
-  overflow: hidden;
-  height: 100%;
+  justify-content: flex-start;
+  overflow: auto;
+  min-height: 100vh;
 }
 
 .main-container {
@@ -3575,9 +3615,13 @@ body {
 }
 
 .options-container {
-  margin-top: 2vh;
+  flex: 0 0 auto;
+  max-height: 96vh;
+  margin: 2vh 0 2vh 2vh;
+  padding-right: 8px;
   flex-direction: column; /* Stack children vertically */
   display: flex;
+  overflow-y: auto;
 }
 
 .add-aviso-container {
@@ -3590,54 +3634,172 @@ body {
   text-align: center;
 }
 
+.add-aviso-help {
+  max-width: 520px;
+  margin: 10px 0 0;
+  color: #d9e1e6;
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: left;
+}
+
 .aviso-header-container {
   display: flex;
-  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.aviso-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+.aviso-title-row h2 {
+  margin: 2px 0 0;
+  color: #ffffff;
+  font-size: 21px;
+}
+
+.aviso-eyebrow {
+  margin: 0;
+  color: #a9d7c3;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.aviso-scope {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0 0;
+  padding: 0;
+  border: 0;
+}
+.aviso-scope legend {
+  margin-bottom: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.scope-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 74px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 9px;
+  background: rgba(39, 49, 54, 0.5);
+  color: #ffffff;
+  cursor: pointer;
+}
+.scope-option:has(input:checked) {
+  border-color: #6cc39b;
+  background: rgba(36, 107, 79, 0.36);
+  box-shadow: inset 0 0 0 1px rgba(108, 195, 155, 0.3);
+}
+.scope-option input {
+  margin-top: 3px;
+  accent-color: #6cc39b;
+}
+.scope-option span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.scope-option small {
+  color: #d2dadd;
+  line-height: 1.35;
 }
 
 .client-input-container {
   display: flex;
   flex-direction: column;
-  margin-left: 20px;
+  gap: 6px;
+  margin-top: 14px;
 }
 
 .client-input-label,
-.color-input-label {
+.color-input-label,
+.client-input-help,
+.aviso-message-container label {
   color: #ffffff;
 }
 
 .client-input-field {
-  height: 25px;
-  width: 250px;
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 7px;
+  font-size: 15px;
+}
+
+.client-input-help {
+  margin: 0;
+  color: #d2dadd;
+  font-size: 13px;
 }
 
 .color-input-container {
   display: flex;
   flex-direction: column;
-  margin-left: 20px;
+  gap: 6px;
 }
 
 .color-input-field {
-  height: 25px;
-  width: 85px;
+  width: 74px;
+  height: 36px;
+  padding: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 7px;
+  background: #273136;
+  cursor: pointer;
+}
+
+.aviso-message-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 14px;
 }
 
 .text-input {
   text-align: left;
-  resize: none;
-  width: 500px;
-  height: 200px;
-  border-radius: 5px;
+  resize: vertical;
+  width: 100%;
+  min-height: 130px;
+  max-height: 260px;
+  padding: 12px;
+  border: 0;
+  border-radius: 7px;
+  font: inherit;
+  line-height: 1.45;
 }
 
 .aviso {
-  padding: 10px;
+  width: min(620px, 90vw);
+  padding: 20px;
   background-color: #495264;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   margin-top: 2vh;
   max-width: 90vw;
-  max-height: 88vh;
+}
+
+.aviso-apply-button {
+  margin: 0;
+}
+
+.aviso-status {
+  margin: 0;
+  color: #bfe9d5;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .loading-container {
@@ -3832,7 +3994,42 @@ body {
 
 #addAvisoButton {
   margin: 0;
-}`, "",{"version":3,"sources":["webpack://./src/main.scss"],"names":[],"mappings":"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","sourcesContent":["@import url(\"https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap\");\n\n$primary-color: #273136;\n$secondary-color: #495264;\n$thirdary-color: #375c4d;\n$selected-file-button-color: #246b4f;\n$box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);\n$progress-color: #4caf50;\n$progress-bg: #e0e0e0;\n\n* {\n  box-sizing: border-box;\n}\n\nbody {\n  background-color: $primary-color;\n  font-family: \"Roboto\", sans-serif;\n  display: flex;\n  justify-content: center;\n  overflow: hidden;\n  height: 100%;\n}\n\n.main-container {\n  margin: 2vh;\n  background-color: $secondary-color;\n  box-shadow: $box-shadow;\n  border-radius: 10px;\n  padding: 10px;\n  text-align: left;\n  display: flex; /* Enable flexbox */\n  flex-direction: column; /* Stack children vertically */\n  align-items: flex-start; /* Align items to the start of the flex container (left) */\n}\n\n.options-container {\n  margin-top: 2vh;\n  flex-direction: column; /* Stack children vertically */\n  display: flex;\n}\n\n.add-aviso-container {\n  background-color: $secondary-color;\n\n  padding: 10px;\n  border-radius: 10px;\n  flex-direction: column; /* Stack children vertically */\n  align-items: flex-start; /* Align items to the start of the flex container (left) */\n  display: flex;\n  text-align: center;\n}\n.aviso-header-container {\n  display: flex;\n  flex-direction: row;\n}\n\n.client-input-container {\n  display: flex;\n  flex-direction: column;\n  margin-left: 20px;\n}\n\n.client-input-label,\n.color-input-label {\n  color: #ffffff;\n}\n\n.client-input-field {\n  height: 25px;\n  width: 250px;\n}\n\n.color-input-container {\n  display: flex;\n  flex-direction: column;\n  margin-left: 20px;\n}\n\n.color-input-field {\n  height: 25px;\n  width: 85px;\n}\n\n.text-input {\n  text-align: left;\n  resize: none;\n  width: 500px;\n  height: 200px;\n  border-radius: 5px;\n}\n\n.aviso {\n  padding: 10px;\n  background-color: $secondary-color;\n  box-shadow: $box-shadow;\n  border-radius: 10px;\n  margin-top: 2vh;\n  max-width: 90vw;\n  max-height: 88vh;\n}\n\n// Loading Bar Styles\n.loading-container {\n  display: none;\n  background-color: $primary-color;\n  border-radius: 10px;\n  padding: 20px;\n  margin-top: 15px;\n  box-shadow: $box-shadow;\n  width: 100%;\n  max-width: 500px;\n  color: #ffffff;\n}\n\n.loading-header {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-bottom: 15px;\n\n  h3 {\n    margin: 0;\n    color: #ffffff;\n    font-size: 18px;\n    font-weight: 700;\n  }\n\n  #loadingPercentage {\n    font-size: 16px;\n    font-weight: 700;\n    color: $progress-color;\n  }\n}\n\n.progress-bar-container {\n  width: 100%;\n  height: 12px;\n  background-color: $progress-bg;\n  border-radius: 6px;\n  overflow: hidden;\n  margin-bottom: 15px;\n  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);\n}\n\n.progress-bar {\n  height: 100%;\n  width: 0%;\n  background: linear-gradient(\n    90deg,\n    $progress-color,\n    lighten($progress-color, 10%)\n  );\n  border-radius: 6px;\n  transition: width 0.3s ease;\n  position: relative;\n\n  &::after {\n    content: \"\";\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    background: linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 255, 255, 0.3),\n      transparent\n    );\n    animation: shimmer 2s infinite;\n  }\n}\n\n@keyframes shimmer {\n  0% {\n    transform: translateX(-100%);\n  }\n  100% {\n    transform: translateX(100%);\n  }\n}\n\n.loading-details {\n  font-size: 14px;\n\n  #loadingStatus {\n    margin-bottom: 8px;\n    color: #cccccc;\n    font-weight: 500;\n  }\n\n  #loadingStats {\n    display: flex;\n    justify-content: space-between;\n    font-size: 12px;\n    color: #aaaaaa;\n\n    span {\n      display: flex;\n      gap: 4px;\n    }\n  }\n}\n\n.checkbox-container {\n  margin-bottom: 10px;\n\n  label {\n    color: #ffffff;\n    margin-left: 8px;\n  }\n\n  input[type=\"checkbox\"] {\n    margin-right: 5px;\n  }\n}\n\n.generation-filter-container,\n.manual-period-container,\n.issue-date-container {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  margin-bottom: 12px;\n  max-width: 420px;\n}\n\n.generation-filter-label,\n.manual-period-label,\n.issue-date-label,\n.generation-filter-help,\n.manual-period-help {\n  color: #ffffff;\n}\n\n.generation-filter-help,\n.manual-period-help {\n  margin: 0;\n  font-size: 13px;\n  line-height: 1.4;\n}\n\n.manual-period-help {\n  color: #ffd089;\n}\n\n.generation-filter-input,\n.period-input-field,\n.date-input-field {\n  height: 38px;\n  border: 0;\n  border-radius: 8px;\n  padding: 0 12px;\n  font-size: 15px;\n}\n\n.btn {\n  background-color: $primary-color;\n  color: #ffffff;\n  font-weight: bolder;\n  border: 0;\n  margin-bottom: 10px;\n  border-radius: 10px;\n  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);\n  padding: 12px 12px;\n  font-size: 16px;\n  cursor: pointer;\n\n  &:active {\n    transform: scale(0.98);\n    box-shadow: 3px 3px 3px rgba(0, 0, 0, 0);\n  }\n\n  &:focus {\n    outline: 0;\n  }\n\n  &:hover {\n    background-color: $thirdary-color;\n  }\n\n  &:disabled {\n    background-color: #666666;\n    cursor: not-allowed;\n    opacity: 0.6;\n\n    &:hover {\n      background-color: #666666;\n    }\n  }\n}\n\n#pdfIframe {\n  box-shadow: $box-shadow;\n  display: block;\n  background: #000;\n  border: 0;\n  height: 1200px;\n  max-height: 88vh;\n  width: 1600px;\n  max-width: 90vw;\n}\n\n#generateBoletasButton,\n#fetchDataButton,\n#fileInput,\n#sheetList,\n#addAvisoButton,\n#loadingContainer,\n#generationFilterContainer,\n#manualPeriodContainer,\n#issueDateContainer {\n  display: none;\n}\n\n#addAvisoButton {\n  margin: 0;\n}\n"],"sourceRoot":""}]);
+}
+
+@media (max-width: 680px) {
+  body {
+    flex-direction: column;
+  }
+  .options-container,
+  .main-container {
+    width: calc(100% - 24px);
+    max-height: none;
+    margin: 12px;
+  }
+  .options-container {
+    padding-right: 0;
+    overflow: visible;
+  }
+  .aviso {
+    width: 100%;
+    max-width: none;
+  }
+  .aviso-scope {
+    grid-template-columns: 1fr;
+  }
+  .aviso-title-row {
+    gap: 14px;
+  }
+  .aviso-header-container {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  #pdfIframe {
+    width: 100%;
+    max-width: none;
+    height: 70vh;
+  }
+}`, "",{"version":3,"sources":["webpack://./src/main.scss"],"names":[],"mappings":"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","sourcesContent":["@import url(\"https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap\");\n\n$primary-color: #273136;\n$secondary-color: #495264;\n$thirdary-color: #375c4d;\n$selected-file-button-color: #246b4f;\n$box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);\n$progress-color: #4caf50;\n$progress-bg: #e0e0e0;\n\n* {\n  box-sizing: border-box;\n}\n\nbody {\n  background-color: $primary-color;\n  font-family: \"Roboto\", sans-serif;\n  display: flex;\n  justify-content: flex-start;\n  overflow: auto;\n  min-height: 100vh;\n}\n\n.main-container {\n  margin: 2vh;\n  background-color: $secondary-color;\n  box-shadow: $box-shadow;\n  border-radius: 10px;\n  padding: 10px;\n  text-align: left;\n  display: flex; /* Enable flexbox */\n  flex-direction: column; /* Stack children vertically */\n  align-items: flex-start; /* Align items to the start of the flex container (left) */\n}\n\n.options-container {\n  flex: 0 0 auto;\n  max-height: 96vh;\n  margin: 2vh 0 2vh 2vh;\n  padding-right: 8px;\n  flex-direction: column; /* Stack children vertically */\n  display: flex;\n  overflow-y: auto;\n}\n\n.add-aviso-container {\n  background-color: $secondary-color;\n\n  padding: 10px;\n  border-radius: 10px;\n  flex-direction: column; /* Stack children vertically */\n  align-items: flex-start; /* Align items to the start of the flex container (left) */\n  display: flex;\n  text-align: center;\n}\n\n.add-aviso-help {\n  max-width: 520px;\n  margin: 10px 0 0;\n  color: #d9e1e6;\n  font-size: 14px;\n  line-height: 1.45;\n  text-align: left;\n}\n\n.aviso-header-container {\n  display: flex;\n  align-items: center;\n  gap: 16px;\n  margin-top: 18px;\n}\n\n.aviso-title-row {\n  display: flex;\n  align-items: flex-start;\n  justify-content: space-between;\n  gap: 24px;\n\n  h2 {\n    margin: 2px 0 0;\n    color: #ffffff;\n    font-size: 21px;\n  }\n}\n\n.aviso-eyebrow {\n  margin: 0;\n  color: #a9d7c3;\n  font-size: 12px;\n  font-weight: 700;\n  letter-spacing: 0.12em;\n}\n\n.aviso-scope {\n  display: grid;\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n  gap: 10px;\n  margin: 18px 0 0;\n  padding: 0;\n  border: 0;\n\n  legend {\n    margin-bottom: 8px;\n    color: #ffffff;\n    font-size: 14px;\n    font-weight: 700;\n  }\n}\n\n.scope-option {\n  display: flex;\n  align-items: flex-start;\n  gap: 10px;\n  min-height: 74px;\n  padding: 12px;\n  border: 1px solid rgba(255, 255, 255, 0.16);\n  border-radius: 9px;\n  background: rgba(39, 49, 54, 0.5);\n  color: #ffffff;\n  cursor: pointer;\n\n  &:has(input:checked) {\n    border-color: #6cc39b;\n    background: rgba(36, 107, 79, 0.36);\n    box-shadow: inset 0 0 0 1px rgba(108, 195, 155, 0.3);\n  }\n\n  input {\n    margin-top: 3px;\n    accent-color: #6cc39b;\n  }\n\n  span {\n    display: flex;\n    flex-direction: column;\n    gap: 4px;\n  }\n\n  small {\n    color: #d2dadd;\n    line-height: 1.35;\n  }\n}\n\n.client-input-container {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  margin-top: 14px;\n}\n\n.client-input-label,\n.color-input-label,\n.client-input-help,\n.aviso-message-container label {\n  color: #ffffff;\n}\n\n.client-input-field {\n  width: 100%;\n  height: 40px;\n  padding: 0 12px;\n  border: 0;\n  border-radius: 7px;\n  font-size: 15px;\n}\n\n.client-input-help {\n  margin: 0;\n  color: #d2dadd;\n  font-size: 13px;\n}\n\n.color-input-container {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n}\n\n.color-input-field {\n  width: 74px;\n  height: 36px;\n  padding: 3px;\n  border: 1px solid rgba(255, 255, 255, 0.2);\n  border-radius: 7px;\n  background: $primary-color;\n  cursor: pointer;\n}\n\n.aviso-message-container {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  margin-top: 14px;\n}\n\n.text-input {\n  text-align: left;\n  resize: vertical;\n  width: 100%;\n  min-height: 130px;\n  max-height: 260px;\n  padding: 12px;\n  border: 0;\n  border-radius: 7px;\n  font: inherit;\n  line-height: 1.45;\n}\n\n.aviso {\n  width: min(620px, 90vw);\n  padding: 20px;\n  background-color: $secondary-color;\n  box-shadow: $box-shadow;\n  border-radius: 10px;\n  margin-top: 2vh;\n  max-width: 90vw;\n}\n\n.aviso-apply-button {\n  margin: 0;\n}\n\n.aviso-status {\n  margin: 0;\n  color: #bfe9d5;\n  font-size: 14px;\n  font-weight: 700;\n}\n\n// Loading Bar Styles\n.loading-container {\n  display: none;\n  background-color: $primary-color;\n  border-radius: 10px;\n  padding: 20px;\n  margin-top: 15px;\n  box-shadow: $box-shadow;\n  width: 100%;\n  max-width: 500px;\n  color: #ffffff;\n}\n\n.loading-header {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-bottom: 15px;\n\n  h3 {\n    margin: 0;\n    color: #ffffff;\n    font-size: 18px;\n    font-weight: 700;\n  }\n\n  #loadingPercentage {\n    font-size: 16px;\n    font-weight: 700;\n    color: $progress-color;\n  }\n}\n\n.progress-bar-container {\n  width: 100%;\n  height: 12px;\n  background-color: $progress-bg;\n  border-radius: 6px;\n  overflow: hidden;\n  margin-bottom: 15px;\n  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);\n}\n\n.progress-bar {\n  height: 100%;\n  width: 0%;\n  background: linear-gradient(\n    90deg,\n    $progress-color,\n    lighten($progress-color, 10%)\n  );\n  border-radius: 6px;\n  transition: width 0.3s ease;\n  position: relative;\n\n  &::after {\n    content: \"\";\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    background: linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 255, 255, 0.3),\n      transparent\n    );\n    animation: shimmer 2s infinite;\n  }\n}\n\n@keyframes shimmer {\n  0% {\n    transform: translateX(-100%);\n  }\n  100% {\n    transform: translateX(100%);\n  }\n}\n\n.loading-details {\n  font-size: 14px;\n\n  #loadingStatus {\n    margin-bottom: 8px;\n    color: #cccccc;\n    font-weight: 500;\n  }\n\n  #loadingStats {\n    display: flex;\n    justify-content: space-between;\n    font-size: 12px;\n    color: #aaaaaa;\n\n    span {\n      display: flex;\n      gap: 4px;\n    }\n  }\n}\n\n.checkbox-container {\n  margin-bottom: 10px;\n\n  label {\n    color: #ffffff;\n    margin-left: 8px;\n  }\n\n  input[type=\"checkbox\"] {\n    margin-right: 5px;\n  }\n}\n\n.generation-filter-container,\n.manual-period-container,\n.issue-date-container {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  margin-bottom: 12px;\n  max-width: 420px;\n}\n\n.generation-filter-label,\n.manual-period-label,\n.issue-date-label,\n.generation-filter-help,\n.manual-period-help {\n  color: #ffffff;\n}\n\n.generation-filter-help,\n.manual-period-help {\n  margin: 0;\n  font-size: 13px;\n  line-height: 1.4;\n}\n\n.manual-period-help {\n  color: #ffd089;\n}\n\n.generation-filter-input,\n.period-input-field,\n.date-input-field {\n  height: 38px;\n  border: 0;\n  border-radius: 8px;\n  padding: 0 12px;\n  font-size: 15px;\n}\n\n.btn {\n  background-color: $primary-color;\n  color: #ffffff;\n  font-weight: bolder;\n  border: 0;\n  margin-bottom: 10px;\n  border-radius: 10px;\n  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);\n  padding: 12px 12px;\n  font-size: 16px;\n  cursor: pointer;\n\n  &:active {\n    transform: scale(0.98);\n    box-shadow: 3px 3px 3px rgba(0, 0, 0, 0);\n  }\n\n  &:focus {\n    outline: 0;\n  }\n\n  &:hover {\n    background-color: $thirdary-color;\n  }\n\n  &:disabled {\n    background-color: #666666;\n    cursor: not-allowed;\n    opacity: 0.6;\n\n    &:hover {\n      background-color: #666666;\n    }\n  }\n}\n\n#pdfIframe {\n  box-shadow: $box-shadow;\n  display: block;\n  background: #000;\n  border: 0;\n  height: 1200px;\n  max-height: 88vh;\n  width: 1600px;\n  max-width: 90vw;\n}\n\n#generateBoletasButton,\n#fetchDataButton,\n#fileInput,\n#sheetList,\n#addAvisoButton,\n#loadingContainer,\n#generationFilterContainer,\n#manualPeriodContainer,\n#issueDateContainer {\n  display: none;\n}\n\n#addAvisoButton {\n  margin: 0;\n}\n\n@media (max-width: 680px) {\n  body {\n    flex-direction: column;\n  }\n\n  .options-container,\n  .main-container {\n    width: calc(100% - 24px);\n    max-height: none;\n    margin: 12px;\n  }\n\n  .options-container {\n    padding-right: 0;\n    overflow: visible;\n  }\n\n  .aviso {\n    width: 100%;\n    max-width: none;\n  }\n\n  .aviso-scope {\n    grid-template-columns: 1fr;\n  }\n\n  .aviso-title-row {\n    gap: 14px;\n  }\n\n  .aviso-header-container {\n    align-items: flex-start;\n    flex-direction: column;\n  }\n\n  #pdfIframe {\n    width: 100%;\n    max-width: none;\n    height: 70vh;\n  }\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -62469,6 +62666,12 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw new Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw new Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -62588,15 +62791,32 @@ document.addEventListener("DOMContentLoaded", function () {
   var workbook;
   var reader;
   var excelFile;
+  var avisoCount = 0;
+  var originalAvisos = [];
+  var originalAvisoColors = [];
+  var avisoApplications = new Map();
+  var resetCustomAvisos = function resetCustomAvisos() {
+    avisoInputContainer.replaceChildren();
+    avisoApplications.clear();
+    originalAvisos = [];
+    originalAvisoColors = [];
+    avisoCount = 0;
+  };
+  var resetLoadedSheetState = function resetLoadedSheetState() {
+    dataObject = {};
+    resetCustomAvisos();
+    _button_style_js__WEBPACK_IMPORTED_MODULE_2__.hideButton(generateBoletasButton);
+    _button_style_js__WEBPACK_IMPORTED_MODULE_2__.hideButton(addAvisoButton);
+    generationFilterContainer.style.display = "none";
+    resetManualPeriodPicker();
+    resetIssueDatePicker();
+  };
   var readExcel = function readExcel(e) {
     excelFile = e.target.files[0];
+    resetLoadedSheetState();
     if (excelFile === undefined || excelFile.length === 0) {
       _button_style_js__WEBPACK_IMPORTED_MODULE_2__.setInputButtonNotClicked(fileInputButton, sheetList);
       _button_style_js__WEBPACK_IMPORTED_MODULE_2__.setButtonNotClicked(fetchDataButton);
-      _button_style_js__WEBPACK_IMPORTED_MODULE_2__.hideButton(generateBoletasButton);
-      generationFilterContainer.style.display = "none";
-      resetManualPeriodPicker();
-      resetIssueDatePicker();
       return;
     }
     reader = new FileReader();
@@ -62615,18 +62835,14 @@ document.addEventListener("DOMContentLoaded", function () {
       });
       _button_style_js__WEBPACK_IMPORTED_MODULE_2__.setInputButtonClicked(fileInputButton, excelFile, sheetList);
       _button_style_js__WEBPACK_IMPORTED_MODULE_2__.revealButton(fetchDataButton);
-      generationFilterContainer.style.display = "none";
-      resetManualPeriodPicker();
-      resetIssueDatePicker();
     };
     reader.readAsArrayBuffer(excelFile);
     fetchDataButton.disabled = false;
   };
   sheetList.addEventListener("change", function () {
+    resetLoadedSheetState();
     fetchDataButton.disabled = false;
     _button_style_js__WEBPACK_IMPORTED_MODULE_2__.revealButton(fetchDataButton);
-    resetManualPeriodPicker();
-    resetIssueDatePicker();
   });
   manualPeriodInput.addEventListener("change", function () {
     var billingPeriod = getBillingPeriodFromManualInput(manualPeriodInput.value);
@@ -62638,10 +62854,13 @@ document.addEventListener("DOMContentLoaded", function () {
     fileInput.click();
   });
   fileInput.addEventListener("change", readExcel);
-  fileInput.addEventListener("cancel", readExcel);
   fetchDataButton.addEventListener("click", function () {
     var _excelFile;
     dataObject = _objectSpread({}, (0,_database_data_js__WEBPACK_IMPORTED_MODULE_6__.compileData)(xlsx__WEBPACK_IMPORTED_MODULE_8__.utils.sheet_to_json(workbook.Sheets[sheetList.value])));
+    originalAvisos = _toConsumableArray(dataObject.Aviso);
+    originalAvisoColors = dataObject.Color.map(function (color) {
+      return _toConsumableArray(color);
+    });
     _button_style_js__WEBPACK_IMPORTED_MODULE_2__.setButtonClicked(sheetList);
     _button_style_js__WEBPACK_IMPORTED_MODULE_2__.setButtonClicked(fetchDataButton);
     _button_style_js__WEBPACK_IMPORTED_MODULE_2__.revealButton(generateBoletasButton);
@@ -62730,32 +62949,65 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }, _callee, null, [[1, 32]]);
   })));
-  var avisoCount = 0;
   addAvisoButton.addEventListener("click", function () {
+    var avisoApplicationId = avisoCount;
     var avisoInjectButtonId = "avisoInjectButton".concat(avisoCount);
     var avisoTextInputId = "avisoTextInput".concat(avisoCount);
     var clientNumberInputId = "clientNumberInput".concat(avisoCount);
     var avisoTextColorId = "avisoTextColor".concat(avisoCount);
-    avisoInputContainer.insertAdjacentHTML("afterbegin", "\n    <div class=\"aviso\">\n          <div class=\"aviso-header-container\">\n            <button id=\"".concat(avisoInjectButtonId, "\" class=\"btn\">Inject Text</button>\n            <div class=\"client-input-container\">\n              <label for=\"").concat(clientNumberInputId, "\" class=\"client-input-label\">Input client numbers here:</label>\n              <input id=\"").concat(clientNumberInputId, "\" class=\"client-input-field\" type=\"text\"</input>\n            </div>\n            <div class=\"color-input-container\">\n              <label for=\"avisoTextColor\" class=\"color-input-label\">Select Color</label>\n              <input type=\"color\" id=\"").concat(avisoTextColorId, "\" class=\"color-input-field\" value=\"#000000\">\n            </div>\n          </div> \n          <div>\n            <textarea id=\"").concat(avisoTextInputId, "\" class=\"text-input\" type=\"text\" name=\"aviso\" placeholder=\"Write custom aviso message here.\nEnter client numbers in the input box above.\nExamples:\nFor a custom message for one particular client, type: 111310\nSeprate by comma ',' for multiple clients: 110070,111710,120170\nUse a dash '-' to select a range of clients: 110020-110660\"></textarea>\n          </div>\n        </div>    \n    "));
+    var avisoScopeName = "avisoScope".concat(avisoCount);
+    var allClientsScopeId = "allClientsScope".concat(avisoCount);
+    var specificClientsScopeId = "specificClientsScope".concat(avisoCount);
+    var specificClientsContainerId = "specificClientsContainer".concat(avisoCount);
+    var avisoStatusId = "avisoStatus".concat(avisoCount);
+    avisoInputContainer.insertAdjacentHTML("afterbegin", "\n    <div class=\"aviso\" aria-labelledby=\"".concat(avisoTextInputId, "Label\">\n          <div class=\"aviso-title-row\">\n            <div>\n              <p class=\"aviso-eyebrow\">CUSTOM AVISO</p>\n              <h2 id=\"").concat(avisoTextInputId, "Label\">Message shown on the boleta</h2>\n            </div>\n            <div class=\"color-input-container\">\n              <label for=\"").concat(avisoTextColorId, "\" class=\"color-input-label\">Text color</label>\n              <input type=\"color\" id=\"").concat(avisoTextColorId, "\" class=\"color-input-field\" value=\"#000000\">\n            </div>\n          </div>\n          <fieldset class=\"aviso-scope\">\n            <legend>Who should receive this message?</legend>\n            <label class=\"scope-option\" for=\"").concat(allClientsScopeId, "\">\n              <input\n                type=\"radio\"\n                id=\"").concat(allClientsScopeId, "\"\n                name=\"").concat(avisoScopeName, "\"\n                value=\"all\"\n                checked\n              >\n              <span>\n                <strong>All clients</strong>\n                <small>Replace the existing aviso on every boleta.</small>\n              </span>\n            </label>\n            <label class=\"scope-option\" for=\"").concat(specificClientsScopeId, "\">\n              <input\n                type=\"radio\"\n                id=\"").concat(specificClientsScopeId, "\"\n                name=\"").concat(avisoScopeName, "\"\n                value=\"specific\"\n              >\n              <span>\n                <strong>Specific clients</strong>\n                <small>Replace it only for the client numbers you enter.</small>\n              </span>\n            </label>\n          </fieldset>\n          <div id=\"").concat(specificClientsContainerId, "\" class=\"client-input-container\" hidden>\n            <label for=\"").concat(clientNumberInputId, "\" class=\"client-input-label\">Client numbers</label>\n            <input\n              id=\"").concat(clientNumberInputId, "\"\n              class=\"client-input-field\"\n              type=\"text\"\n              placeholder=\"111310, 111710 or 110020-110660\"\n            >\n            <p class=\"client-input-help\">Use a comma-separated list or one dash range.</p>\n          </div>\n          <div class=\"aviso-message-container\">\n            <label for=\"").concat(avisoTextInputId, "\">Custom message</label>\n            <textarea\n              id=\"").concat(avisoTextInputId, "\"\n              class=\"text-input\"\n              name=\"aviso\"\n              maxlength=\"600\"\n              placeholder=\"Write the message that should replace the current aviso...\"\n            ></textarea>\n          </div>\n          <div class=\"aviso-header-container\">\n            <button id=\"").concat(avisoInjectButtonId, "\" class=\"btn aviso-apply-button\">Apply custom aviso</button>\n            <p id=\"").concat(avisoStatusId, "\" class=\"aviso-status\" role=\"status\" aria-live=\"polite\"></p>\n          </div>\n        </div>    \n    "));
     var avisoInjectButton = document.getElementById(avisoInjectButtonId);
     var avisoTextInput = document.getElementById(avisoTextInputId);
     var clientNumberInput = document.getElementById(clientNumberInputId);
     var avisoTextColor = document.getElementById(avisoTextColorId);
+    var allClientsScope = document.getElementById(allClientsScopeId);
+    var specificClientsScope = document.getElementById(specificClientsScopeId);
+    var specificClientsContainer = document.getElementById(specificClientsContainerId);
+    var avisoStatus = document.getElementById(avisoStatusId);
+    var markAvisoAsChanged = function markAvisoAsChanged() {
+      avisoStatus.textContent = "";
+      avisoInjectButton.textContent = "Apply custom aviso";
+      _button_style_js__WEBPACK_IMPORTED_MODULE_2__.revealButton(avisoInjectButton);
+    };
+    var updateAvisoScope = function updateAvisoScope() {
+      var isSpecific = specificClientsScope.checked;
+      specificClientsContainer.hidden = !isSpecific;
+      clientNumberInput.disabled = !isSpecific;
+      if (isSpecific) {
+        clientNumberInput.focus();
+      }
+      markAvisoAsChanged();
+    };
     avisoInjectButton.addEventListener("click", function () {
       var hex = avisoTextColor.value;
       var r = parseInt(hex.substr(1, 2), 16);
       var g = parseInt(hex.substr(3, 2), 16);
       var b = parseInt(hex.substr(5, 2), 16);
-      var injectResult = _user_input_js__WEBPACK_IMPORTED_MODULE_1__.injectAviso(dataObject, avisoTextInput, clientNumberInput, [r, g, b]);
-      if (!injectResult.isValid) {
-        alert(injectResult.errorMessage);
+      var avisoApplication = _user_input_js__WEBPACK_IMPORTED_MODULE_1__.getAvisoApplication(dataObject, avisoTextInput, clientNumberInput, [r, g, b], {
+        applyToAllClients: allClientsScope.checked
+      });
+      if (!avisoApplication.isValid) {
+        alert(avisoApplication.errorMessage);
         return;
       }
+      avisoApplications["delete"](avisoApplicationId);
+      avisoApplications.set(avisoApplicationId, avisoApplication);
+      _user_input_js__WEBPACK_IMPORTED_MODULE_1__.applyAvisoApplications(dataObject, originalAvisos, originalAvisoColors, _toConsumableArray(avisoApplications.values()));
       _button_style_js__WEBPACK_IMPORTED_MODULE_2__.setButtonClicked(avisoInjectButton);
+      avisoInjectButton.textContent = "Applied";
+      avisoStatus.textContent = "Replaced the aviso for ".concat(avisoApplication.selectedIndexes.length, " client").concat(avisoApplication.selectedIndexes.length === 1 ? "" : "s", ".");
     });
-    avisoTextInput.addEventListener("input", function () {
-      _button_style_js__WEBPACK_IMPORTED_MODULE_2__.revealButton(avisoInjectButton);
-    });
+    allClientsScope.addEventListener("change", updateAvisoScope);
+    specificClientsScope.addEventListener("change", updateAvisoScope);
+    avisoTextInput.addEventListener("input", markAvisoAsChanged);
+    clientNumberInput.addEventListener("input", markAvisoAsChanged);
+    avisoTextColor.addEventListener("input", markAvisoAsChanged);
+    updateAvisoScope();
     avisoCount++;
   });
 });
@@ -62763,4 +63015,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /******/ })()
 ;
-//# sourceMappingURL=bundlec6cbb84fb575431dcc43.js.map
+//# sourceMappingURL=bundle31877497b7f9d69bb743.js.map
