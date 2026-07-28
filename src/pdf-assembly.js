@@ -3,6 +3,8 @@
 import * as PDFLIB from "pdf-lib";
 import * as formatUtil from "./format-strings.js";
 
+let currentPdfUrl = null;
+
 function createDataObject(baseConfig, overrides) {
   return { ...baseConfig, ...overrides };
 }
@@ -288,7 +290,8 @@ export async function assemblePDF(
   template,
   disableAviso,
   progressManager = null,
-  generationData = null
+  generationData = null,
+  fileName = "boletas.pdf"
 ) {
   try {
     if (!generationData) {
@@ -997,6 +1000,7 @@ export async function assemblePDF(
 
     // Save PDF with maximum compression options
     console.log("Saving PDF with maximum compression...");
+    pdfDoc.setTitle(fileName);
     const pdfBytes = await pdfDoc.save({
       useObjectStreams: true,
       addDefaultPage: false,
@@ -1015,12 +1019,28 @@ export async function assemblePDF(
       );
     }
 
-    // Create a blob with the bytes as type PDF
-    const blob = new Blob([pdfBytes], { type: "application/pdf" });
-    // Create URL from blob
-    const pdfUrl = URL.createObjectURL(blob);
-    // Assign URL to src of iFrame
-    document.getElementById("pdfIframe").src = pdfUrl;
+    // Preserve filename metadata alongside the explicit download control.
+    const pdfFile = new File([pdfBytes], fileName, {
+      type: "application/pdf",
+    });
+
+    if (currentPdfUrl) {
+      URL.revokeObjectURL(currentPdfUrl);
+    }
+
+    currentPdfUrl = URL.createObjectURL(pdfFile);
+
+    // Keep the preview read-only so saving always uses the named download link.
+    const pdfIframe = document.getElementById("pdfIframe");
+    pdfIframe.src = currentPdfUrl;
+    pdfIframe.title = fileName;
+    pdfIframe.dataset.fileName = fileName;
+
+    const downloadPdfLink = document.getElementById("downloadPdfLink");
+    downloadPdfLink.href = currentPdfUrl;
+    downloadPdfLink.download = fileName;
+    downloadPdfLink.textContent = `Save ${fileName}`;
+    downloadPdfLink.style.display = "inline-block";
 
     // Log final file size
     const fileSizeMB = (pdfBytes.byteLength / (1024 * 1024)).toFixed(2);
@@ -1029,9 +1049,11 @@ export async function assemblePDF(
     if (progressManager) {
       progressManager.updatePhase(
         "Complete",
-        `PDF generated successfully (${fileSizeMB} MB)`
+        `${fileName} generated successfully (${fileSizeMB} MB)`
       );
     }
+
+    return { fileName, pdfUrl: currentPdfUrl };
   } catch (error) {
     console.log(`Error in PDF Assembly Function: ${error}`);
     if (progressManager) {

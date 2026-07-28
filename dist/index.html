@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>COAB</title>
-  <script defer src="/bundle660070b95cd28a4e583e.js"></script></head>
+  <script defer src="/bundle19f87ca1d28645aef721.js"></script></head>
   <body>
     <div class="options-container">
       <div class="add-aviso-container">
@@ -49,6 +49,7 @@
           <input id="issueDateInput" class="date-input-field" type="date">
         </div>
         <button id="generateBoletasButton" class="btn">Generate Boletas</button>
+        <a id="downloadPdfLink" class="btn download-pdf-link">Save PDF</a>
         
         <!-- Loading Bar Container -->
         <div id="loadingContainer" class="loading-container">
@@ -70,8 +71,14 @@
         </div>
         
       </div> 
-        <div>
-          <iframe id="pdfIframe"></iframe>
+        <div class="pdf-preview-shell">
+          <div class="pdf-preview-header" aria-hidden="true">
+            <span>PDF preview</span>
+            <span>Use the named Save PDF button above</span>
+          </div>
+          <div class="pdf-preview-viewport">
+            <iframe id="pdfIframe" tabindex="-1"></iframe>
+          </div>
         </div>
     </div>
 

@@ -8,6 +8,7 @@ const createDomVariables = function () {
   global.generateBoletasButton = document.getElementById(
     "generateBoletasButton"
   );
+  global.downloadPdfLink = document.getElementById("downloadPdfLink");
   global.optionsContainer = document.querySelector(".options-container");
   global.addAviso = document.getElementById("addAvisoButton");
   global.avisoInputContainer = document.getElementById("avisoInputContainer");

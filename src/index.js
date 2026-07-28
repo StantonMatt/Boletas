@@ -7,6 +7,7 @@ import createDomVariables from "./global-variables.js";
 import boletaTemplate from "./assets/boletaTemplate.pdf";
 import { assemblePDF } from "./pdf-assembly.js";
 import { buildGenerationData, compileData } from "./database-data.js";
+import { getGeneratedPdfFileName } from "./pdf-file-name.js";
 import * as XLSX from "xlsx";
 import progressManager from "./progress-manager.js";
 
@@ -156,11 +157,18 @@ document.addEventListener("DOMContentLoaded", function () {
     avisoCount = 0;
   };
 
+  const hideDownloadPdfLink = function () {
+    downloadPdfLink.style.display = "none";
+    downloadPdfLink.removeAttribute("href");
+    downloadPdfLink.removeAttribute("download");
+  };
+
   const resetLoadedSheetState = function () {
     dataObject = {};
     resetCustomAvisos();
     buttonUtil.hideButton(generateBoletasButton);
     buttonUtil.hideButton(addAvisoButton);
+    hideDownloadPdfLink();
     generationFilterContainer.style.display = "none";
     resetManualPeriodPicker();
     resetIssueDatePicker();
@@ -289,12 +297,19 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
+      const pdfFileName = getGeneratedPdfFileName(
+        billingPeriod,
+        generationData.Folio
+      );
+
+      hideDownloadPdfLink();
       progressManager.show(totalPages);
       await assemblePDF(
         boletaTemplate,
         disableAviso,
         progressManager,
-        generationData
+        generationData,
+        pdfFileName
       );
       progressManager.hide();
     } catch (error) {

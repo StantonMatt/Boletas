@@ -419,18 +419,44 @@ body {
   }
 }
 
+.pdf-preview-shell {
+  position: relative;
+  width: 1600px;
+  max-width: 90vw;
+}
+
+.pdf-preview-header {
+  height: 60px;
+  padding: 0 18px;
+  background: #323639;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.pdf-preview-viewport {
+  height: 1200px;
+  max-height: 88vh;
+  overflow: hidden;
+}
+
 #pdfIframe {
   box-shadow: $box-shadow;
   display: block;
   background: #000;
   border: 0;
-  height: 1200px;
-  max-height: 88vh;
-  width: 1600px;
-  max-width: 90vw;
+  height: calc(100% + 60px);
+  margin-top: -60px;
+  width: 100%;
+  max-width: none;
 }
 
 #generateBoletasButton,
+#downloadPdfLink,
 #fetchDataButton,
 #fileInput,
 #sheetList,
@@ -444,6 +470,12 @@ body {
 
 #addAvisoButton {
   margin: 0;
+}
+
+.download-pdf-link {
+  display: none;
+  width: fit-content;
+  text-decoration: none;
 }
 
 @media (max-width: 680px) {
@@ -484,6 +516,24 @@ body {
   #pdfIframe {
     width: 100%;
     max-width: none;
+    height: calc(100% + 60px);
+  }
+
+  .pdf-preview-shell {
+    width: 100%;
+    max-width: none;
+  }
+
+  .pdf-preview-viewport {
     height: 70vh;
+    max-height: none;
+  }
+
+  .pdf-preview-header {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    padding: 0 12px;
   }
 }
