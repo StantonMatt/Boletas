@@ -64,12 +64,8 @@ const getBillingPeriodFromManualInput = function (manualPeriodValue) {
   return { year, month };
 };
 
-const getDefaultIssueDateInputValue = function (billingPeriod) {
-  if (!billingPeriod) {
-    return "";
-  }
-
-  const issueDate = new Date(billingPeriod.year, billingPeriod.month, 0);
+const getDefaultIssueDateInputValue = function () {
+  const issueDate = new Date();
   const year = issueDate.getFullYear();
   const month = String(issueDate.getMonth() + 1).padStart(2, "0");
   const day = String(issueDate.getDate()).padStart(2, "0");
@@ -119,11 +115,8 @@ const hideIssueDatePicker = function () {
   issueDateContainer.style.display = "none";
 };
 
-const showIssueDatePicker = function (
-  billingPeriod,
-  { forceDefault = false } = {}
-) {
-  const defaultIssueDate = getDefaultIssueDateInputValue(billingPeriod);
+const showIssueDatePicker = function ({ forceDefault = false } = {}) {
+  const defaultIssueDate = getDefaultIssueDateInputValue();
 
   issueDateContainer.style.display = "flex";
 
@@ -137,8 +130,8 @@ const resetIssueDatePicker = function () {
   hideIssueDatePicker();
 };
 
-const ensureIssueDateDefault = function (billingPeriod) {
-  showIssueDatePicker(billingPeriod);
+const ensureIssueDateDefault = function () {
+  showIssueDatePicker();
 };
 
 // EventListener for DOMContentLoaded to make sure the DOM is loaded
@@ -214,8 +207,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   manualPeriodInput.addEventListener("change", function () {
-    const billingPeriod = getBillingPeriodFromManualInput(manualPeriodInput.value);
-    showIssueDatePicker(billingPeriod, { forceDefault: true });
+    showIssueDatePicker({ forceDefault: true });
   });
 
   fileInputButton.addEventListener("click", function () {
@@ -239,9 +231,7 @@ document.addEventListener("DOMContentLoaded", function () {
     buttonUtil.revealButton(addAvisoButton);
     fetchDataButton.disabled = true;
     resetManualPeriodPicker();
-    showIssueDatePicker(getBillingPeriod(sheetList.value, excelFile?.name), {
-      forceDefault: true,
-    });
+    showIssueDatePicker({ forceDefault: true });
   });
 
   generateBoletasButton.addEventListener("click", async function () {
@@ -275,7 +265,7 @@ document.addEventListener("DOMContentLoaded", function () {
         hideManualPeriodPicker();
       }
 
-      ensureIssueDateDefault(billingPeriod);
+      ensureIssueDateDefault();
 
       const issueDate = getIssueDateFromInput(issueDateInput.value);
 
