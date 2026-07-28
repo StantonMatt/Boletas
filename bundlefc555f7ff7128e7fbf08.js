@@ -62728,11 +62728,8 @@ var getBillingPeriodFromManualInput = function getBillingPeriodFromManualInput(m
     month: month
   };
 };
-var getDefaultIssueDateInputValue = function getDefaultIssueDateInputValue(billingPeriod) {
-  if (!billingPeriod) {
-    return "";
-  }
-  var issueDate = new Date(billingPeriod.year, billingPeriod.month, 0);
+var getDefaultIssueDateInputValue = function getDefaultIssueDateInputValue() {
+  var issueDate = new Date();
   var year = issueDate.getFullYear();
   var month = String(issueDate.getMonth() + 1).padStart(2, "0");
   var day = String(issueDate.getDate()).padStart(2, "0");
@@ -62765,11 +62762,11 @@ var resetManualPeriodPicker = function resetManualPeriodPicker() {
 var hideIssueDatePicker = function hideIssueDatePicker() {
   issueDateContainer.style.display = "none";
 };
-var showIssueDatePicker = function showIssueDatePicker(billingPeriod) {
-  var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+var showIssueDatePicker = function showIssueDatePicker() {
+  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
     _ref$forceDefault = _ref.forceDefault,
     forceDefault = _ref$forceDefault === void 0 ? false : _ref$forceDefault;
-  var defaultIssueDate = getDefaultIssueDateInputValue(billingPeriod);
+  var defaultIssueDate = getDefaultIssueDateInputValue();
   issueDateContainer.style.display = "flex";
   if (forceDefault || !issueDateInput.value && defaultIssueDate) {
     issueDateInput.value = defaultIssueDate;
@@ -62779,8 +62776,8 @@ var resetIssueDatePicker = function resetIssueDatePicker() {
   issueDateInput.value = "";
   hideIssueDatePicker();
 };
-var ensureIssueDateDefault = function ensureIssueDateDefault(billingPeriod) {
-  showIssueDatePicker(billingPeriod);
+var ensureIssueDateDefault = function ensureIssueDateDefault() {
+  showIssueDatePicker();
 };
 
 // EventListener for DOMContentLoaded to make sure the DOM is loaded
@@ -62845,8 +62842,7 @@ document.addEventListener("DOMContentLoaded", function () {
     _button_style_js__WEBPACK_IMPORTED_MODULE_2__.revealButton(fetchDataButton);
   });
   manualPeriodInput.addEventListener("change", function () {
-    var billingPeriod = getBillingPeriodFromManualInput(manualPeriodInput.value);
-    showIssueDatePicker(billingPeriod, {
+    showIssueDatePicker({
       forceDefault: true
     });
   });
@@ -62855,7 +62851,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   fileInput.addEventListener("change", readExcel);
   fetchDataButton.addEventListener("click", function () {
-    var _excelFile;
     dataObject = _objectSpread({}, (0,_database_data_js__WEBPACK_IMPORTED_MODULE_6__.compileData)(xlsx__WEBPACK_IMPORTED_MODULE_8__.utils.sheet_to_json(workbook.Sheets[sheetList.value])));
     originalAvisos = _toConsumableArray(dataObject.Aviso);
     originalAvisoColors = dataObject.Color.map(function (color) {
@@ -62869,12 +62864,12 @@ document.addEventListener("DOMContentLoaded", function () {
     _button_style_js__WEBPACK_IMPORTED_MODULE_2__.revealButton(addAvisoButton);
     fetchDataButton.disabled = true;
     resetManualPeriodPicker();
-    showIssueDatePicker(getBillingPeriod(sheetList.value, (_excelFile = excelFile) === null || _excelFile === void 0 ? void 0 : _excelFile.name), {
+    showIssueDatePicker({
       forceDefault: true
     });
   });
   generateBoletasButton.addEventListener("click", /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-    var disableAviso, _dataObject$CdgIntRec, _excelFile2, _generationData$Numer, selectedClients, billingPeriod, issueDate, generationData, totalPages;
+    var disableAviso, _dataObject$CdgIntRec, _excelFile, _generationData$Numer, selectedClients, billingPeriod, issueDate, generationData, totalPages;
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
@@ -62890,7 +62885,7 @@ document.addEventListener("DOMContentLoaded", function () {
           alert(selectedClients.errorMessage);
           return _context.abrupt("return");
         case 6:
-          billingPeriod = getBillingPeriod(sheetList.value, (_excelFile2 = excelFile) === null || _excelFile2 === void 0 ? void 0 : _excelFile2.name);
+          billingPeriod = getBillingPeriod(sheetList.value, (_excelFile = excelFile) === null || _excelFile === void 0 ? void 0 : _excelFile.name);
           if (billingPeriod) {
             _context.next = 15;
             break;
@@ -62909,7 +62904,7 @@ document.addEventListener("DOMContentLoaded", function () {
         case 15:
           hideManualPeriodPicker();
         case 16:
-          ensureIssueDateDefault(billingPeriod);
+          ensureIssueDateDefault();
           issueDate = getIssueDateFromInput(issueDateInput.value);
           if (issueDate) {
             _context.next = 21;
@@ -63015,4 +63010,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /******/ })()
 ;
-//# sourceMappingURL=bundle31877497b7f9d69bb743.js.map
+//# sourceMappingURL=bundlefc555f7ff7128e7fbf08.js.map
