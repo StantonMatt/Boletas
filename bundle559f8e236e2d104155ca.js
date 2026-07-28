@@ -1792,6 +1792,7 @@ var createDomVariables = function createDomVariables() {
   __webpack_require__.g.sheetList = document.getElementById("sheetList");
   __webpack_require__.g.pdfIframe = document.getElementById("pdfIframe");
   __webpack_require__.g.generateBoletasButton = document.getElementById("generateBoletasButton");
+  __webpack_require__.g.downloadPdfLink = document.getElementById("downloadPdfLink");
   __webpack_require__.g.optionsContainer = document.querySelector(".options-container");
   __webpack_require__.g.addAviso = document.getElementById("addAvisoButton");
   __webpack_require__.g.avisoInputContainer = document.getElementById("avisoInputContainer");
@@ -1844,6 +1845,7 @@ function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" 
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 
 
+var currentPdfUrl = null;
 function createDataObject(baseConfig, overrides) {
   return _objectSpread(_objectSpread({}, baseConfig), overrides);
 }
@@ -2243,6 +2245,7 @@ function _assemblePDF() {
   _assemblePDF = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7(template, disableAviso) {
     var progressManager,
       generationData,
+      fileName,
       mainDataObject,
       totalPages,
       processedPages,
@@ -2374,8 +2377,9 @@ function _assemblePDF() {
       key,
       value,
       pdfBytes,
-      blob,
-      pdfUrl,
+      pdfFile,
+      pdfIframe,
+      downloadPdfLink,
       fileSizeMB,
       _args7 = arguments;
     return _regeneratorRuntime().wrap(function _callee7$(_context7) {
@@ -2383,13 +2387,14 @@ function _assemblePDF() {
         case 0:
           progressManager = _args7.length > 2 && _args7[2] !== undefined ? _args7[2] : null;
           generationData = _args7.length > 3 && _args7[3] !== undefined ? _args7[3] : null;
-          _context7.prev = 2;
+          fileName = _args7.length > 4 && _args7[4] !== undefined ? _args7[4] : "boletas.pdf";
+          _context7.prev = 3;
           if (generationData) {
-            _context7.next = 5;
+            _context7.next = 6;
             break;
           }
           throw new Error("No generation data was provided.");
-        case 5:
+        case 6:
           mainDataObject = generationData;
           console.log(mainDataObject);
 
@@ -2407,28 +2412,28 @@ function _assemblePDF() {
           uniqueImages = _toConsumableArray(new Set(mainDataObject.Timbre));
           defaultImageBytes = null;
           i = 0;
-        case 16:
+        case 17:
           if (!(i < uniqueImages.length)) {
-            _context7.next = 40;
+            _context7.next = 41;
             break;
           }
           imagePath = uniqueImages[i];
-          _context7.prev = 18;
-          _context7.next = 21;
+          _context7.prev = 19;
+          _context7.next = 22;
           return fetch(imagePath);
-        case 21:
+        case 22:
           response = _context7.sent;
           if (!response.ok) {
-            _context7.next = 32;
+            _context7.next = 33;
             break;
           }
-          _context7.next = 25;
+          _context7.next = 26;
           return response.arrayBuffer();
-        case 25:
+        case 26:
           originalBytes = _context7.sent;
-          _context7.next = 28;
+          _context7.next = 29;
           return compressImage(originalBytes, 0.7);
-        case 28:
+        case 29:
           compressedBytes = _context7.sent;
           imageCache.set(imagePath + "_compressed", compressedBytes);
           console.log("Processed image: ".concat(imagePath));
@@ -2437,63 +2442,63 @@ function _assemblePDF() {
           if (progressManager) {
             progressManager.updatePhase("Pre-loading images", "".concat(i + 1, "/").concat(uniqueImages.length, " images processed"));
           }
-        case 32:
-          _context7.next = 37;
+        case 33:
+          _context7.next = 38;
           break;
-        case 34:
-          _context7.prev = 34;
-          _context7.t0 = _context7["catch"](18);
+        case 35:
+          _context7.prev = 35;
+          _context7.t0 = _context7["catch"](19);
           console.log("Failed to pre-load image ".concat(imagePath, ":"), _context7.t0.message);
-        case 37:
+        case 38:
           i++;
-          _context7.next = 16;
+          _context7.next = 17;
           break;
-        case 40:
-          _context7.prev = 40;
-          _context7.next = 43;
+        case 41:
+          _context7.prev = 41;
+          _context7.next = 44;
           return fetch("/15246448-7.png");
-        case 43:
+        case 44:
           fallbackResponse = _context7.sent;
           if (!fallbackResponse.ok) {
-            _context7.next = 52;
+            _context7.next = 53;
             break;
           }
-          _context7.next = 47;
+          _context7.next = 48;
           return fallbackResponse.arrayBuffer();
-        case 47:
+        case 48:
           _originalBytes = _context7.sent;
-          _context7.next = 50;
+          _context7.next = 51;
           return compressImage(_originalBytes, 0.7);
-        case 50:
+        case 51:
           _compressedBytes = _context7.sent;
           imageCache.set("_default_compressed", _compressedBytes);
-        case 52:
-          _context7.next = 57;
+        case 53:
+          _context7.next = 58;
           break;
-        case 54:
-          _context7.prev = 54;
-          _context7.t1 = _context7["catch"](40);
+        case 55:
+          _context7.prev = 55;
+          _context7.t1 = _context7["catch"](41);
           console.log("Failed to load default image:", _context7.t1.message);
-        case 57:
+        case 58:
           // Update progress: Loading template
           if (progressManager) {
             progressManager.updatePhase("Loading template", "Processing PDF template");
           }
 
           // fetch template and convert it to raw binary data buffer
-          _context7.next = 60;
+          _context7.next = 61;
           return fetch(template).then(function (res) {
             return res.arrayBuffer();
           });
-        case 60:
+        case 61:
           existingPdfBytes = _context7.sent;
-          _context7.next = 63;
+          _context7.next = 64;
           return pdf_lib__WEBPACK_IMPORTED_MODULE_0__.PDFDocument.load(existingPdfBytes);
-        case 63:
+        case 64:
           templatePdfDoc = _context7.sent;
-          _context7.next = 66;
+          _context7.next = 67;
           return pdf_lib__WEBPACK_IMPORTED_MODULE_0__.PDFDocument.create();
-        case 66:
+        case 67:
           pdfDoc = _context7.sent;
           // Update progress: Pre-embedding fonts
           if (progressManager) {
@@ -2502,13 +2507,13 @@ function _assemblePDF() {
 
           // Pre-embed all fonts that will be reused
           console.log("Pre-embedding fonts...");
-          _context7.next = 71;
+          _context7.next = 72;
           return pdfDoc.embedFont(pdf_lib__WEBPACK_IMPORTED_MODULE_0__.StandardFonts.Helvetica);
-        case 71:
+        case 72:
           helveticaFont = _context7.sent;
-          _context7.next = 74;
+          _context7.next = 75;
           return pdfDoc.embedFont(pdf_lib__WEBPACK_IMPORTED_MODULE_0__.StandardFonts.HelveticaBold);
-        case 74:
+        case 75:
           helveticaBoldFont = _context7.sent;
           fontCache.set("Helvetica", helveticaFont);
           fontCache.set("HelveticaBold", helveticaBoldFont);
@@ -2529,9 +2534,9 @@ function _assemblePDF() {
           // Process pages in smaller batches for better compression
           batchSize = 20; // Smaller batches
           batchStart = 0;
-        case 86:
+        case 87:
           if (!(batchStart < totalPages)) {
-            _context7.next = 220;
+            _context7.next = 221;
             break;
           }
           batchEnd = Math.min(batchStart + batchSize, totalPages); // Update progress for batch
@@ -2543,14 +2548,14 @@ function _assemblePDF() {
           console.log("Processing batch ".concat(Math.floor(batchStart / batchSize) + 1, "/").concat(Math.ceil(totalPages / batchSize), ": pages ").concat(batchStart + 1, "-").concat(batchEnd));
 
           // Copy template pages for this batch
-          _context7.next = 92;
+          _context7.next = 93;
           return pdfDoc.copyPages(templatePdfDoc, Array(batchEnd - batchStart).fill(0));
-        case 92:
+        case 93:
           templatePages = _context7.sent;
           _i = batchStart;
-        case 94:
+        case 95:
           if (!(_i < batchEnd)) {
-            _context7.next = 215;
+            _context7.next = 216;
             break;
           }
           pageIndex = _i - batchStart;
@@ -3049,52 +3054,52 @@ function _assemblePDF() {
           console.log(TimbreData);
           // Initilize key:values for formatted text in Objects (lines)
           _i2 = 0, _dataObjects = dataObjects;
-        case 191:
+        case 192:
           if (!(_i2 < _dataObjects.length)) {
-            _context7.next = 201;
+            _context7.next = 202;
             break;
           }
           dataObject = _dataObjects[_i2];
-          _context7.next = 195;
+          _context7.next = 196;
           return dataObject.formatData();
-        case 195:
+        case 196:
           dataObject.lines = _toConsumableArray(dataObject.formattedData);
-          _context7.next = 198;
+          _context7.next = 199;
           return printTextToPdf(dataObject, SaldoAnterior, fontCache);
-        case 198:
+        case 199:
           _i2++;
-          _context7.next = 191;
+          _context7.next = 192;
           break;
-        case 201:
+        case 202:
           if (!(!disableAviso && mainDataObject.Aviso[_i] && String(mainDataObject.Aviso[_i]).trim() !== "")) {
-            _context7.next = 207;
+            _context7.next = 208;
             break;
           }
-          _context7.next = 204;
+          _context7.next = 205;
           return AvisoData.formatData();
-        case 204:
+        case 205:
           AvisoData.lines = _toConsumableArray(AvisoData.formattedData);
-          _context7.next = 207;
+          _context7.next = 208;
           return printTextToPdf(AvisoData, SaldoAnterior, fontCache);
-        case 207:
+        case 208:
           if (!TimbreData) {
-            _context7.next = 210;
+            _context7.next = 211;
             break;
           }
-          _context7.next = 210;
+          _context7.next = 211;
           return drawImageToPdf(TimbreData, imageCache, defaultImageBytes);
-        case 210:
+        case 211:
           // Update progress for each page
           processedPages++;
           if (progressManager) {
             statusMessage = "Processing page ".concat(processedPages, " (Client: ").concat(CdgIntRecep, ")");
             progressManager.updateProgress(processedPages, statusMessage);
           }
-        case 212:
+        case 213:
           _i++;
-          _context7.next = 94;
+          _context7.next = 95;
           break;
-        case 215:
+        case 216:
           // More aggressive memory management between batches
           if (typeof window !== "undefined" && window.gc) {
             window.gc(); // Force garbage collection if available
@@ -3117,11 +3122,11 @@ function _assemblePDF() {
             }
             console.log("Cleared compressed image cache to free memory");
           }
-        case 217:
+        case 218:
           batchStart += batchSize;
-          _context7.next = 86;
+          _context7.next = 87;
           break;
-        case 220:
+        case 221:
           // Update progress: Finalizing PDF
           if (progressManager) {
             progressManager.updatePhase("Finalizing PDF", "Applying compression and saving");
@@ -3129,7 +3134,8 @@ function _assemblePDF() {
 
           // Save PDF with maximum compression options
           console.log("Saving PDF with maximum compression...");
-          _context7.next = 224;
+          pdfDoc.setTitle(fileName);
+          _context7.next = 226;
           return pdfDoc.save({
             useObjectStreams: true,
             addDefaultPage: false,
@@ -3140,44 +3146,94 @@ function _assemblePDF() {
             compress: true,
             fastWebView: true
           });
-        case 224:
+        case 226:
           pdfBytes = _context7.sent;
           // Update progress: Creating blob and displaying
           if (progressManager) {
             progressManager.updatePhase("Completing", "Creating PDF blob and displaying");
           }
 
-          // Create a blob with the bytes as type PDF
-          blob = new Blob([pdfBytes], {
+          // Preserve filename metadata alongside the explicit download control.
+          pdfFile = new File([pdfBytes], fileName, {
             type: "application/pdf"
-          }); // Create URL from blob
-          pdfUrl = URL.createObjectURL(blob); // Assign URL to src of iFrame
-          document.getElementById("pdfIframe").src = pdfUrl;
+          });
+          if (currentPdfUrl) {
+            URL.revokeObjectURL(currentPdfUrl);
+          }
+          currentPdfUrl = URL.createObjectURL(pdfFile);
+
+          // Keep the preview read-only so saving always uses the named download link.
+          pdfIframe = document.getElementById("pdfIframe");
+          pdfIframe.src = currentPdfUrl;
+          pdfIframe.title = fileName;
+          pdfIframe.dataset.fileName = fileName;
+          downloadPdfLink = document.getElementById("downloadPdfLink");
+          downloadPdfLink.href = currentPdfUrl;
+          downloadPdfLink.download = fileName;
+          downloadPdfLink.textContent = "Save ".concat(fileName);
+          downloadPdfLink.style.display = "inline-block";
 
           // Log final file size
           fileSizeMB = (pdfBytes.byteLength / (1024 * 1024)).toFixed(2);
           console.log("PDF generation completed! Final file size: ".concat(fileSizeMB, " MB"));
           if (progressManager) {
-            progressManager.updatePhase("Complete", "PDF generated successfully (".concat(fileSizeMB, " MB)"));
+            progressManager.updatePhase("Complete", "".concat(fileName, " generated successfully (").concat(fileSizeMB, " MB)"));
           }
-          _context7.next = 239;
-          break;
-        case 234:
-          _context7.prev = 234;
-          _context7.t2 = _context7["catch"](2);
+          return _context7.abrupt("return", {
+            fileName: fileName,
+            pdfUrl: currentPdfUrl
+          });
+        case 246:
+          _context7.prev = 246;
+          _context7.t2 = _context7["catch"](3);
           console.log("Error in PDF Assembly Function: ".concat(_context7.t2));
           if (progressManager) {
             progressManager.error(_context7.t2.message || "An error occurred during PDF generation");
           }
           throw _context7.t2;
-        case 239:
+        case 251:
         case "end":
           return _context7.stop();
       }
-    }, _callee7, null, [[2, 234], [18, 34], [40, 54]]);
+    }, _callee7, null, [[3, 246], [19, 35], [41, 55]]);
   }));
   return _assemblePDF.apply(this, arguments);
 }
+
+/***/ }),
+
+/***/ "./src/pdf-file-name.js":
+/*!******************************!*\
+  !*** ./src/pdf-file-name.js ***!
+  \******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   getGeneratedPdfFileName: () => (/* binding */ getGeneratedPdfFileName)
+/* harmony export */ });
+
+
+var getGeneratedPdfFileName = function getGeneratedPdfFileName(billingPeriod) {
+  var folios = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+  var shortYear = String(billingPeriod.year).slice(-2).padStart(2, "0");
+  var month = String(billingPeriod.month).padStart(2, "0");
+  var generatedFolios = folios.filter(function (folio) {
+    return folio !== null && folio !== "";
+  }).map(function (folio) {
+    return Number(folio);
+  }).filter(function (folio) {
+    return Number.isFinite(folio);
+  });
+  if (!generatedFolios.length) {
+    return "".concat(shortYear, "-").concat(month, " F_sin-folios.pdf");
+  }
+  var firstFolio = generatedFolios[0];
+  var lastFolio = generatedFolios[generatedFolios.length - 1];
+  return "".concat(shortYear, "-").concat(month, " F_").concat(firstFolio, "-").concat(lastFolio, ".pdf");
+};
+
 
 /***/ }),
 
@@ -3969,18 +4025,44 @@ body {
   background-color: #666666;
 }
 
+.pdf-preview-shell {
+  position: relative;
+  width: 1600px;
+  max-width: 90vw;
+}
+
+.pdf-preview-header {
+  height: 60px;
+  padding: 0 18px;
+  background: #323639;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.pdf-preview-viewport {
+  height: 1200px;
+  max-height: 88vh;
+  overflow: hidden;
+}
+
 #pdfIframe {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);
   display: block;
   background: #000;
   border: 0;
-  height: 1200px;
-  max-height: 88vh;
-  width: 1600px;
-  max-width: 90vw;
+  height: calc(100% + 60px);
+  margin-top: -60px;
+  width: 100%;
+  max-width: none;
 }
 
 #generateBoletasButton,
+#downloadPdfLink,
 #fetchDataButton,
 #fileInput,
 #sheetList,
@@ -3994,6 +4076,12 @@ body {
 
 #addAvisoButton {
   margin: 0;
+}
+
+.download-pdf-link {
+  display: none;
+  width: fit-content;
+  text-decoration: none;
 }
 
 @media (max-width: 680px) {
@@ -4027,9 +4115,24 @@ body {
   #pdfIframe {
     width: 100%;
     max-width: none;
-    height: 70vh;
+    height: calc(100% + 60px);
   }
-}`, "",{"version":3,"sources":["webpack://./src/main.scss"],"names":[],"mappings":"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","sourcesContent":["@import url(\"https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap\");\n\n$primary-color: #273136;\n$secondary-color: #495264;\n$thirdary-color: #375c4d;\n$selected-file-button-color: #246b4f;\n$box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);\n$progress-color: #4caf50;\n$progress-bg: #e0e0e0;\n\n* {\n  box-sizing: border-box;\n}\n\nbody {\n  background-color: $primary-color;\n  font-family: \"Roboto\", sans-serif;\n  display: flex;\n  justify-content: flex-start;\n  overflow: auto;\n  min-height: 100vh;\n}\n\n.main-container {\n  margin: 2vh;\n  background-color: $secondary-color;\n  box-shadow: $box-shadow;\n  border-radius: 10px;\n  padding: 10px;\n  text-align: left;\n  display: flex; /* Enable flexbox */\n  flex-direction: column; /* Stack children vertically */\n  align-items: flex-start; /* Align items to the start of the flex container (left) */\n}\n\n.options-container {\n  flex: 0 0 auto;\n  max-height: 96vh;\n  margin: 2vh 0 2vh 2vh;\n  padding-right: 8px;\n  flex-direction: column; /* Stack children vertically */\n  display: flex;\n  overflow-y: auto;\n}\n\n.add-aviso-container {\n  background-color: $secondary-color;\n\n  padding: 10px;\n  border-radius: 10px;\n  flex-direction: column; /* Stack children vertically */\n  align-items: flex-start; /* Align items to the start of the flex container (left) */\n  display: flex;\n  text-align: center;\n}\n\n.add-aviso-help {\n  max-width: 520px;\n  margin: 10px 0 0;\n  color: #d9e1e6;\n  font-size: 14px;\n  line-height: 1.45;\n  text-align: left;\n}\n\n.aviso-header-container {\n  display: flex;\n  align-items: center;\n  gap: 16px;\n  margin-top: 18px;\n}\n\n.aviso-title-row {\n  display: flex;\n  align-items: flex-start;\n  justify-content: space-between;\n  gap: 24px;\n\n  h2 {\n    margin: 2px 0 0;\n    color: #ffffff;\n    font-size: 21px;\n  }\n}\n\n.aviso-eyebrow {\n  margin: 0;\n  color: #a9d7c3;\n  font-size: 12px;\n  font-weight: 700;\n  letter-spacing: 0.12em;\n}\n\n.aviso-scope {\n  display: grid;\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n  gap: 10px;\n  margin: 18px 0 0;\n  padding: 0;\n  border: 0;\n\n  legend {\n    margin-bottom: 8px;\n    color: #ffffff;\n    font-size: 14px;\n    font-weight: 700;\n  }\n}\n\n.scope-option {\n  display: flex;\n  align-items: flex-start;\n  gap: 10px;\n  min-height: 74px;\n  padding: 12px;\n  border: 1px solid rgba(255, 255, 255, 0.16);\n  border-radius: 9px;\n  background: rgba(39, 49, 54, 0.5);\n  color: #ffffff;\n  cursor: pointer;\n\n  &:has(input:checked) {\n    border-color: #6cc39b;\n    background: rgba(36, 107, 79, 0.36);\n    box-shadow: inset 0 0 0 1px rgba(108, 195, 155, 0.3);\n  }\n\n  input {\n    margin-top: 3px;\n    accent-color: #6cc39b;\n  }\n\n  span {\n    display: flex;\n    flex-direction: column;\n    gap: 4px;\n  }\n\n  small {\n    color: #d2dadd;\n    line-height: 1.35;\n  }\n}\n\n.client-input-container {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  margin-top: 14px;\n}\n\n.client-input-label,\n.color-input-label,\n.client-input-help,\n.aviso-message-container label {\n  color: #ffffff;\n}\n\n.client-input-field {\n  width: 100%;\n  height: 40px;\n  padding: 0 12px;\n  border: 0;\n  border-radius: 7px;\n  font-size: 15px;\n}\n\n.client-input-help {\n  margin: 0;\n  color: #d2dadd;\n  font-size: 13px;\n}\n\n.color-input-container {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n}\n\n.color-input-field {\n  width: 74px;\n  height: 36px;\n  padding: 3px;\n  border: 1px solid rgba(255, 255, 255, 0.2);\n  border-radius: 7px;\n  background: $primary-color;\n  cursor: pointer;\n}\n\n.aviso-message-container {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  margin-top: 14px;\n}\n\n.text-input {\n  text-align: left;\n  resize: vertical;\n  width: 100%;\n  min-height: 130px;\n  max-height: 260px;\n  padding: 12px;\n  border: 0;\n  border-radius: 7px;\n  font: inherit;\n  line-height: 1.45;\n}\n\n.aviso {\n  width: min(620px, 90vw);\n  padding: 20px;\n  background-color: $secondary-color;\n  box-shadow: $box-shadow;\n  border-radius: 10px;\n  margin-top: 2vh;\n  max-width: 90vw;\n}\n\n.aviso-apply-button {\n  margin: 0;\n}\n\n.aviso-status {\n  margin: 0;\n  color: #bfe9d5;\n  font-size: 14px;\n  font-weight: 700;\n}\n\n// Loading Bar Styles\n.loading-container {\n  display: none;\n  background-color: $primary-color;\n  border-radius: 10px;\n  padding: 20px;\n  margin-top: 15px;\n  box-shadow: $box-shadow;\n  width: 100%;\n  max-width: 500px;\n  color: #ffffff;\n}\n\n.loading-header {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-bottom: 15px;\n\n  h3 {\n    margin: 0;\n    color: #ffffff;\n    font-size: 18px;\n    font-weight: 700;\n  }\n\n  #loadingPercentage {\n    font-size: 16px;\n    font-weight: 700;\n    color: $progress-color;\n  }\n}\n\n.progress-bar-container {\n  width: 100%;\n  height: 12px;\n  background-color: $progress-bg;\n  border-radius: 6px;\n  overflow: hidden;\n  margin-bottom: 15px;\n  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);\n}\n\n.progress-bar {\n  height: 100%;\n  width: 0%;\n  background: linear-gradient(\n    90deg,\n    $progress-color,\n    lighten($progress-color, 10%)\n  );\n  border-radius: 6px;\n  transition: width 0.3s ease;\n  position: relative;\n\n  &::after {\n    content: \"\";\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    background: linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 255, 255, 0.3),\n      transparent\n    );\n    animation: shimmer 2s infinite;\n  }\n}\n\n@keyframes shimmer {\n  0% {\n    transform: translateX(-100%);\n  }\n  100% {\n    transform: translateX(100%);\n  }\n}\n\n.loading-details {\n  font-size: 14px;\n\n  #loadingStatus {\n    margin-bottom: 8px;\n    color: #cccccc;\n    font-weight: 500;\n  }\n\n  #loadingStats {\n    display: flex;\n    justify-content: space-between;\n    font-size: 12px;\n    color: #aaaaaa;\n\n    span {\n      display: flex;\n      gap: 4px;\n    }\n  }\n}\n\n.checkbox-container {\n  margin-bottom: 10px;\n\n  label {\n    color: #ffffff;\n    margin-left: 8px;\n  }\n\n  input[type=\"checkbox\"] {\n    margin-right: 5px;\n  }\n}\n\n.generation-filter-container,\n.manual-period-container,\n.issue-date-container {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  margin-bottom: 12px;\n  max-width: 420px;\n}\n\n.generation-filter-label,\n.manual-period-label,\n.issue-date-label,\n.generation-filter-help,\n.manual-period-help {\n  color: #ffffff;\n}\n\n.generation-filter-help,\n.manual-period-help {\n  margin: 0;\n  font-size: 13px;\n  line-height: 1.4;\n}\n\n.manual-period-help {\n  color: #ffd089;\n}\n\n.generation-filter-input,\n.period-input-field,\n.date-input-field {\n  height: 38px;\n  border: 0;\n  border-radius: 8px;\n  padding: 0 12px;\n  font-size: 15px;\n}\n\n.btn {\n  background-color: $primary-color;\n  color: #ffffff;\n  font-weight: bolder;\n  border: 0;\n  margin-bottom: 10px;\n  border-radius: 10px;\n  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);\n  padding: 12px 12px;\n  font-size: 16px;\n  cursor: pointer;\n\n  &:active {\n    transform: scale(0.98);\n    box-shadow: 3px 3px 3px rgba(0, 0, 0, 0);\n  }\n\n  &:focus {\n    outline: 0;\n  }\n\n  &:hover {\n    background-color: $thirdary-color;\n  }\n\n  &:disabled {\n    background-color: #666666;\n    cursor: not-allowed;\n    opacity: 0.6;\n\n    &:hover {\n      background-color: #666666;\n    }\n  }\n}\n\n#pdfIframe {\n  box-shadow: $box-shadow;\n  display: block;\n  background: #000;\n  border: 0;\n  height: 1200px;\n  max-height: 88vh;\n  width: 1600px;\n  max-width: 90vw;\n}\n\n#generateBoletasButton,\n#fetchDataButton,\n#fileInput,\n#sheetList,\n#addAvisoButton,\n#loadingContainer,\n#generationFilterContainer,\n#manualPeriodContainer,\n#issueDateContainer {\n  display: none;\n}\n\n#addAvisoButton {\n  margin: 0;\n}\n\n@media (max-width: 680px) {\n  body {\n    flex-direction: column;\n  }\n\n  .options-container,\n  .main-container {\n    width: calc(100% - 24px);\n    max-height: none;\n    margin: 12px;\n  }\n\n  .options-container {\n    padding-right: 0;\n    overflow: visible;\n  }\n\n  .aviso {\n    width: 100%;\n    max-width: none;\n  }\n\n  .aviso-scope {\n    grid-template-columns: 1fr;\n  }\n\n  .aviso-title-row {\n    gap: 14px;\n  }\n\n  .aviso-header-container {\n    align-items: flex-start;\n    flex-direction: column;\n  }\n\n  #pdfIframe {\n    width: 100%;\n    max-width: none;\n    height: 70vh;\n  }\n}\n"],"sourceRoot":""}]);
+  .pdf-preview-shell {
+    width: 100%;
+    max-width: none;
+  }
+  .pdf-preview-viewport {
+    height: 70vh;
+    max-height: none;
+  }
+  .pdf-preview-header {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    padding: 0 12px;
+  }
+}`, "",{"version":3,"sources":["webpack://./src/main.scss"],"names":[],"mappings":"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","sourcesContent":["@import url(\"https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap\");\n\n$primary-color: #273136;\n$secondary-color: #495264;\n$thirdary-color: #375c4d;\n$selected-file-button-color: #246b4f;\n$box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);\n$progress-color: #4caf50;\n$progress-bg: #e0e0e0;\n\n* {\n  box-sizing: border-box;\n}\n\nbody {\n  background-color: $primary-color;\n  font-family: \"Roboto\", sans-serif;\n  display: flex;\n  justify-content: flex-start;\n  overflow: auto;\n  min-height: 100vh;\n}\n\n.main-container {\n  margin: 2vh;\n  background-color: $secondary-color;\n  box-shadow: $box-shadow;\n  border-radius: 10px;\n  padding: 10px;\n  text-align: left;\n  display: flex; /* Enable flexbox */\n  flex-direction: column; /* Stack children vertically */\n  align-items: flex-start; /* Align items to the start of the flex container (left) */\n}\n\n.options-container {\n  flex: 0 0 auto;\n  max-height: 96vh;\n  margin: 2vh 0 2vh 2vh;\n  padding-right: 8px;\n  flex-direction: column; /* Stack children vertically */\n  display: flex;\n  overflow-y: auto;\n}\n\n.add-aviso-container {\n  background-color: $secondary-color;\n\n  padding: 10px;\n  border-radius: 10px;\n  flex-direction: column; /* Stack children vertically */\n  align-items: flex-start; /* Align items to the start of the flex container (left) */\n  display: flex;\n  text-align: center;\n}\n\n.add-aviso-help {\n  max-width: 520px;\n  margin: 10px 0 0;\n  color: #d9e1e6;\n  font-size: 14px;\n  line-height: 1.45;\n  text-align: left;\n}\n\n.aviso-header-container {\n  display: flex;\n  align-items: center;\n  gap: 16px;\n  margin-top: 18px;\n}\n\n.aviso-title-row {\n  display: flex;\n  align-items: flex-start;\n  justify-content: space-between;\n  gap: 24px;\n\n  h2 {\n    margin: 2px 0 0;\n    color: #ffffff;\n    font-size: 21px;\n  }\n}\n\n.aviso-eyebrow {\n  margin: 0;\n  color: #a9d7c3;\n  font-size: 12px;\n  font-weight: 700;\n  letter-spacing: 0.12em;\n}\n\n.aviso-scope {\n  display: grid;\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n  gap: 10px;\n  margin: 18px 0 0;\n  padding: 0;\n  border: 0;\n\n  legend {\n    margin-bottom: 8px;\n    color: #ffffff;\n    font-size: 14px;\n    font-weight: 700;\n  }\n}\n\n.scope-option {\n  display: flex;\n  align-items: flex-start;\n  gap: 10px;\n  min-height: 74px;\n  padding: 12px;\n  border: 1px solid rgba(255, 255, 255, 0.16);\n  border-radius: 9px;\n  background: rgba(39, 49, 54, 0.5);\n  color: #ffffff;\n  cursor: pointer;\n\n  &:has(input:checked) {\n    border-color: #6cc39b;\n    background: rgba(36, 107, 79, 0.36);\n    box-shadow: inset 0 0 0 1px rgba(108, 195, 155, 0.3);\n  }\n\n  input {\n    margin-top: 3px;\n    accent-color: #6cc39b;\n  }\n\n  span {\n    display: flex;\n    flex-direction: column;\n    gap: 4px;\n  }\n\n  small {\n    color: #d2dadd;\n    line-height: 1.35;\n  }\n}\n\n.client-input-container {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  margin-top: 14px;\n}\n\n.client-input-label,\n.color-input-label,\n.client-input-help,\n.aviso-message-container label {\n  color: #ffffff;\n}\n\n.client-input-field {\n  width: 100%;\n  height: 40px;\n  padding: 0 12px;\n  border: 0;\n  border-radius: 7px;\n  font-size: 15px;\n}\n\n.client-input-help {\n  margin: 0;\n  color: #d2dadd;\n  font-size: 13px;\n}\n\n.color-input-container {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n}\n\n.color-input-field {\n  width: 74px;\n  height: 36px;\n  padding: 3px;\n  border: 1px solid rgba(255, 255, 255, 0.2);\n  border-radius: 7px;\n  background: $primary-color;\n  cursor: pointer;\n}\n\n.aviso-message-container {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  margin-top: 14px;\n}\n\n.text-input {\n  text-align: left;\n  resize: vertical;\n  width: 100%;\n  min-height: 130px;\n  max-height: 260px;\n  padding: 12px;\n  border: 0;\n  border-radius: 7px;\n  font: inherit;\n  line-height: 1.45;\n}\n\n.aviso {\n  width: min(620px, 90vw);\n  padding: 20px;\n  background-color: $secondary-color;\n  box-shadow: $box-shadow;\n  border-radius: 10px;\n  margin-top: 2vh;\n  max-width: 90vw;\n}\n\n.aviso-apply-button {\n  margin: 0;\n}\n\n.aviso-status {\n  margin: 0;\n  color: #bfe9d5;\n  font-size: 14px;\n  font-weight: 700;\n}\n\n// Loading Bar Styles\n.loading-container {\n  display: none;\n  background-color: $primary-color;\n  border-radius: 10px;\n  padding: 20px;\n  margin-top: 15px;\n  box-shadow: $box-shadow;\n  width: 100%;\n  max-width: 500px;\n  color: #ffffff;\n}\n\n.loading-header {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-bottom: 15px;\n\n  h3 {\n    margin: 0;\n    color: #ffffff;\n    font-size: 18px;\n    font-weight: 700;\n  }\n\n  #loadingPercentage {\n    font-size: 16px;\n    font-weight: 700;\n    color: $progress-color;\n  }\n}\n\n.progress-bar-container {\n  width: 100%;\n  height: 12px;\n  background-color: $progress-bg;\n  border-radius: 6px;\n  overflow: hidden;\n  margin-bottom: 15px;\n  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);\n}\n\n.progress-bar {\n  height: 100%;\n  width: 0%;\n  background: linear-gradient(\n    90deg,\n    $progress-color,\n    lighten($progress-color, 10%)\n  );\n  border-radius: 6px;\n  transition: width 0.3s ease;\n  position: relative;\n\n  &::after {\n    content: \"\";\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    background: linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 255, 255, 0.3),\n      transparent\n    );\n    animation: shimmer 2s infinite;\n  }\n}\n\n@keyframes shimmer {\n  0% {\n    transform: translateX(-100%);\n  }\n  100% {\n    transform: translateX(100%);\n  }\n}\n\n.loading-details {\n  font-size: 14px;\n\n  #loadingStatus {\n    margin-bottom: 8px;\n    color: #cccccc;\n    font-weight: 500;\n  }\n\n  #loadingStats {\n    display: flex;\n    justify-content: space-between;\n    font-size: 12px;\n    color: #aaaaaa;\n\n    span {\n      display: flex;\n      gap: 4px;\n    }\n  }\n}\n\n.checkbox-container {\n  margin-bottom: 10px;\n\n  label {\n    color: #ffffff;\n    margin-left: 8px;\n  }\n\n  input[type=\"checkbox\"] {\n    margin-right: 5px;\n  }\n}\n\n.generation-filter-container,\n.manual-period-container,\n.issue-date-container {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  margin-bottom: 12px;\n  max-width: 420px;\n}\n\n.generation-filter-label,\n.manual-period-label,\n.issue-date-label,\n.generation-filter-help,\n.manual-period-help {\n  color: #ffffff;\n}\n\n.generation-filter-help,\n.manual-period-help {\n  margin: 0;\n  font-size: 13px;\n  line-height: 1.4;\n}\n\n.manual-period-help {\n  color: #ffd089;\n}\n\n.generation-filter-input,\n.period-input-field,\n.date-input-field {\n  height: 38px;\n  border: 0;\n  border-radius: 8px;\n  padding: 0 12px;\n  font-size: 15px;\n}\n\n.btn {\n  background-color: $primary-color;\n  color: #ffffff;\n  font-weight: bolder;\n  border: 0;\n  margin-bottom: 10px;\n  border-radius: 10px;\n  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);\n  padding: 12px 12px;\n  font-size: 16px;\n  cursor: pointer;\n\n  &:active {\n    transform: scale(0.98);\n    box-shadow: 3px 3px 3px rgba(0, 0, 0, 0);\n  }\n\n  &:focus {\n    outline: 0;\n  }\n\n  &:hover {\n    background-color: $thirdary-color;\n  }\n\n  &:disabled {\n    background-color: #666666;\n    cursor: not-allowed;\n    opacity: 0.6;\n\n    &:hover {\n      background-color: #666666;\n    }\n  }\n}\n\n.pdf-preview-shell {\n  position: relative;\n  width: 1600px;\n  max-width: 90vw;\n}\n\n.pdf-preview-header {\n  height: 60px;\n  padding: 0 18px;\n  background: #323639;\n  color: #ffffff;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 16px;\n  font-size: 13px;\n  font-weight: 700;\n}\n\n.pdf-preview-viewport {\n  height: 1200px;\n  max-height: 88vh;\n  overflow: hidden;\n}\n\n#pdfIframe {\n  box-shadow: $box-shadow;\n  display: block;\n  background: #000;\n  border: 0;\n  height: calc(100% + 60px);\n  margin-top: -60px;\n  width: 100%;\n  max-width: none;\n}\n\n#generateBoletasButton,\n#downloadPdfLink,\n#fetchDataButton,\n#fileInput,\n#sheetList,\n#addAvisoButton,\n#loadingContainer,\n#generationFilterContainer,\n#manualPeriodContainer,\n#issueDateContainer {\n  display: none;\n}\n\n#addAvisoButton {\n  margin: 0;\n}\n\n.download-pdf-link {\n  display: none;\n  width: fit-content;\n  text-decoration: none;\n}\n\n@media (max-width: 680px) {\n  body {\n    flex-direction: column;\n  }\n\n  .options-container,\n  .main-container {\n    width: calc(100% - 24px);\n    max-height: none;\n    margin: 12px;\n  }\n\n  .options-container {\n    padding-right: 0;\n    overflow: visible;\n  }\n\n  .aviso {\n    width: 100%;\n    max-width: none;\n  }\n\n  .aviso-scope {\n    grid-template-columns: 1fr;\n  }\n\n  .aviso-title-row {\n    gap: 14px;\n  }\n\n  .aviso-header-container {\n    align-items: flex-start;\n    flex-direction: column;\n  }\n\n  #pdfIframe {\n    width: 100%;\n    max-width: none;\n    height: calc(100% + 60px);\n  }\n\n  .pdf-preview-shell {\n    width: 100%;\n    max-width: none;\n  }\n\n  .pdf-preview-viewport {\n    height: 70vh;\n    max-height: none;\n  }\n\n  .pdf-preview-header {\n    align-items: flex-start;\n    flex-direction: column;\n    justify-content: center;\n    gap: 2px;\n    padding: 0 12px;\n  }\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -62658,8 +62761,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _assets_boletaTemplate_pdf__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./assets/boletaTemplate.pdf */ "./src/assets/boletaTemplate.pdf");
 /* harmony import */ var _pdf_assembly_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./pdf-assembly.js */ "./src/pdf-assembly.js");
 /* harmony import */ var _database_data_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./database-data.js */ "./src/database-data.js");
-/* harmony import */ var xlsx__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! xlsx */ "./node_modules/xlsx/xlsx.mjs");
-/* harmony import */ var _progress_manager_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./progress-manager.js */ "./src/progress-manager.js");
+/* harmony import */ var _pdf_file_name_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./pdf-file-name.js */ "./src/pdf-file-name.js");
+/* harmony import */ var xlsx__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! xlsx */ "./node_modules/xlsx/xlsx.mjs");
+/* harmony import */ var _progress_manager_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./progress-manager.js */ "./src/progress-manager.js");
 
 
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
@@ -62677,6 +62781,7 @@ function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t =
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : String(i); }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+
 
 
 
@@ -62799,11 +62904,17 @@ document.addEventListener("DOMContentLoaded", function () {
     originalAvisoColors = [];
     avisoCount = 0;
   };
+  var hideDownloadPdfLink = function hideDownloadPdfLink() {
+    downloadPdfLink.style.display = "none";
+    downloadPdfLink.removeAttribute("href");
+    downloadPdfLink.removeAttribute("download");
+  };
   var resetLoadedSheetState = function resetLoadedSheetState() {
     dataObject = {};
     resetCustomAvisos();
     _button_style_js__WEBPACK_IMPORTED_MODULE_2__.hideButton(generateBoletasButton);
     _button_style_js__WEBPACK_IMPORTED_MODULE_2__.hideButton(addAvisoButton);
+    hideDownloadPdfLink();
     generationFilterContainer.style.display = "none";
     resetManualPeriodPicker();
     resetIssueDatePicker();
@@ -62819,7 +62930,7 @@ document.addEventListener("DOMContentLoaded", function () {
     reader = new FileReader();
     reader.onload = function (loadEvent) {
       var data = new Uint8Array(loadEvent.target.result);
-      workbook = xlsx__WEBPACK_IMPORTED_MODULE_8__.read(data, {
+      workbook = xlsx__WEBPACK_IMPORTED_MODULE_9__.read(data, {
         type: "array"
       });
       while (sheetList.firstChild) {
@@ -62851,7 +62962,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   fileInput.addEventListener("change", readExcel);
   fetchDataButton.addEventListener("click", function () {
-    dataObject = _objectSpread({}, (0,_database_data_js__WEBPACK_IMPORTED_MODULE_6__.compileData)(xlsx__WEBPACK_IMPORTED_MODULE_8__.utils.sheet_to_json(workbook.Sheets[sheetList.value])));
+    dataObject = _objectSpread({}, (0,_database_data_js__WEBPACK_IMPORTED_MODULE_6__.compileData)(xlsx__WEBPACK_IMPORTED_MODULE_9__.utils.sheet_to_json(workbook.Sheets[sheetList.value])));
     originalAvisos = _toConsumableArray(dataObject.Aviso);
     originalAvisoColors = dataObject.Color.map(function (color) {
       return _toConsumableArray(color);
@@ -62869,7 +62980,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
   generateBoletasButton.addEventListener("click", /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-    var disableAviso, _dataObject$CdgIntRec, _excelFile, _generationData$Numer, selectedClients, billingPeriod, issueDate, generationData, totalPages;
+    var disableAviso, _dataObject$CdgIntRec, _excelFile, _generationData$Numer, selectedClients, billingPeriod, issueDate, generationData, totalPages, pdfFileName;
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
@@ -62926,23 +63037,25 @@ document.addEventListener("DOMContentLoaded", function () {
           alert("No data found. Please make sure you have loaded an Excel file with data.");
           return _context.abrupt("return");
         case 26:
-          _progress_manager_js__WEBPACK_IMPORTED_MODULE_7__["default"].show(totalPages);
-          _context.next = 29;
-          return (0,_pdf_assembly_js__WEBPACK_IMPORTED_MODULE_5__.assemblePDF)(_assets_boletaTemplate_pdf__WEBPACK_IMPORTED_MODULE_4__, disableAviso, _progress_manager_js__WEBPACK_IMPORTED_MODULE_7__["default"], generationData);
-        case 29:
-          _progress_manager_js__WEBPACK_IMPORTED_MODULE_7__["default"].hide();
-          _context.next = 36;
+          pdfFileName = (0,_pdf_file_name_js__WEBPACK_IMPORTED_MODULE_7__.getGeneratedPdfFileName)(billingPeriod, generationData.Folio);
+          hideDownloadPdfLink();
+          _progress_manager_js__WEBPACK_IMPORTED_MODULE_8__["default"].show(totalPages);
+          _context.next = 31;
+          return (0,_pdf_assembly_js__WEBPACK_IMPORTED_MODULE_5__.assemblePDF)(_assets_boletaTemplate_pdf__WEBPACK_IMPORTED_MODULE_4__, disableAviso, _progress_manager_js__WEBPACK_IMPORTED_MODULE_8__["default"], generationData, pdfFileName);
+        case 31:
+          _progress_manager_js__WEBPACK_IMPORTED_MODULE_8__["default"].hide();
+          _context.next = 38;
           break;
-        case 32:
-          _context.prev = 32;
+        case 34:
+          _context.prev = 34;
           _context.t0 = _context["catch"](1);
           console.error("PDF Generation Error:", _context.t0);
-          _progress_manager_js__WEBPACK_IMPORTED_MODULE_7__["default"].error(_context.t0.message || "An error occurred during PDF generation");
-        case 36:
+          _progress_manager_js__WEBPACK_IMPORTED_MODULE_8__["default"].error(_context.t0.message || "An error occurred during PDF generation");
+        case 38:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[1, 32]]);
+    }, _callee, null, [[1, 34]]);
   })));
   addAvisoButton.addEventListener("click", function () {
     var avisoApplicationId = avisoCount;
@@ -63010,4 +63123,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /******/ })()
 ;
-//# sourceMappingURL=bundlefc555f7ff7128e7fbf08.js.map
+//# sourceMappingURL=bundle559f8e236e2d104155ca.js.map
