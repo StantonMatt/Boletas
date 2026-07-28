@@ -140,16 +140,23 @@ const parseClientSelection = function (
   return buildSuccessResult(selectedIndexes);
 };
 
-const injectAviso = function (
+const getAvisoApplication = function (
   dataObject,
   avisoInputText,
   clientNumberInput,
-  avisoTextColorValue = [0, 0, 0]
+  avisoTextColorValue = [0, 0, 0],
+  { applyToAllClients = false } = {}
 ) {
+  const avisoText = String(avisoInputText.value ?? "").trim();
+
+  if (!avisoText) {
+    return buildErrorResult("Please write a custom aviso message.");
+  }
+
   const selection = parseClientSelection(
     dataObject.CdgIntRecep,
-    clientNumberInput.value,
-    { allowEmptySelection: false }
+    applyToAllClients ? "" : clientNumberInput.value,
+    { allowEmptySelection: applyToAllClients }
   );
 
   if (!selection.isValid) {
@@ -157,13 +164,64 @@ const injectAviso = function (
     return selection;
   }
 
-  selection.selectedIndexes.forEach((index) => {
-    dataObject.Aviso[index] = avisoInputText.value;
-    dataObject.Color[index] = avisoTextColorValue;
-  });
-
-  clientNumberInput.disabled = true;
-  return selection;
+  return {
+    ...selection,
+    avisoText,
+    avisoTextColorValue: [...avisoTextColorValue],
+  };
 };
 
-export { injectAviso, parseClientSelection };
+const applyAvisoApplication = function (dataObject, application) {
+  application.selectedIndexes.forEach((index) => {
+    dataObject.Aviso[index] = application.avisoText;
+    dataObject.Color[index] = [...application.avisoTextColorValue];
+  });
+};
+
+const applyAvisoApplications = function (
+  dataObject,
+  originalAvisos,
+  originalColors,
+  applications
+) {
+  dataObject.Aviso.splice(0, dataObject.Aviso.length, ...originalAvisos);
+  dataObject.Color.splice(
+    0,
+    dataObject.Color.length,
+    ...originalColors.map((color) => [...color])
+  );
+
+  applications.forEach((application) => {
+    applyAvisoApplication(dataObject, application);
+  });
+};
+
+const injectAviso = function (
+  dataObject,
+  avisoInputText,
+  clientNumberInput,
+  avisoTextColorValue = [0, 0, 0],
+  options = {}
+) {
+  const application = getAvisoApplication(
+    dataObject,
+    avisoInputText,
+    clientNumberInput,
+    avisoTextColorValue,
+    options
+  );
+
+  if (!application.isValid) {
+    return application;
+  }
+
+  applyAvisoApplication(dataObject, application);
+  return application;
+};
+
+export {
+  applyAvisoApplications,
+  getAvisoApplication,
+  injectAviso,
+  parseClientSelection,
+};

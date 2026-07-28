@@ -150,17 +150,36 @@ document.addEventListener("DOMContentLoaded", function () {
   let workbook;
   let reader;
   let excelFile;
+  let avisoCount = 0;
+  let originalAvisos = [];
+  let originalAvisoColors = [];
+  const avisoApplications = new Map();
+
+  const resetCustomAvisos = function () {
+    avisoInputContainer.replaceChildren();
+    avisoApplications.clear();
+    originalAvisos = [];
+    originalAvisoColors = [];
+    avisoCount = 0;
+  };
+
+  const resetLoadedSheetState = function () {
+    dataObject = {};
+    resetCustomAvisos();
+    buttonUtil.hideButton(generateBoletasButton);
+    buttonUtil.hideButton(addAvisoButton);
+    generationFilterContainer.style.display = "none";
+    resetManualPeriodPicker();
+    resetIssueDatePicker();
+  };
 
   const readExcel = function (e) {
     excelFile = e.target.files[0];
+    resetLoadedSheetState();
 
     if (excelFile === undefined || excelFile.length === 0) {
       buttonUtil.setInputButtonNotClicked(fileInputButton, sheetList);
       buttonUtil.setButtonNotClicked(fetchDataButton);
-      buttonUtil.hideButton(generateBoletasButton);
-      generationFilterContainer.style.display = "none";
-      resetManualPeriodPicker();
-      resetIssueDatePicker();
       return;
     }
 
@@ -182,9 +201,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       buttonUtil.setInputButtonClicked(fileInputButton, excelFile, sheetList);
       buttonUtil.revealButton(fetchDataButton);
-      generationFilterContainer.style.display = "none";
-      resetManualPeriodPicker();
-      resetIssueDatePicker();
     };
 
     reader.readAsArrayBuffer(excelFile);
@@ -192,10 +208,9 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   sheetList.addEventListener("change", function () {
+    resetLoadedSheetState();
     fetchDataButton.disabled = false;
     buttonUtil.revealButton(fetchDataButton);
-    resetManualPeriodPicker();
-    resetIssueDatePicker();
   });
 
   manualPeriodInput.addEventListener("change", function () {
@@ -208,12 +223,13 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   fileInput.addEventListener("change", readExcel);
-  fileInput.addEventListener("cancel", readExcel);
 
   fetchDataButton.addEventListener("click", function () {
     dataObject = {
       ...compileData(XLSX.utils.sheet_to_json(workbook.Sheets[sheetList.value])),
     };
+    originalAvisos = [...dataObject.Aviso];
+    originalAvisoColors = dataObject.Color.map((color) => [...color]);
 
     buttonUtil.setButtonClicked(sheetList);
     buttonUtil.setButtonClicked(fetchDataButton);
@@ -299,30 +315,83 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  let avisoCount = 0;
   addAvisoButton.addEventListener("click", function () {
+    const avisoApplicationId = avisoCount;
     const avisoInjectButtonId = `avisoInjectButton${avisoCount}`;
     const avisoTextInputId = `avisoTextInput${avisoCount}`;
     const clientNumberInputId = `clientNumberInput${avisoCount}`;
     const avisoTextColorId = `avisoTextColor${avisoCount}`;
+    const avisoScopeName = `avisoScope${avisoCount}`;
+    const allClientsScopeId = `allClientsScope${avisoCount}`;
+    const specificClientsScopeId = `specificClientsScope${avisoCount}`;
+    const specificClientsContainerId = `specificClientsContainer${avisoCount}`;
+    const avisoStatusId = `avisoStatus${avisoCount}`;
 
     avisoInputContainer.insertAdjacentHTML(
       "afterbegin",
       `
-    <div class="aviso">
-          <div class="aviso-header-container">
-            <button id="${avisoInjectButtonId}" class="btn">Inject Text</button>
-            <div class="client-input-container">
-              <label for="${clientNumberInputId}" class="client-input-label">Input client numbers here:</label>
-              <input id="${clientNumberInputId}" class="client-input-field" type="text"</input>
+    <div class="aviso" aria-labelledby="${avisoTextInputId}Label">
+          <div class="aviso-title-row">
+            <div>
+              <p class="aviso-eyebrow">CUSTOM AVISO</p>
+              <h2 id="${avisoTextInputId}Label">Message shown on the boleta</h2>
             </div>
             <div class="color-input-container">
-              <label for="avisoTextColor" class="color-input-label">Select Color</label>
+              <label for="${avisoTextColorId}" class="color-input-label">Text color</label>
               <input type="color" id="${avisoTextColorId}" class="color-input-field" value="#000000">
             </div>
-          </div> 
-          <div>
-            <textarea id="${avisoTextInputId}" class="text-input" type="text" name="aviso" placeholder="Write custom aviso message here.\nEnter client numbers in the input box above.\nExamples:\nFor a custom message for one particular client, type: 111310\nSeprate by comma ',' for multiple clients: 110070,111710,120170\nUse a dash '-' to select a range of clients: 110020-110660"></textarea>
+          </div>
+          <fieldset class="aviso-scope">
+            <legend>Who should receive this message?</legend>
+            <label class="scope-option" for="${allClientsScopeId}">
+              <input
+                type="radio"
+                id="${allClientsScopeId}"
+                name="${avisoScopeName}"
+                value="all"
+                checked
+              >
+              <span>
+                <strong>All clients</strong>
+                <small>Replace the existing aviso on every boleta.</small>
+              </span>
+            </label>
+            <label class="scope-option" for="${specificClientsScopeId}">
+              <input
+                type="radio"
+                id="${specificClientsScopeId}"
+                name="${avisoScopeName}"
+                value="specific"
+              >
+              <span>
+                <strong>Specific clients</strong>
+                <small>Replace it only for the client numbers you enter.</small>
+              </span>
+            </label>
+          </fieldset>
+          <div id="${specificClientsContainerId}" class="client-input-container" hidden>
+            <label for="${clientNumberInputId}" class="client-input-label">Client numbers</label>
+            <input
+              id="${clientNumberInputId}"
+              class="client-input-field"
+              type="text"
+              placeholder="111310, 111710 or 110020-110660"
+            >
+            <p class="client-input-help">Use a comma-separated list or one dash range.</p>
+          </div>
+          <div class="aviso-message-container">
+            <label for="${avisoTextInputId}">Custom message</label>
+            <textarea
+              id="${avisoTextInputId}"
+              class="text-input"
+              name="aviso"
+              maxlength="600"
+              placeholder="Write the message that should replace the current aviso..."
+            ></textarea>
+          </div>
+          <div class="aviso-header-container">
+            <button id="${avisoInjectButtonId}" class="btn aviso-apply-button">Apply custom aviso</button>
+            <p id="${avisoStatusId}" class="aviso-status" role="status" aria-live="polite"></p>
           </div>
         </div>    
     `
@@ -332,6 +401,32 @@ document.addEventListener("DOMContentLoaded", function () {
     const avisoTextInput = document.getElementById(avisoTextInputId);
     const clientNumberInput = document.getElementById(clientNumberInputId);
     const avisoTextColor = document.getElementById(avisoTextColorId);
+    const allClientsScope = document.getElementById(allClientsScopeId);
+    const specificClientsScope = document.getElementById(
+      specificClientsScopeId
+    );
+    const specificClientsContainer = document.getElementById(
+      specificClientsContainerId
+    );
+    const avisoStatus = document.getElementById(avisoStatusId);
+
+    const markAvisoAsChanged = function () {
+      avisoStatus.textContent = "";
+      avisoInjectButton.textContent = "Apply custom aviso";
+      buttonUtil.revealButton(avisoInjectButton);
+    };
+
+    const updateAvisoScope = function () {
+      const isSpecific = specificClientsScope.checked;
+      specificClientsContainer.hidden = !isSpecific;
+      clientNumberInput.disabled = !isSpecific;
+
+      if (isSpecific) {
+        clientNumberInput.focus();
+      }
+
+      markAvisoAsChanged();
+    };
 
     avisoInjectButton.addEventListener("click", function () {
       const hex = avisoTextColor.value;
@@ -339,24 +434,42 @@ document.addEventListener("DOMContentLoaded", function () {
       const g = parseInt(hex.substr(3, 2), 16);
       const b = parseInt(hex.substr(5, 2), 16);
 
-      const injectResult = userInput.injectAviso(
+      const avisoApplication = userInput.getAvisoApplication(
         dataObject,
         avisoTextInput,
         clientNumberInput,
-        [r, g, b]
+        [r, g, b],
+        { applyToAllClients: allClientsScope.checked }
       );
 
-      if (!injectResult.isValid) {
-        alert(injectResult.errorMessage);
+      if (!avisoApplication.isValid) {
+        alert(avisoApplication.errorMessage);
         return;
       }
 
+      avisoApplications.delete(avisoApplicationId);
+      avisoApplications.set(avisoApplicationId, avisoApplication);
+      userInput.applyAvisoApplications(
+        dataObject,
+        originalAvisos,
+        originalAvisoColors,
+        [...avisoApplications.values()]
+      );
+
       buttonUtil.setButtonClicked(avisoInjectButton);
+      avisoInjectButton.textContent = "Applied";
+      avisoStatus.textContent = `Replaced the aviso for ${
+        avisoApplication.selectedIndexes.length
+      } client${avisoApplication.selectedIndexes.length === 1 ? "" : "s"}.`;
     });
 
-    avisoTextInput.addEventListener("input", function () {
-      buttonUtil.revealButton(avisoInjectButton);
-    });
+    allClientsScope.addEventListener("change", updateAvisoScope);
+    specificClientsScope.addEventListener("change", updateAvisoScope);
+    avisoTextInput.addEventListener("input", markAvisoAsChanged);
+    clientNumberInput.addEventListener("input", markAvisoAsChanged);
+    avisoTextColor.addEventListener("input", markAvisoAsChanged);
+
+    updateAvisoScope();
 
     avisoCount++;
   });
