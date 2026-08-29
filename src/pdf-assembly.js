@@ -530,8 +530,10 @@ export async function assemblePDF(
           y: 492,
           al: "left",
         };
-        const Consumo1Pos = { x: leftSideOfPage + 10, y: 437, al: "left" };
-        const ConsumoValores1Pos = { x: 265, y: 437, al: "right" };
+        const Consumo1Pos = { x: leftSideOfPage + 10, y: 453.5, al: "left" };
+        const ConsumoValores1Pos = { x: 265, y: 453.5, al: "right" };
+        const ConsumoResumenPos = { x: leftSideOfPage + 10, y: 410, al: "left" };
+        const ConsumoResumenValoresPos = { x: 265, y: 410, al: "right" };
         // const Consumo2Pos = { x: 215, y: 435, al: 'left' };
         // const ConsumoValores2Pos = { x: 370, y: 435, al: 'right' };
         const MntTotalTituloPos = {
@@ -581,6 +583,8 @@ export async function assemblePDF(
             `${CostoTotalAgua}`,
             `${CostoTotalAlcantarilladoTratamiento}`,
           ],
+          ConsumoResumen: [`Subtotal:`],
+          ConsumoResumenValores: [`${SubtotalMes}`],
           // Consumo2: [
           //   ``, // Placeholder String
           //   ``, // Placeholder String
@@ -633,36 +637,26 @@ export async function assemblePDF(
           textArrays.ConsumoValores1.push(`${Otros}`);
         }
 
-        const subtotalDividerRowIndex = textArrays.Consumo1.length;
-        textArrays.Consumo1.push("");
-        textArrays.ConsumoValores1.push("");
-        textArrays.Consumo1.push(`Subtotal:`);
-        textArrays.ConsumoValores1.push(`${SubtotalMes}`);
-
         if (Descuento !== "$0") {
           const descuentoDisplayValue = Descuento.includes("$-")
             ? Descuento
             : Descuento.replace("$", "$-");
 
-          textArrays.Consumo1.push(`Descuento:`);
-          textArrays.ConsumoValores1.push(descuentoDisplayValue);
+          textArrays.ConsumoResumen.push(`Descuento:`);
+          textArrays.ConsumoResumenValores.push(descuentoDisplayValue);
         }
 
-        const detailMaxHeight = 80;
-        const detailRowCount = textArrays.Consumo1.length;
-        const detailLineHeight = detailMaxHeight / detailRowCount;
-        const detailFontSize = Math.min(
+        const chargesMaxHeight = 50;
+        const chargeRowCount = textArrays.Consumo1.length;
+        const chargeLineHeight = chargesMaxHeight / chargeRowCount;
+        const chargeFontSize = Math.min(
           fontSize.small,
-          Math.max(8, detailLineHeight - 0.75)
+          Math.max(8, chargeLineHeight - 0.75)
         );
-        const detailFirstLineY =
-          Consumo1Pos.y + detailLineHeight * ((detailRowCount - 1) / 2);
-        const subtotalDividerY =
-          detailFirstLineY - detailLineHeight * subtotalDividerRowIndex;
 
         page.drawLine({
-          start: { x: Consumo1Pos.x, y: subtotalDividerY },
-          end: { x: ConsumoValores1Pos.x, y: subtotalDividerY },
+          start: { x: leftSideOfPage - 8, y: 428 },
+          end: { x: ConsumoValores1Pos.x + 17, y: 428 },
           thickness: 0.8,
           color: PDFLIB.rgb(...titleColor.map((value) => value / 255)),
         });
@@ -760,8 +754,8 @@ export async function assemblePDF(
           x: Consumo1Pos.x,
           y: Consumo1Pos.y,
           maxWidth: 250,
-          maxHeight: detailMaxHeight,
-          fontSize: detailFontSize,
+          maxHeight: chargesMaxHeight,
+          fontSize: chargeFontSize,
           alignment: Consumo1Pos.al,
         });
 
@@ -770,10 +764,31 @@ export async function assemblePDF(
           x: ConsumoValores1Pos.x,
           y: ConsumoValores1Pos.y,
           maxWidth: 250,
-          maxHeight: detailMaxHeight,
-          fontSize: detailFontSize,
+          maxHeight: chargesMaxHeight,
+          fontSize: chargeFontSize,
           fontFamily: mainFontBold,
           alignment: ConsumoValores1Pos.al,
+        });
+
+        const consumoResumenData = createDataObject(baseConfig, {
+          data: textArrays.ConsumoResumen,
+          x: ConsumoResumenPos.x,
+          y: ConsumoResumenPos.y,
+          maxWidth: 250,
+          maxHeight: 26,
+          fontSize: fontSize.small,
+          alignment: ConsumoResumenPos.al,
+        });
+
+        const consumoResumenValoresData = createDataObject(baseConfig, {
+          data: textArrays.ConsumoResumenValores,
+          x: ConsumoResumenValoresPos.x,
+          y: ConsumoResumenValoresPos.y,
+          maxWidth: 250,
+          maxHeight: 26,
+          fontSize: fontSize.small,
+          fontFamily: mainFontBold,
+          alignment: ConsumoResumenValoresPos.al,
         });
 
         // const consumoData2 = createDataObject(baseConfig, {
@@ -956,6 +971,8 @@ export async function assemblePDF(
           DetalleConsumoTituloData,
           consumoData1,
           consumoValoresData1,
+          consumoResumenData,
+          consumoResumenValoresData,
           // consumoData2,
           // consumoValoresData2,
           MntTotalTituloData,
