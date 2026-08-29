@@ -2332,6 +2332,8 @@ function _assemblePDF() {
       DetalleConsumoTituloPos,
       Consumo1Pos,
       ConsumoValores1Pos,
+      ConsumoResumenPos,
+      ConsumoResumenValoresPos,
       MntTotalTituloPos,
       FchEmisTituloPos,
       MntTotalPos,
@@ -2349,14 +2351,11 @@ function _assemblePDF() {
       documentTitle,
       tipoBoletaLines,
       textArrays,
-      subtotalDividerRowIndex,
       descuentoDisplayValue,
-      detailMaxHeight,
-      detailRowCount,
-      detailLineHeight,
-      detailFontSize,
-      detailFirstLineY,
-      subtotalDividerY,
+      chargesMaxHeight,
+      chargeRowCount,
+      chargeLineHeight,
+      chargeFontSize,
       baseConfig,
       TipoBoletaData,
       DetalleClienteData,
@@ -2366,6 +2365,8 @@ function _assemblePDF() {
       DetalleConsumoTituloData,
       consumoData1,
       consumoValoresData1,
+      consumoResumenData,
+      consumoResumenValoresData,
       MntTotalTituloData,
       FchEmisTituloData,
       MntTotalData,
@@ -2549,7 +2550,7 @@ function _assemblePDF() {
           batchStart = 0;
         case 87:
           if (!(batchStart < totalPages)) {
-            _context7.next = 237;
+            _context7.next = 234;
             break;
           }
           batchEnd = Math.min(batchStart + batchSize, totalPages); // Update progress for batch
@@ -2568,7 +2569,7 @@ function _assemblePDF() {
           _i = batchStart;
         case 95:
           if (!(_i < batchEnd)) {
-            _context7.next = 232;
+            _context7.next = 229;
             break;
           }
           pageIndex = _i - batchStart;
@@ -2659,12 +2660,22 @@ function _assemblePDF() {
           };
           Consumo1Pos = {
             x: leftSideOfPage + 10,
-            y: 437,
+            y: 453.5,
             al: "left"
           };
           ConsumoValores1Pos = {
             x: 265,
-            y: 437,
+            y: 453.5,
+            al: "right"
+          };
+          ConsumoResumenPos = {
+            x: leftSideOfPage + 10,
+            y: 410,
+            al: "left"
+          };
+          ConsumoResumenValoresPos = {
+            x: 265,
+            y: 410,
             al: "right"
           }; // const Consumo2Pos = { x: 215, y: 435, al: 'left' };
           // const ConsumoValores2Pos = { x: 370, y: 435, al: 'right' };
@@ -2751,6 +2762,8 @@ function _assemblePDF() {
             DetalleConsumoTitulo: ["DETALLE DE CONSUMO:"],
             Consumo1: ["Cargo Fijo:", "Agua ($580/m\xB3):", "Alcantarillado ($950/m\xB3):"],
             ConsumoValores1: ["".concat(CargoFijo), "".concat(CostoTotalAgua), "".concat(CostoTotalAlcantarilladoTratamiento)],
+            ConsumoResumen: ["Subtotal:"],
+            ConsumoResumenValores: ["".concat(SubtotalMes)],
             // Consumo2: [
             //   ``, // Placeholder String
             //   ``, // Placeholder String
@@ -2792,30 +2805,23 @@ function _assemblePDF() {
             textArrays.Consumo1.push("Otros:");
             textArrays.ConsumoValores1.push("".concat(Otros));
           }
-          subtotalDividerRowIndex = textArrays.Consumo1.length;
-          textArrays.Consumo1.push("");
-          textArrays.ConsumoValores1.push("");
-          textArrays.Consumo1.push("Subtotal:");
-          textArrays.ConsumoValores1.push("".concat(SubtotalMes));
           if (Descuento !== "$0") {
             descuentoDisplayValue = Descuento.includes("$-") ? Descuento : Descuento.replace("$", "$-");
-            textArrays.Consumo1.push("Descuento:");
-            textArrays.ConsumoValores1.push(descuentoDisplayValue);
+            textArrays.ConsumoResumen.push("Descuento:");
+            textArrays.ConsumoResumenValores.push(descuentoDisplayValue);
           }
-          detailMaxHeight = 80;
-          detailRowCount = textArrays.Consumo1.length;
-          detailLineHeight = detailMaxHeight / detailRowCount;
-          detailFontSize = Math.min(fontSize.small, Math.max(8, detailLineHeight - 0.75));
-          detailFirstLineY = Consumo1Pos.y + detailLineHeight * ((detailRowCount - 1) / 2);
-          subtotalDividerY = detailFirstLineY - detailLineHeight * subtotalDividerRowIndex;
+          chargesMaxHeight = 50;
+          chargeRowCount = textArrays.Consumo1.length;
+          chargeLineHeight = chargesMaxHeight / chargeRowCount;
+          chargeFontSize = Math.min(fontSize.small, Math.max(8, chargeLineHeight - 0.75));
           page.drawLine({
             start: {
-              x: Consumo1Pos.x,
-              y: subtotalDividerY
+              x: leftSideOfPage - 8,
+              y: 428
             },
             end: {
-              x: ConsumoValores1Pos.x,
-              y: subtotalDividerY
+              x: ConsumoValores1Pos.x + 17,
+              y: 428
             },
             thickness: 0.8,
             color: pdf_lib__WEBPACK_IMPORTED_MODULE_0__.rgb.apply(pdf_lib__WEBPACK_IMPORTED_MODULE_0__, _toConsumableArray(titleColor.map(function (value) {
@@ -2916,8 +2922,8 @@ function _assemblePDF() {
             x: Consumo1Pos.x,
             y: Consumo1Pos.y,
             maxWidth: 250,
-            maxHeight: detailMaxHeight,
-            fontSize: detailFontSize,
+            maxHeight: chargesMaxHeight,
+            fontSize: chargeFontSize,
             alignment: Consumo1Pos.al
           });
           consumoValoresData1 = createDataObject(baseConfig, {
@@ -2925,10 +2931,29 @@ function _assemblePDF() {
             x: ConsumoValores1Pos.x,
             y: ConsumoValores1Pos.y,
             maxWidth: 250,
-            maxHeight: detailMaxHeight,
-            fontSize: detailFontSize,
+            maxHeight: chargesMaxHeight,
+            fontSize: chargeFontSize,
             fontFamily: mainFontBold,
             alignment: ConsumoValores1Pos.al
+          });
+          consumoResumenData = createDataObject(baseConfig, {
+            data: textArrays.ConsumoResumen,
+            x: ConsumoResumenPos.x,
+            y: ConsumoResumenPos.y,
+            maxWidth: 250,
+            maxHeight: 26,
+            fontSize: fontSize.small,
+            alignment: ConsumoResumenPos.al
+          });
+          consumoResumenValoresData = createDataObject(baseConfig, {
+            data: textArrays.ConsumoResumenValores,
+            x: ConsumoResumenValoresPos.x,
+            y: ConsumoResumenValoresPos.y,
+            maxWidth: 250,
+            maxHeight: 26,
+            fontSize: fontSize.small,
+            fontFamily: mainFontBold,
+            alignment: ConsumoResumenValoresPos.al
           }); // const consumoData2 = createDataObject(baseConfig, {
           //   data: textArrays.Consumo2,
           //   x: Consumo2Pos.x,
@@ -3083,7 +3108,7 @@ function _assemblePDF() {
             alignment: AvisoPos.al,
             linePadding: 3
           }); // Create Array with all Objects to use in initilization loop
-          dataObjects = [TipoBoletaData, DetalleClienteData, NumeroClienteData, VencimientoData, VlrPagarData, DetalleConsumoTituloData, consumoData1, consumoValoresData1,
+          dataObjects = [TipoBoletaData, DetalleClienteData, NumeroClienteData, VencimientoData, VlrPagarData, DetalleConsumoTituloData, consumoData1, consumoValoresData1, consumoResumenData, consumoResumenValoresData,
           // consumoData2,
           // consumoValoresData2,
           MntTotalTituloData, FchEmisTituloData, MntTotalData, FchEmisData, LecturaAnteriorData, LecturaActualData, ConsumoM3Data, DesgloseData, DesgloseValoresData, VlrPagarData2, VlrPagarTituloData2
@@ -3095,52 +3120,52 @@ function _assemblePDF() {
           console.log(TimbreData);
           // Initilize key:values for formatted text in Objects (lines)
           _i2 = 0, _dataObjects = dataObjects;
-        case 208:
+        case 205:
           if (!(_i2 < _dataObjects.length)) {
-            _context7.next = 218;
+            _context7.next = 215;
             break;
           }
           dataObject = _dataObjects[_i2];
-          _context7.next = 212;
+          _context7.next = 209;
           return dataObject.formatData();
-        case 212:
+        case 209:
           dataObject.lines = _toConsumableArray(dataObject.formattedData);
-          _context7.next = 215;
+          _context7.next = 212;
           return printTextToPdf(dataObject, SaldoAnterior, fontCache);
-        case 215:
+        case 212:
           _i2++;
-          _context7.next = 208;
+          _context7.next = 205;
           break;
-        case 218:
+        case 215:
           if (!(!disableAviso && mainDataObject.Aviso[_i] && String(mainDataObject.Aviso[_i]).trim() !== "")) {
+            _context7.next = 221;
+            break;
+          }
+          _context7.next = 218;
+          return AvisoData.formatData();
+        case 218:
+          AvisoData.lines = _toConsumableArray(AvisoData.formattedData);
+          _context7.next = 221;
+          return printTextToPdf(AvisoData, SaldoAnterior, fontCache);
+        case 221:
+          if (!TimbreData) {
             _context7.next = 224;
             break;
           }
-          _context7.next = 221;
-          return AvisoData.formatData();
-        case 221:
-          AvisoData.lines = _toConsumableArray(AvisoData.formattedData);
           _context7.next = 224;
-          return printTextToPdf(AvisoData, SaldoAnterior, fontCache);
-        case 224:
-          if (!TimbreData) {
-            _context7.next = 227;
-            break;
-          }
-          _context7.next = 227;
           return drawImageToPdf(TimbreData, imageCache, defaultImageBytes);
-        case 227:
+        case 224:
           // Update progress for each page
           processedPages++;
           if (progressManager) {
             statusMessage = "Processing page ".concat(processedPages, " (Client: ").concat(CdgIntRecep, ")");
             progressManager.updateProgress(processedPages, statusMessage);
           }
-        case 229:
+        case 226:
           _i++;
           _context7.next = 95;
           break;
-        case 232:
+        case 229:
           // More aggressive memory management between batches
           if (typeof window !== "undefined" && window.gc) {
             window.gc(); // Force garbage collection if available
@@ -3163,11 +3188,11 @@ function _assemblePDF() {
             }
             console.log("Cleared compressed image cache to free memory");
           }
-        case 234:
+        case 231:
           batchStart += batchSize;
           _context7.next = 87;
           break;
-        case 237:
+        case 234:
           // Update progress: Finalizing PDF
           if (progressManager) {
             progressManager.updatePhase("Finalizing PDF", "Applying compression and saving");
@@ -3176,7 +3201,7 @@ function _assemblePDF() {
           // Save PDF with maximum compression options
           console.log("Saving PDF with maximum compression...");
           pdfDoc.setTitle(fileName);
-          _context7.next = 242;
+          _context7.next = 239;
           return pdfDoc.save({
             useObjectStreams: true,
             addDefaultPage: false,
@@ -3187,7 +3212,7 @@ function _assemblePDF() {
             compress: true,
             fastWebView: true
           });
-        case 242:
+        case 239:
           pdfBytes = _context7.sent;
           // Update progress: Creating blob and displaying
           if (progressManager) {
@@ -3224,19 +3249,19 @@ function _assemblePDF() {
             fileName: fileName,
             pdfUrl: currentPdfUrl
           });
-        case 262:
-          _context7.prev = 262;
+        case 259:
+          _context7.prev = 259;
           _context7.t2 = _context7["catch"](3);
           console.log("Error in PDF Assembly Function: ".concat(_context7.t2));
           if (progressManager) {
             progressManager.error(_context7.t2.message || "An error occurred during PDF generation");
           }
           throw _context7.t2;
-        case 267:
+        case 264:
         case "end":
           return _context7.stop();
       }
-    }, _callee7, null, [[3, 262], [19, 35], [41, 55]]);
+    }, _callee7, null, [[3, 259], [19, 35], [41, 55]]);
   }));
   return _assemblePDF.apply(this, arguments);
 }
@@ -63164,4 +63189,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /******/ })()
 ;
-//# sourceMappingURL=bundleb84135beb86d2e584ded.js.map
+//# sourceMappingURL=bundleca79bc03a17508894a46.js.map
