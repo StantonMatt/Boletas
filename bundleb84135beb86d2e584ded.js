@@ -1437,6 +1437,7 @@ var createEmptyDataObject = function createEmptyDataObject() {
     Repactacion: [],
     Multas: [],
     Otros: [],
+    SubtotalMes: [],
     MntTotal: [],
     LecturaAnterior: [],
     LecturaActual: [],
@@ -1525,6 +1526,7 @@ var compileData = function compileData(excelData) {
       mainDataObject.Repactacion.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Repactacion"]));
       mainDataObject.Multas.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Multa"]));
       mainDataObject.Otros.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Otros"]));
+      mainDataObject.SubtotalMes.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(getNumericValue(data["Cargo Fijo"]) + getNumericValue(data["Costo Total Agua"]) + getNumericValue(data["Costo Total Alcantarillado Tratamiento"]) + getNumericValue(data["Reposicion"]) + getNumericValue(data["Multa"]) + getNumericValue(data["Otros"])));
       mainDataObject.MntTotal.push(_format_strings_js__WEBPACK_IMPORTED_MODULE_0__.getFormattedAsCurrecy(data["Total Mes"]));
       mainDataObject.LecturaAnterior.push(String(data["Lectura Anterior"]));
       mainDataObject.LecturaActual.push(String(data["Lectura Actual"]));
@@ -1593,6 +1595,7 @@ var buildGenerationData = function buildGenerationData() {
     Repactacion: [],
     Multas: [],
     Otros: [],
+    SubtotalMes: [],
     MntTotal: [],
     LecturaAnterior: [],
     LecturaActual: [],
@@ -1627,6 +1630,7 @@ var buildGenerationData = function buildGenerationData() {
     generationData.Repactacion.push(mainDataObject.Repactacion[index]);
     generationData.Multas.push(mainDataObject.Multas[index]);
     generationData.Otros.push(mainDataObject.Otros[index]);
+    generationData.SubtotalMes.push(mainDataObject.SubtotalMes[index]);
     generationData.MntTotal.push(mainDataObject.MntTotal[index]);
     generationData.LecturaAnterior.push(mainDataObject.LecturaAnterior[index]);
     generationData.LecturaActual.push(mainDataObject.LecturaActual[index]);
@@ -2298,6 +2302,7 @@ function _assemblePDF() {
       Repactacion,
       Multas,
       Otros,
+      SubtotalMes,
       MntTotal,
       LecturaAnterior,
       LecturaActual,
@@ -2344,6 +2349,14 @@ function _assemblePDF() {
       documentTitle,
       tipoBoletaLines,
       textArrays,
+      subtotalDividerRowIndex,
+      descuentoDisplayValue,
+      detailMaxHeight,
+      detailRowCount,
+      detailLineHeight,
+      detailFontSize,
+      detailFirstLineY,
+      subtotalDividerY,
       baseConfig,
       TipoBoletaData,
       DetalleClienteData,
@@ -2536,7 +2549,7 @@ function _assemblePDF() {
           batchStart = 0;
         case 87:
           if (!(batchStart < totalPages)) {
-            _context7.next = 222;
+            _context7.next = 237;
             break;
           }
           batchEnd = Math.min(batchStart + batchSize, totalPages); // Update progress for batch
@@ -2555,7 +2568,7 @@ function _assemblePDF() {
           _i = batchStart;
         case 95:
           if (!(_i < batchEnd)) {
-            _context7.next = 217;
+            _context7.next = 232;
             break;
           }
           pageIndex = _i - batchStart;
@@ -2582,6 +2595,7 @@ function _assemblePDF() {
           Repactacion = mainDataObject.Repactacion[_i];
           Multas = mainDataObject.Multas[_i];
           Otros = mainDataObject.Otros[_i];
+          SubtotalMes = mainDataObject.SubtotalMes[_i];
           MntTotal = mainDataObject.MntTotal[_i];
           LecturaAnterior = mainDataObject.LecturaAnterior[_i];
           LecturaActual = mainDataObject.LecturaActual[_i];
@@ -2645,12 +2659,12 @@ function _assemblePDF() {
           };
           Consumo1Pos = {
             x: leftSideOfPage + 10,
-            y: 435,
+            y: 437,
             al: "left"
           };
           ConsumoValores1Pos = {
             x: 265,
-            y: 435,
+            y: 437,
             al: "right"
           }; // const Consumo2Pos = { x: 215, y: 435, al: 'left' };
           // const ConsumoValores2Pos = { x: 370, y: 435, al: 'right' };
@@ -2762,10 +2776,6 @@ function _assemblePDF() {
             textArrays.Desglose.push("Repactacion");
             textArrays.DesgloseValores.push("".concat(Repactacion));
           }
-          if (Descuento !== "$0") {
-            textArrays.Desglose.push("Descuento");
-            textArrays.DesgloseValores.push("".concat(Descuento));
-          }
           if (Subsidio !== "$0") {
             textArrays.Desglose.push("Subsidio");
             textArrays.DesgloseValores.push("".concat(Subsidio));
@@ -2774,12 +2784,45 @@ function _assemblePDF() {
             textArrays.Consumo1.push("Reposici\xF3n por corte:");
             textArrays.ConsumoValores1.push("".concat(Reposicion));
           }
-          // if (Multas !== '$0') {
-          //   textArrays.Consumo2.pop();
-          //   textArrays.ConsumoValores2.pop();
-          //   textArrays.Consumo2.unshift(`Multa`);
-          //   textArrays.ConsumoValores2.unshift(`${Multas}`);
-          // }
+          if (Multas !== "$0") {
+            textArrays.Consumo1.push("Multa:");
+            textArrays.ConsumoValores1.push("".concat(Multas));
+          }
+          if (Otros !== "$0") {
+            textArrays.Consumo1.push("Otros:");
+            textArrays.ConsumoValores1.push("".concat(Otros));
+          }
+          subtotalDividerRowIndex = textArrays.Consumo1.length;
+          textArrays.Consumo1.push("");
+          textArrays.ConsumoValores1.push("");
+          textArrays.Consumo1.push("Subtotal:");
+          textArrays.ConsumoValores1.push("".concat(SubtotalMes));
+          if (Descuento !== "$0") {
+            descuentoDisplayValue = Descuento.includes("$-") ? Descuento : Descuento.replace("$", "$-");
+            textArrays.Consumo1.push("Descuento:");
+            textArrays.ConsumoValores1.push(descuentoDisplayValue);
+          }
+          detailMaxHeight = 80;
+          detailRowCount = textArrays.Consumo1.length;
+          detailLineHeight = detailMaxHeight / detailRowCount;
+          detailFontSize = Math.min(fontSize.small, Math.max(8, detailLineHeight - 0.75));
+          detailFirstLineY = Consumo1Pos.y + detailLineHeight * ((detailRowCount - 1) / 2);
+          subtotalDividerY = detailFirstLineY - detailLineHeight * subtotalDividerRowIndex;
+          page.drawLine({
+            start: {
+              x: Consumo1Pos.x,
+              y: subtotalDividerY
+            },
+            end: {
+              x: ConsumoValores1Pos.x,
+              y: subtotalDividerY
+            },
+            thickness: 0.8,
+            color: pdf_lib__WEBPACK_IMPORTED_MODULE_0__.rgb.apply(pdf_lib__WEBPACK_IMPORTED_MODULE_0__, _toConsumableArray(titleColor.map(function (value) {
+              return value / 255;
+            })))
+          });
+
           // Create base config for Data Objects
           baseConfig = {
             textColor: mainColor,
@@ -2873,8 +2916,8 @@ function _assemblePDF() {
             x: Consumo1Pos.x,
             y: Consumo1Pos.y,
             maxWidth: 250,
-            maxHeight: 70,
-            fontSize: fontSize.small,
+            maxHeight: detailMaxHeight,
+            fontSize: detailFontSize,
             alignment: Consumo1Pos.al
           });
           consumoValoresData1 = createDataObject(baseConfig, {
@@ -2882,8 +2925,8 @@ function _assemblePDF() {
             x: ConsumoValores1Pos.x,
             y: ConsumoValores1Pos.y,
             maxWidth: 250,
-            maxHeight: 70,
-            fontSize: fontSize.small,
+            maxHeight: detailMaxHeight,
+            fontSize: detailFontSize,
             fontFamily: mainFontBold,
             alignment: ConsumoValores1Pos.al
           }); // const consumoData2 = createDataObject(baseConfig, {
@@ -3052,52 +3095,52 @@ function _assemblePDF() {
           console.log(TimbreData);
           // Initilize key:values for formatted text in Objects (lines)
           _i2 = 0, _dataObjects = dataObjects;
-        case 193:
+        case 208:
           if (!(_i2 < _dataObjects.length)) {
-            _context7.next = 203;
+            _context7.next = 218;
             break;
           }
           dataObject = _dataObjects[_i2];
-          _context7.next = 197;
-          return dataObject.formatData();
-        case 197:
-          dataObject.lines = _toConsumableArray(dataObject.formattedData);
-          _context7.next = 200;
-          return printTextToPdf(dataObject, SaldoAnterior, fontCache);
-        case 200:
-          _i2++;
-          _context7.next = 193;
-          break;
-        case 203:
-          if (!(!disableAviso && mainDataObject.Aviso[_i] && String(mainDataObject.Aviso[_i]).trim() !== "")) {
-            _context7.next = 209;
-            break;
-          }
-          _context7.next = 206;
-          return AvisoData.formatData();
-        case 206:
-          AvisoData.lines = _toConsumableArray(AvisoData.formattedData);
-          _context7.next = 209;
-          return printTextToPdf(AvisoData, SaldoAnterior, fontCache);
-        case 209:
-          if (!TimbreData) {
-            _context7.next = 212;
-            break;
-          }
           _context7.next = 212;
-          return drawImageToPdf(TimbreData, imageCache, defaultImageBytes);
+          return dataObject.formatData();
         case 212:
+          dataObject.lines = _toConsumableArray(dataObject.formattedData);
+          _context7.next = 215;
+          return printTextToPdf(dataObject, SaldoAnterior, fontCache);
+        case 215:
+          _i2++;
+          _context7.next = 208;
+          break;
+        case 218:
+          if (!(!disableAviso && mainDataObject.Aviso[_i] && String(mainDataObject.Aviso[_i]).trim() !== "")) {
+            _context7.next = 224;
+            break;
+          }
+          _context7.next = 221;
+          return AvisoData.formatData();
+        case 221:
+          AvisoData.lines = _toConsumableArray(AvisoData.formattedData);
+          _context7.next = 224;
+          return printTextToPdf(AvisoData, SaldoAnterior, fontCache);
+        case 224:
+          if (!TimbreData) {
+            _context7.next = 227;
+            break;
+          }
+          _context7.next = 227;
+          return drawImageToPdf(TimbreData, imageCache, defaultImageBytes);
+        case 227:
           // Update progress for each page
           processedPages++;
           if (progressManager) {
             statusMessage = "Processing page ".concat(processedPages, " (Client: ").concat(CdgIntRecep, ")");
             progressManager.updateProgress(processedPages, statusMessage);
           }
-        case 214:
+        case 229:
           _i++;
           _context7.next = 95;
           break;
-        case 217:
+        case 232:
           // More aggressive memory management between batches
           if (typeof window !== "undefined" && window.gc) {
             window.gc(); // Force garbage collection if available
@@ -3120,11 +3163,11 @@ function _assemblePDF() {
             }
             console.log("Cleared compressed image cache to free memory");
           }
-        case 219:
+        case 234:
           batchStart += batchSize;
           _context7.next = 87;
           break;
-        case 222:
+        case 237:
           // Update progress: Finalizing PDF
           if (progressManager) {
             progressManager.updatePhase("Finalizing PDF", "Applying compression and saving");
@@ -3133,7 +3176,7 @@ function _assemblePDF() {
           // Save PDF with maximum compression options
           console.log("Saving PDF with maximum compression...");
           pdfDoc.setTitle(fileName);
-          _context7.next = 227;
+          _context7.next = 242;
           return pdfDoc.save({
             useObjectStreams: true,
             addDefaultPage: false,
@@ -3144,7 +3187,7 @@ function _assemblePDF() {
             compress: true,
             fastWebView: true
           });
-        case 227:
+        case 242:
           pdfBytes = _context7.sent;
           // Update progress: Creating blob and displaying
           if (progressManager) {
@@ -3181,19 +3224,19 @@ function _assemblePDF() {
             fileName: fileName,
             pdfUrl: currentPdfUrl
           });
-        case 247:
-          _context7.prev = 247;
+        case 262:
+          _context7.prev = 262;
           _context7.t2 = _context7["catch"](3);
           console.log("Error in PDF Assembly Function: ".concat(_context7.t2));
           if (progressManager) {
             progressManager.error(_context7.t2.message || "An error occurred during PDF generation");
           }
           throw _context7.t2;
-        case 252:
+        case 267:
         case "end":
           return _context7.stop();
       }
-    }, _callee7, null, [[3, 247], [19, 35], [41, 55]]);
+    }, _callee7, null, [[3, 262], [19, 35], [41, 55]]);
   }));
   return _assemblePDF.apply(this, arguments);
 }
@@ -63121,4 +63164,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /******/ })()
 ;
-//# sourceMappingURL=bundle765998f8fa7adbe338b7.js.map
+//# sourceMappingURL=bundleb84135beb86d2e584ded.js.map
