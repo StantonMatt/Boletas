@@ -615,6 +615,10 @@ export async function assemblePDF(
           textArrays.Desglose.push(`Repactacion`);
           textArrays.DesgloseValores.push(`${Repactacion}`);
         }
+        if (Descuento !== "$0") {
+          textArrays.Desglose.push(`Descuento`);
+          textArrays.DesgloseValores.push(`${Descuento}`);
+        }
         if (Subsidio !== "$0") {
           textArrays.Desglose.push(`Subsidio`);
           textArrays.DesgloseValores.push(`${Subsidio}`);
@@ -628,12 +632,6 @@ export async function assemblePDF(
         //   textArrays.ConsumoValores2.pop();
         //   textArrays.Consumo2.unshift(`Multa`);
         //   textArrays.ConsumoValores2.unshift(`${Multas}`);
-        // }
-        // if (Descuento !== '$0') {
-        //   textArrays.Consumo2.pop();
-        //   textArrays.ConsumoValores2.pop();
-        //   textArrays.Consumo2.unshift(`Descuento`);
-        //   textArrays.ConsumoValores2.unshift(`${Descuento}`);
         // }
         // Create base config for Data Objects
         const baseConfig = {
