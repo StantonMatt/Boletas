@@ -2536,7 +2536,7 @@ function _assemblePDF() {
           batchStart = 0;
         case 87:
           if (!(batchStart < totalPages)) {
-            _context7.next = 221;
+            _context7.next = 222;
             break;
           }
           batchEnd = Math.min(batchStart + batchSize, totalPages); // Update progress for batch
@@ -2555,7 +2555,7 @@ function _assemblePDF() {
           _i = batchStart;
         case 95:
           if (!(_i < batchEnd)) {
-            _context7.next = 216;
+            _context7.next = 217;
             break;
           }
           pageIndex = _i - batchStart;
@@ -2762,6 +2762,10 @@ function _assemblePDF() {
             textArrays.Desglose.push("Repactacion");
             textArrays.DesgloseValores.push("".concat(Repactacion));
           }
+          if (Descuento !== "$0") {
+            textArrays.Desglose.push("Descuento");
+            textArrays.DesgloseValores.push("".concat(Descuento));
+          }
           if (Subsidio !== "$0") {
             textArrays.Desglose.push("Subsidio");
             textArrays.DesgloseValores.push("".concat(Subsidio));
@@ -2775,12 +2779,6 @@ function _assemblePDF() {
           //   textArrays.ConsumoValores2.pop();
           //   textArrays.Consumo2.unshift(`Multa`);
           //   textArrays.ConsumoValores2.unshift(`${Multas}`);
-          // }
-          // if (Descuento !== '$0') {
-          //   textArrays.Consumo2.pop();
-          //   textArrays.ConsumoValores2.pop();
-          //   textArrays.Consumo2.unshift(`Descuento`);
-          //   textArrays.ConsumoValores2.unshift(`${Descuento}`);
           // }
           // Create base config for Data Objects
           baseConfig = {
@@ -3054,52 +3052,52 @@ function _assemblePDF() {
           console.log(TimbreData);
           // Initilize key:values for formatted text in Objects (lines)
           _i2 = 0, _dataObjects = dataObjects;
-        case 192:
+        case 193:
           if (!(_i2 < _dataObjects.length)) {
-            _context7.next = 202;
+            _context7.next = 203;
             break;
           }
           dataObject = _dataObjects[_i2];
-          _context7.next = 196;
+          _context7.next = 197;
           return dataObject.formatData();
-        case 196:
+        case 197:
           dataObject.lines = _toConsumableArray(dataObject.formattedData);
-          _context7.next = 199;
+          _context7.next = 200;
           return printTextToPdf(dataObject, SaldoAnterior, fontCache);
-        case 199:
+        case 200:
           _i2++;
-          _context7.next = 192;
+          _context7.next = 193;
           break;
-        case 202:
+        case 203:
           if (!(!disableAviso && mainDataObject.Aviso[_i] && String(mainDataObject.Aviso[_i]).trim() !== "")) {
-            _context7.next = 208;
+            _context7.next = 209;
             break;
           }
-          _context7.next = 205;
+          _context7.next = 206;
           return AvisoData.formatData();
-        case 205:
+        case 206:
           AvisoData.lines = _toConsumableArray(AvisoData.formattedData);
-          _context7.next = 208;
+          _context7.next = 209;
           return printTextToPdf(AvisoData, SaldoAnterior, fontCache);
-        case 208:
+        case 209:
           if (!TimbreData) {
-            _context7.next = 211;
+            _context7.next = 212;
             break;
           }
-          _context7.next = 211;
+          _context7.next = 212;
           return drawImageToPdf(TimbreData, imageCache, defaultImageBytes);
-        case 211:
+        case 212:
           // Update progress for each page
           processedPages++;
           if (progressManager) {
             statusMessage = "Processing page ".concat(processedPages, " (Client: ").concat(CdgIntRecep, ")");
             progressManager.updateProgress(processedPages, statusMessage);
           }
-        case 213:
+        case 214:
           _i++;
           _context7.next = 95;
           break;
-        case 216:
+        case 217:
           // More aggressive memory management between batches
           if (typeof window !== "undefined" && window.gc) {
             window.gc(); // Force garbage collection if available
@@ -3122,11 +3120,11 @@ function _assemblePDF() {
             }
             console.log("Cleared compressed image cache to free memory");
           }
-        case 218:
+        case 219:
           batchStart += batchSize;
           _context7.next = 87;
           break;
-        case 221:
+        case 222:
           // Update progress: Finalizing PDF
           if (progressManager) {
             progressManager.updatePhase("Finalizing PDF", "Applying compression and saving");
@@ -3135,7 +3133,7 @@ function _assemblePDF() {
           // Save PDF with maximum compression options
           console.log("Saving PDF with maximum compression...");
           pdfDoc.setTitle(fileName);
-          _context7.next = 226;
+          _context7.next = 227;
           return pdfDoc.save({
             useObjectStreams: true,
             addDefaultPage: false,
@@ -3146,7 +3144,7 @@ function _assemblePDF() {
             compress: true,
             fastWebView: true
           });
-        case 226:
+        case 227:
           pdfBytes = _context7.sent;
           // Update progress: Creating blob and displaying
           if (progressManager) {
@@ -3183,19 +3181,19 @@ function _assemblePDF() {
             fileName: fileName,
             pdfUrl: currentPdfUrl
           });
-        case 246:
-          _context7.prev = 246;
+        case 247:
+          _context7.prev = 247;
           _context7.t2 = _context7["catch"](3);
           console.log("Error in PDF Assembly Function: ".concat(_context7.t2));
           if (progressManager) {
             progressManager.error(_context7.t2.message || "An error occurred during PDF generation");
           }
           throw _context7.t2;
-        case 251:
+        case 252:
         case "end":
           return _context7.stop();
       }
-    }, _callee7, null, [[3, 246], [19, 35], [41, 55]]);
+    }, _callee7, null, [[3, 247], [19, 35], [41, 55]]);
   }));
   return _assemblePDF.apply(this, arguments);
 }
@@ -63123,4 +63121,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /******/ })()
 ;
-//# sourceMappingURL=bundle559f8e236e2d104155ca.js.map
+//# sourceMappingURL=bundle765998f8fa7adbe338b7.js.map
