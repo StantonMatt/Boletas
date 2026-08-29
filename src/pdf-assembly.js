@@ -655,9 +655,9 @@ export async function assemblePDF(
         );
 
         page.drawLine({
-          start: { x: leftSideOfPage - 8, y: 428 },
-          end: { x: ConsumoValores1Pos.x + 17, y: 428 },
-          thickness: 0.8,
+          start: { x: leftSideOfPage - 6, y: 428 },
+          end: { x: ConsumoValores1Pos.x + 15, y: 428 },
+          thickness: 1.1,
           color: PDFLIB.rgb(...titleColor.map((value) => value / 255)),
         });
 
