@@ -475,6 +475,7 @@ export async function assemblePDF(
         const Repactacion = mainDataObject.Repactacion[i];
         const Multas = mainDataObject.Multas[i];
         const Otros = mainDataObject.Otros[i];
+        const SubtotalMes = mainDataObject.SubtotalMes[i];
         const MntTotal = mainDataObject.MntTotal[i];
         const LecturaAnterior = mainDataObject.LecturaAnterior[i];
         const LecturaActual = mainDataObject.LecturaActual[i];
@@ -529,8 +530,8 @@ export async function assemblePDF(
           y: 492,
           al: "left",
         };
-        const Consumo1Pos = { x: leftSideOfPage + 10, y: 435, al: "left" };
-        const ConsumoValores1Pos = { x: 265, y: 435, al: "right" };
+        const Consumo1Pos = { x: leftSideOfPage + 10, y: 437, al: "left" };
+        const ConsumoValores1Pos = { x: 265, y: 437, al: "right" };
         // const Consumo2Pos = { x: 215, y: 435, al: 'left' };
         // const ConsumoValores2Pos = { x: 370, y: 435, al: 'right' };
         const MntTotalTituloPos = {
@@ -615,10 +616,6 @@ export async function assemblePDF(
           textArrays.Desglose.push(`Repactacion`);
           textArrays.DesgloseValores.push(`${Repactacion}`);
         }
-        if (Descuento !== "$0") {
-          textArrays.Desglose.push(`Descuento`);
-          textArrays.DesgloseValores.push(`${Descuento}`);
-        }
         if (Subsidio !== "$0") {
           textArrays.Desglose.push(`Subsidio`);
           textArrays.DesgloseValores.push(`${Subsidio}`);
@@ -627,12 +624,49 @@ export async function assemblePDF(
           textArrays.Consumo1.push(`Reposición por corte:`);
           textArrays.ConsumoValores1.push(`${Reposicion}`);
         }
-        // if (Multas !== '$0') {
-        //   textArrays.Consumo2.pop();
-        //   textArrays.ConsumoValores2.pop();
-        //   textArrays.Consumo2.unshift(`Multa`);
-        //   textArrays.ConsumoValores2.unshift(`${Multas}`);
-        // }
+        if (Multas !== "$0") {
+          textArrays.Consumo1.push(`Multa:`);
+          textArrays.ConsumoValores1.push(`${Multas}`);
+        }
+        if (Otros !== "$0") {
+          textArrays.Consumo1.push(`Otros:`);
+          textArrays.ConsumoValores1.push(`${Otros}`);
+        }
+
+        const subtotalDividerRowIndex = textArrays.Consumo1.length;
+        textArrays.Consumo1.push("");
+        textArrays.ConsumoValores1.push("");
+        textArrays.Consumo1.push(`Subtotal:`);
+        textArrays.ConsumoValores1.push(`${SubtotalMes}`);
+
+        if (Descuento !== "$0") {
+          const descuentoDisplayValue = Descuento.includes("$-")
+            ? Descuento
+            : Descuento.replace("$", "$-");
+
+          textArrays.Consumo1.push(`Descuento:`);
+          textArrays.ConsumoValores1.push(descuentoDisplayValue);
+        }
+
+        const detailMaxHeight = 80;
+        const detailRowCount = textArrays.Consumo1.length;
+        const detailLineHeight = detailMaxHeight / detailRowCount;
+        const detailFontSize = Math.min(
+          fontSize.small,
+          Math.max(8, detailLineHeight - 0.75)
+        );
+        const detailFirstLineY =
+          Consumo1Pos.y + detailLineHeight * ((detailRowCount - 1) / 2);
+        const subtotalDividerY =
+          detailFirstLineY - detailLineHeight * subtotalDividerRowIndex;
+
+        page.drawLine({
+          start: { x: Consumo1Pos.x, y: subtotalDividerY },
+          end: { x: ConsumoValores1Pos.x, y: subtotalDividerY },
+          thickness: 0.8,
+          color: PDFLIB.rgb(...titleColor.map((value) => value / 255)),
+        });
+
         // Create base config for Data Objects
         const baseConfig = {
           textColor: mainColor,
@@ -726,8 +760,8 @@ export async function assemblePDF(
           x: Consumo1Pos.x,
           y: Consumo1Pos.y,
           maxWidth: 250,
-          maxHeight: 70,
-          fontSize: fontSize.small,
+          maxHeight: detailMaxHeight,
+          fontSize: detailFontSize,
           alignment: Consumo1Pos.al,
         });
 
@@ -736,8 +770,8 @@ export async function assemblePDF(
           x: ConsumoValores1Pos.x,
           y: ConsumoValores1Pos.y,
           maxWidth: 250,
-          maxHeight: 70,
-          fontSize: fontSize.small,
+          maxHeight: detailMaxHeight,
+          fontSize: detailFontSize,
           fontFamily: mainFontBold,
           alignment: ConsumoValores1Pos.al,
         });

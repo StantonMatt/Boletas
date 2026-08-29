@@ -29,6 +29,7 @@ const createEmptyDataObject = function () {
     Repactacion: [],
     Multas: [],
     Otros: [],
+    SubtotalMes: [],
     MntTotal: [],
     LecturaAnterior: [],
     LecturaActual: [],
@@ -143,6 +144,16 @@ const compileData = function (excelData) {
     );
     mainDataObject.Multas.push(formatUtil.getFormattedAsCurrecy(data["Multa"]));
     mainDataObject.Otros.push(formatUtil.getFormattedAsCurrecy(data["Otros"]));
+    mainDataObject.SubtotalMes.push(
+      formatUtil.getFormattedAsCurrecy(
+        getNumericValue(data["Cargo Fijo"]) +
+          getNumericValue(data["Costo Total Agua"]) +
+          getNumericValue(data["Costo Total Alcantarillado Tratamiento"]) +
+          getNumericValue(data["Reposicion"]) +
+          getNumericValue(data["Multa"]) +
+          getNumericValue(data["Otros"])
+      )
+    );
     mainDataObject.MntTotal.push(
       formatUtil.getFormattedAsCurrecy(data["Total Mes"])
     );
@@ -225,6 +236,7 @@ const buildGenerationData = function ({
     Repactacion: [],
     Multas: [],
     Otros: [],
+    SubtotalMes: [],
     MntTotal: [],
     LecturaAnterior: [],
     LecturaActual: [],
@@ -264,6 +276,7 @@ const buildGenerationData = function ({
     generationData.Repactacion.push(mainDataObject.Repactacion[index]);
     generationData.Multas.push(mainDataObject.Multas[index]);
     generationData.Otros.push(mainDataObject.Otros[index]);
+    generationData.SubtotalMes.push(mainDataObject.SubtotalMes[index]);
     generationData.MntTotal.push(mainDataObject.MntTotal[index]);
     generationData.LecturaAnterior.push(mainDataObject.LecturaAnterior[index]);
     generationData.LecturaActual.push(mainDataObject.LecturaActual[index]);
