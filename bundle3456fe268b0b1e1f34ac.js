@@ -2816,14 +2816,14 @@ function _assemblePDF() {
           chargeFontSize = Math.min(fontSize.small, Math.max(8, chargeLineHeight - 0.75));
           page.drawLine({
             start: {
-              x: leftSideOfPage - 6,
+              x: leftSideOfPage + 4,
               y: 428
             },
             end: {
-              x: ConsumoValores1Pos.x + 15,
+              x: ConsumoValores1Pos.x + 5,
               y: 428
             },
-            thickness: 1.1,
+            thickness: 1.4,
             color: pdf_lib__WEBPACK_IMPORTED_MODULE_0__.rgb.apply(pdf_lib__WEBPACK_IMPORTED_MODULE_0__, _toConsumableArray(titleColor.map(function (value) {
               return value / 255;
             })))
@@ -63189,4 +63189,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /******/ })()
 ;
-//# sourceMappingURL=bundle791f612620ad9b82895c.js.map
+//# sourceMappingURL=bundle3456fe268b0b1e1f34ac.js.map
