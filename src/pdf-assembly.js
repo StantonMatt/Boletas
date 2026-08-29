@@ -642,7 +642,7 @@ export async function assemblePDF(
             ? Descuento
             : Descuento.replace("$", "$-");
 
-          textArrays.ConsumoResumen.push(`Descuento:`);
+          textArrays.ConsumoResumen.push(`Bonif. prueba de medidor:`);
           textArrays.ConsumoResumenValores.push(descuentoDisplayValue);
         }
 
