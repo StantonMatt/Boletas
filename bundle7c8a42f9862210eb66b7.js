@@ -2807,7 +2807,7 @@ function _assemblePDF() {
           }
           if (Descuento !== "$0") {
             descuentoDisplayValue = Descuento.includes("$-") ? Descuento : Descuento.replace("$", "$-");
-            textArrays.ConsumoResumen.push("Descuento:");
+            textArrays.ConsumoResumen.push("Bonif. prueba de medidor:");
             textArrays.ConsumoResumenValores.push(descuentoDisplayValue);
           }
           chargesMaxHeight = 50;
@@ -63189,4 +63189,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /******/ })()
 ;
-//# sourceMappingURL=bundle3456fe268b0b1e1f34ac.js.map
+//# sourceMappingURL=bundle7c8a42f9862210eb66b7.js.map
