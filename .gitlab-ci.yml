@@ -8,7 +8,7 @@ workflow:
 default:
   image: node:20-bookworm-slim
   tags:
-    - ci-public
+    - saas-linux-small-amd64
   interruptible: true
 
 .build:
