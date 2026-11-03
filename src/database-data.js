@@ -108,7 +108,7 @@ const compileData = function (excelData) {
     if (Number(data["Recibe Factura"]) == 1) continue;
     if (!Number.isFinite(Number(data["N#"]))) continue;
 
-    mainDataObject.Timbre.push(`/${data["RUT"]}.png`);
+    mainDataObject.Timbre.push(`${__webpack_public_path__}${data["RUT"]}.png`);
     mainDataObject.SourceFolio.push(sourceFolio > 0 ? sourceFolio : null);
     mainDataObject.Folio.push(null);
     mainDataObject.HasFolio.push(false);
