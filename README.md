@@ -1,7 +1,7 @@
 # Generate Utility Invoice PDFs
 
-Hosted on [GitLab](https://gitlab.com/stantonmatthewj/Boletas).
-The site is published at https://stantonmatthewj.gitlab.io/Boletas/ (capital `B`).
+Hosted on [GitLab](https://gitlab.com/StantonMatt/Boletas).
+The site is published at https://stantonmatt.gitlab.io/Boletas/ (capital `B`).
 
 ## CI and Pages
 
