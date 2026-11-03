@@ -348,7 +348,7 @@ export async function assemblePDF(
 
     // Pre-load and compress default fallback image
     try {
-      const fallbackResponse = await fetch("/15246448-7.png");
+      const fallbackResponse = await fetch(`${__webpack_public_path__}15246448-7.png`);
       if (fallbackResponse.ok) {
         const originalBytes = await fallbackResponse.arrayBuffer();
         const compressedBytes = await compressImage(originalBytes, 0.7);

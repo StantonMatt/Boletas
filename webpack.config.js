@@ -4,7 +4,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 
-module.exports = (env, argv) => {
+module.exports = (env = {}, argv) => {
   const isProduction = argv.mode === "production";
 
   return {
@@ -17,7 +17,7 @@ module.exports = (env, argv) => {
       filename: "[name][contenthash].js",
       clean: true,
       assetModuleFilename: "[name][ext]",
-      publicPath: "/",
+      publicPath: env.publicPath || "/",
     },
     devtool: isProduction ? false : "source-map",
     devServer: isProduction
