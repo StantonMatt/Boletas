@@ -1504,7 +1504,7 @@ var compileData = function compileData(excelData) {
       }
       if (Number(data["Recibe Factura"]) == 1) continue;
       if (!Number.isFinite(Number(data["N#"]))) continue;
-      mainDataObject.Timbre.push("/".concat(data["RUT"], ".png"));
+      mainDataObject.Timbre.push("".concat(__webpack_require__.p).concat(data["RUT"], ".png"));
       mainDataObject.SourceFolio.push(sourceFolio > 0 ? sourceFolio : null);
       mainDataObject.Folio.push(null);
       mainDataObject.HasFolio.push(false);
@@ -2470,7 +2470,7 @@ function _assemblePDF() {
         case 41:
           _context7.prev = 41;
           _context7.next = 44;
-          return fetch("/15246448-7.png");
+          return fetch("".concat(__webpack_require__.p, "15246448-7.png"));
         case 44:
           fallbackResponse = _context7.sent;
           if (!fallbackResponse.ok) {
@@ -62803,7 +62803,7 @@ module.exports = "eJztWsuy48iN/Ret74KZfHtX47meqfGjPHaXx4/wgpJ4JbooUU1JVXXb0f9u4J
 /******/ 	
 /******/ 	/* webpack/runtime/publicPath */
 /******/ 	(() => {
-/******/ 		__webpack_require__.p = "/";
+/******/ 		__webpack_require__.p = "/Boletas/";
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/nonce */
@@ -63189,4 +63189,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /******/ })()
 ;
-//# sourceMappingURL=bundle7c8a42f9862210eb66b7.js.map
+//# sourceMappingURL=bundled5740bcd8d2781c8ba7b.js.map
